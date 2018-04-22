@@ -5,11 +5,15 @@ provider "aws" {
 
 provider "terraform" {}
 
+locals {
+  name = "my-ecs"
+}
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "v1.30.0"
 
-  name = "my-ecs"
+  name = "${local.name}"
 
   cidr = "10.1.0.0/16"
 
@@ -17,15 +21,23 @@ module "vpc" {
   private_subnets = ["10.1.1.0/24", "10.1.2.0/24"]
   public_subnets  = ["10.1.11.0/24", "10.1.12.0/24"]
 
-  enable_nat_gateway = false #This needs to be true eventually otherwise ECS agent will not work
+  enable_nat_gateway = true
+  single_nat_gateway = true
 
   tags = {
-    Environment = "my-ecs"
-    Name        = "my-ecs"
+    Environment = "${local.name}"
+    Name        = "${local.name}"
   }
 }
 
 module "ecs" {
   source = "../../"
-  name   = "my-ecs"
+  name   = "${local.name}"
+}
+
+module "ec2" {
+  source              = "../../modules/ec2-instances"
+  ecs_cluster         = "${local.name}"
+  vpc_zone_identifier = ["${module.vpc.private_subnets}"]
+  security_groups     = ["${module.vpc.default_security_group_id}"]
 }
