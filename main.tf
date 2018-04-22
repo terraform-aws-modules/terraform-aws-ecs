@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.11.4"
+  required_version = ">= 0.11.7"
 }
 
 resource "aws_ecs_cluster" "ecs" {

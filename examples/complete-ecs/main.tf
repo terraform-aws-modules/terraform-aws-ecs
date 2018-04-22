@@ -1,12 +1,19 @@
+provider "aws" {
+  region  = "eu-west-1"
+  version = "v1.15.0"
+}
+
+provider "terraform" {}
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "v1.26.0"
+  version = "v1.30.0"
 
   name = "my-ecs"
 
-  cidr = "10.0.0.0/16"
+  cidr = "10.1.0.0/16"
 
-  azs             = ["us-east-1a", "us-east-1b"]
+  azs             = ["eu-west-1a", "eu-west-1b"]
   private_subnets = ["10.1.1.0/24", "10.1.2.0/24"]
   public_subnets  = ["10.1.11.0/24", "10.1.12.0/24"]
 
