@@ -37,3 +37,5 @@ variable "wait_for_capacity_timeout" {
   description = "A maximum duration that Terraform should wait for ASG instances to be healthy before timing out. (See also Waiting for Capacity below.) Setting this to '0' causes Terraform to skip all Capacity Waiting behavior."
   default     = "10m"
 }
+
+variable "ec2_profile" {}

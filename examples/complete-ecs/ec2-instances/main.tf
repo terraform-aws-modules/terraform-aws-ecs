@@ -30,7 +30,7 @@ module "this" {
   image_id             = "${data.aws_ami.amazon_linux_ecs.id}"
   instance_type        = "t2.micro"
   security_groups      = "${var.security_groups}"
-  iam_instance_profile = "${aws_iam_instance_profile.this.id}"
+  iam_instance_profile = "${var.ec2_profile}"
   user_data            = "${data.template_file.user_data.rendered}"
 
   # Auto scaling group

@@ -1,6 +1,6 @@
 provider "aws" {
   region  = "eu-west-1"
-  version = "v1.15.0"
+  version = "v1.18.0"
 }
 
 provider "terraform" {}
@@ -30,14 +30,29 @@ module "vpc" {
   }
 }
 
+#----- ECS --------
 module "ecs" {
   source = "../../"
   name   = "${local.name}"
 }
 
+module "ec2-profile" {
+  source = "../../modules/ecs-instance-profile"
+  name   = "my-ecs"
+}
+
+#----- ECS  Resources--------
 module "ec2" {
-  source              = "../../modules/ec2-instances"
+  source              = "ec2-instances"
   ecs_cluster         = "${local.name}"
   vpc_zone_identifier = ["${module.vpc.private_subnets}"]
   security_groups     = ["${module.vpc.default_security_group_id}"]
+  ec2_profile         = "${module.ec2-profile.instance_profile_id}"
+}
+
+#----- ECS  Services--------
+
+module "hello-world" {
+  source    = "service-hello-world"
+  cluser_id = "${module.ecs.ecs_cluster_id}"
 }
