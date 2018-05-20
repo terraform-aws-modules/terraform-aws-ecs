@@ -37,6 +37,27 @@ module "ecs" {
 
 * [Complete ECS](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete-ecs)
 
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-----:|:-----:|
+| create_ecs | Controls if ECS should be created | string | `true` | no |
+| name | Name to be used on all the resources as identifier, also the name of the ECS cluster | string | - | yes |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| this_ecs_cluster_id |  |
+
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## Authors
+
+Module managed by [Armin Coralic](https://github.com/arminc), [Anton Babenko](https://github.com/antonbabenko) and [other awesome contributors](https://github.com/terraform-aws-modules/terraform-aws-ecs/graphs/contributors).
+
 ## License
 
 Apache 2 Licensed. See LICENSE for full details.
