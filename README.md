@@ -33,6 +33,10 @@ module "ecs" {
 }
 ```
 
+## Examples
+
+* [Complete ECS](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete-ecs)
+
 ## License
 
 Apache 2 Licensed. See LICENSE for full details.
