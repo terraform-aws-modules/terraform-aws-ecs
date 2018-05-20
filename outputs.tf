@@ -1,3 +1,3 @@
 output "ecs_cluster_id" {
-  value = "${aws_ecs_cluster.this.0.id}"
+  value = "${element(concat(aws_ecs_cluster.this.*.id, list("")), 0)}"
 }
