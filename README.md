@@ -1,6 +1,6 @@
-# terraform-aws-ecs
+# AWS Elastic Container Service (ECS) Terraform module
 
-Terraform module which creates AWS ECS resources
+Terraform module which creates ECS resources on AWS.
 
 This module focuses purely on ECS and nothing else. Therefore only these resources can be created with this module:
 
