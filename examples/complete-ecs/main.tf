@@ -1,6 +1,5 @@
 provider "aws" {
-  region  = "eu-west-1"
-  version = "v1.18.0"
+  region = "eu-west-1"
 }
 
 provider "terraform" {}
