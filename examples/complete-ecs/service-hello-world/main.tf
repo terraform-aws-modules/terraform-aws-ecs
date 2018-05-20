@@ -1,23 +1,23 @@
-resource "aws_cloudwatch_log_group" "hello-world" {
-  name              = "hello-world"
+resource "aws_cloudwatch_log_group" "hello_world" {
+  name              = "hello_world"
   retention_in_days = 1
 }
 
-resource "aws_ecs_task_definition" "hello-world" {
-  family = "hello-world"
+resource "aws_ecs_task_definition" "hello_world" {
+  family = "hello_world"
 
   container_definitions = <<EOF
 [
   {
-    "name": "hello-world",
-    "image": "hello-world",
+    "name": "hello_world",
+    "image": "hello_world",
     "cpu": 0,
     "memory": 128,
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
         "awslogs-region": "eu-west-1",
-        "awslogs-group": "hello-world",
+        "awslogs-group": "hello_world",
         "awslogs-stream-prefix": "my-ecs"
       }
     }
@@ -26,10 +26,10 @@ resource "aws_ecs_task_definition" "hello-world" {
 EOF
 }
 
-resource "aws_ecs_service" "hello-world" {
-  name            = "hello-world"
+resource "aws_ecs_service" "hello_world" {
+  name            = "hello_world"
   cluster         = "${var.cluser_id}"
-  task_definition = "${aws_ecs_task_definition.hello-world.arn}"
+  task_definition = "${aws_ecs_task_definition.hello_world.arn}"
 
   desired_count = 1
 
