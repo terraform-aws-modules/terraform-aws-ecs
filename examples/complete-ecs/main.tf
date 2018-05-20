@@ -47,7 +47,7 @@ module "ec2-profile" {
 
 module "hello-world" {
   source    = "service-hello-world"
-  cluser_id = "${module.ecs.ecs_cluster_id}"
+  cluser_id = "${module.ecs.this_ecs_cluster_id}"
 }
 
 #----- ECS  Resources--------
@@ -78,7 +78,7 @@ module "this" {
   image_id             = "${data.aws_ami.amazon_linux_ecs.id}"
   instance_type        = "t2.micro"
   security_groups      = ["${module.vpc.default_security_group_id}"]
-  iam_instance_profile = "${module.ec2-profile.instance_profile_id}"
+  iam_instance_profile = "${module.ec2-profile.this_iam_instance_profile_id}"
   user_data            = "${data.template_file.user_data.rendered}"
 
   # Auto scaling group
