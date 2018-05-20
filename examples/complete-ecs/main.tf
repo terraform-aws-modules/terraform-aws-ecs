@@ -9,8 +9,7 @@ locals {
 }
 
 module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "v1.30.0"
+  source = "terraform-aws-modules/vpc/aws"
 
   name = "${local.name}"
 

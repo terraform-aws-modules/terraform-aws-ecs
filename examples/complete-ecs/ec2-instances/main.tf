@@ -19,8 +19,7 @@ locals {
 }
 
 module "this" {
-  source  = "terraform-aws-modules/autoscaling/aws"
-  version = "v2.2.2"
+  source = "terraform-aws-modules/autoscaling/aws"
 
   name = "${local.name}"
 
