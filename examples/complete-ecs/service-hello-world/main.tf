@@ -10,7 +10,7 @@ resource "aws_ecs_task_definition" "hello_world" {
 [
   {
     "name": "hello_world",
-    "image": "hello_world",
+    "image": "hello-world",
     "cpu": 0,
     "memory": 128,
     "logConfiguration": {
@@ -18,7 +18,7 @@ resource "aws_ecs_task_definition" "hello_world" {
       "options": {
         "awslogs-region": "eu-west-1",
         "awslogs-group": "hello_world",
-        "awslogs-stream-prefix": "my-ecs"
+        "awslogs-stream-prefix": "complete-ecs"
       }
     }
   }
