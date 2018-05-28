@@ -1,3 +1,3 @@
-variable "cluser_id" {
+variable "cluster_id" {
   description = "The ECS cluster ID"
 }
