@@ -28,7 +28,7 @@ EOF
 
 resource "aws_ecs_service" "hello_world" {
   name            = "hello_world"
-  cluster         = "${var.cluser_id}"
+  cluster         = "${var.cluster_id}"
   task_definition = "${aws_ecs_task_definition.hello_world.arn}"
 
   desired_count = 1

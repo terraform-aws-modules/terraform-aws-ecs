@@ -27,7 +27,7 @@ module "vpc" {
   single_nat_gateway = true
 
   tags = {
-    Environment = "${local.name}"
+    Environment = "${local.environment}"
     Name        = "${local.name}"
   }
 }
@@ -47,7 +47,7 @@ module "ec2-profile" {
 
 module "hello-world" {
   source    = "service-hello-world"
-  cluser_id = "${module.ecs.this_ecs_cluster_id}"
+  cluster_id = "${module.ecs.this_ecs_cluster_id}"
 }
 
 #----- ECS  Resources--------
