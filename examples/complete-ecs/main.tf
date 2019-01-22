@@ -46,7 +46,7 @@ module "ec2-profile" {
 #----- ECS  Services--------
 
 module "hello-world" {
-  source    = "service-hello-world"
+  source     = "service-hello-world"
   cluster_id = "${module.ecs.this_ecs_cluster_id}"
 }
 

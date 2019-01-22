@@ -38,20 +38,19 @@ module "ecs" {
 * [Complete ECS](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete-ecs)
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| create_ecs | Controls if ECS should be created | string | `true` | no |
-| name | Name to be used on all the resources as identifier, also the name of the ECS cluster | string | - | yes |
+| create\_ecs | Controls if ECS should be created | string | `"true"` | no |
+| name | Name to be used on all the resources as identifier, also the name of the ECS cluster | string | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| this_ecs_cluster_id |  |
-| this_ecs_cluster_arn |  |
+| this\_ecs\_cluster\_arn |  |
+| this\_ecs\_cluster\_id |  |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
