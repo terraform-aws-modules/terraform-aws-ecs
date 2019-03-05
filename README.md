@@ -51,6 +51,7 @@ module "ecs" {
 |------|-------------|
 | this\_ecs\_cluster\_arn |  |
 | this\_ecs\_cluster\_id |  |
+| this\_ecs\_cluster\_name | The name of the ECS cluster |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
