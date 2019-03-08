@@ -44,6 +44,7 @@ module "ecs" {
 |------|-------------|:----:|:-----:|:-----:|
 | create\_ecs | Controls if ECS should be created | string | `"true"` | no |
 | name | Name to be used on all the resources as identifier, also the name of the ECS cluster | string | n/a | yes |
+| tags | A map of tags to add to ECS Cluster | map | `<map>` | no |
 
 ## Outputs
 
