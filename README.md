@@ -32,7 +32,8 @@ Sometimes you need to have a way to create ECS resources conditionally but Terra
 ```hcl
 # ECS cluster will not be created
 module "ecs" {
-  source = "terraform-aws-modules/ecs/aws"
+  source  = "terraform-aws-modules/ecs/aws"
+  version = "~> 2.0"
 
   create_ecs = false
   # ... omitted
