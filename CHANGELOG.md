@@ -3,9 +3,18 @@
 
 
 
-<a name="v1.4.0"></a>
-## [v1.4.0] - 0001-01-01
+<a name="v2.0.0"></a>
+## [v2.0.0] - 2019-06-09
 
+- Updated module to support Terraform 0.12 ([#8](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/8))
+- Fixed formatting
+- Updated Terraform 0.12
+
+
+<a name="v1.4.0"></a>
+## [v1.4.0] - 2019-06-09
+
+- Added changelog
 
 
 <a name="v1.3.0"></a>
@@ -63,7 +72,8 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v2.0.0...HEAD
+[v2.0.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v1.4.0...v2.0.0
 [v1.4.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v1.3.0...v1.4.0
 [v1.3.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v1.2.0...v1.3.0
 [v1.2.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v1.1.0...v1.2.0
