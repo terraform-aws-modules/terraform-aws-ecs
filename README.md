@@ -49,9 +49,10 @@ module "ecs" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| create\_ecs | Controls if ECS should be created | string | `"true"` | no |
+| container\_insights | Controls if ECS Cluster has container insights enabled | bool | `"false"` | no |
+| create\_ecs | Controls if ECS should be created | bool | `"true"` | no |
 | name | Name to be used on all the resources as identifier, also the name of the ECS cluster | string | n/a | yes |
-| tags | A map of tags to add to ECS Cluster | map | `<map>` | no |
+| tags | A map of tags to add to ECS Cluster | map(string) | `{}` | no |
 
 ## Outputs
 
