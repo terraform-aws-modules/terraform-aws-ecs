@@ -37,7 +37,7 @@ module "ecs" {
 }
 
 module "ec2-profile" {
-  source  = "terraform-aws-modules/ecs/aws/modules/ecs-instance-profile"
+  source = "terraform-aws-modules/ecs/aws/modules/ecs-instance-profile"
   name   = local.name
 }
 
