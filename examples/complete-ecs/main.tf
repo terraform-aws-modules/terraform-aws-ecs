@@ -32,12 +32,12 @@ module "vpc" {
 
 #----- ECS --------
 module "ecs" {
-  source = "../../"
+  source = "terraform-aws-modules/ecs/aws"
   name   = local.name
 }
 
 module "ec2-profile" {
-  source = "../../modules/ecs-instance-profile"
+  source  = "terraform-aws-modules/ecs/aws/modules/ecs-instance-profile"
   name   = local.name
 }
 
