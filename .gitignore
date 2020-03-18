@@ -2,4 +2,3 @@
 terraform.tfstate
 *.tfstate*
 terraform.tfvars
-todo.txt
