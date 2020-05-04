@@ -2,6 +2,8 @@ resource "aws_iam_role" "this" {
   name = "${var.name}_ecs_instance_role"
   path = "/ecs/"
 
+  tags = var.tags
+
   assume_role_policy = <<EOF
 {
   "Version": "2008-10-17",
