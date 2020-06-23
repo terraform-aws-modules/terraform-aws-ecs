@@ -18,11 +18,11 @@ module "vpc" {
 
   cidr = "10.1.0.0/16"
 
-  azs             = data.aws_availability_zones.available.names
+  azs             = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1]]
   private_subnets = ["10.1.1.0/24", "10.1.2.0/24"]
   public_subnets  = ["10.1.11.0/24", "10.1.12.0/24"]
 
-  enable_nat_gateway = false # this is faster, but should be "true" for real
+  enable_nat_gateway = true
 
   tags = {
     Environment = local.environment
@@ -86,9 +86,9 @@ module "this" {
   asg_name                  = local.ec2_resources_name
   vpc_zone_identifier       = module.vpc.private_subnets
   health_check_type         = "EC2"
-  min_size                  = 0
-  max_size                  = 1
-  desired_capacity          = 0
+  min_size                  = 1
+  max_size                  = 2
+  desired_capacity          = 1
   wait_for_capacity_timeout = 0
 
   tags = [
