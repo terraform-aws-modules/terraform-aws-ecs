@@ -1,13 +1,13 @@
-provider "aws" {
-  region = "eu-west-1"
-}
-
 locals {
   name        = "complete-ecs"
   environment = "dev"
 
   # This is the convention we use to know what belongs to each other
   ec2_resources_name = "${local.name}-${local.environment}"
+}
+
+data "aws_availability_zones" "available" {
+  state = "available"
 }
 
 module "vpc" {
@@ -18,7 +18,7 @@ module "vpc" {
 
   cidr = "10.1.0.0/16"
 
-  azs             = ["eu-west-1a", "eu-west-1b"]
+  azs             = data.aws_availability_zones.available.names
   private_subnets = ["10.1.1.0/24", "10.1.2.0/24"]
   public_subnets  = ["10.1.11.0/24", "10.1.12.0/24"]
 
