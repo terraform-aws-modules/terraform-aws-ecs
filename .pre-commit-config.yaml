@@ -5,6 +5,6 @@ repos:
       - id: terraform_fmt
       - id: terraform_docs
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.5.0
+    rev: v3.1.0
     hooks:
       - id: check-merge-conflict
