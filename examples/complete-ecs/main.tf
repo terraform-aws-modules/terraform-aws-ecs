@@ -32,8 +32,9 @@ module "vpc" {
 
 #----- ECS --------
 module "ecs" {
-  source = "../../"
-  name   = local.name
+  source             = "../../"
+  name               = local.name
+  container_insights = true
 }
 
 module "ec2-profile" {
