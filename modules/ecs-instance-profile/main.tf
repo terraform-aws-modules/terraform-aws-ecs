@@ -29,7 +29,7 @@ resource "aws_iam_role_policy_attachment" "ecs_ec2_role" {
 }
 
 resource "aws_iam_role_policy_attachment" "amazon_ssm_managed_instance_core" {
-  count      = var.include_ssm ? 1 : 0
+  count = var.include_ssm ? 1 : 0
 
   role       = aws_iam_role.this.id
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
