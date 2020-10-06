@@ -27,12 +27,12 @@ EOF
 }
 
 resource "aws_ecs_service" "hello_world" {
-  name = "hello_world"
-  cluster = var.cluster_id
+  name            = "hello_world"
+  cluster         = var.cluster_id
   task_definition = aws_ecs_task_definition.hello_world.arn
 
   desired_count = 1
 
-  deployment_maximum_percent = 100
+  deployment_maximum_percent         = 100
   deployment_minimum_healthy_percent = 0
 }
