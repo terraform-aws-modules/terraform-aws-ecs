@@ -37,14 +37,14 @@ module "ecs" {
   container_insights = true
 }
 
-module "ec2-profile" {
+module "ec2_profile" {
   source = "../../modules/ecs-instance-profile"
   name   = local.name
 }
 
 #----- ECS  Services--------
 
-module "hello-world" {
+module "hello_world" {
   source     = "./service-hello-world"
   cluster_id = module.ecs.this_ecs_cluster_id
 }
@@ -80,16 +80,16 @@ module "this" {
   image_id             = data.aws_ami.amazon_linux_ecs.id
   instance_type        = "t2.micro"
   security_groups      = [module.vpc.default_security_group_id]
-  iam_instance_profile = module.ec2-profile.this_iam_instance_profile_id
+  iam_instance_profile = module.ec2_profile.this_iam_instance_profile_id
   user_data            = data.template_file.user_data.rendered
 
   # Auto scaling group
   asg_name                  = local.ec2_resources_name
   vpc_zone_identifier       = module.vpc.private_subnets
   health_check_type         = "EC2"
-  min_size                  = 1
+  min_size                  = 0
   max_size                  = 2
-  desired_capacity          = 1
+  desired_capacity          = 0
   wait_for_capacity_timeout = 0
 
   tags = [

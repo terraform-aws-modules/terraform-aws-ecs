@@ -47,13 +47,16 @@ module "ecs" {
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| terraform | >= 0.12.6, < 0.14 |
+| aws | >= 2.0, < 4.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | n/a |
+| aws | >= 2.0, < 4.0 |
 
 ## Inputs
 
@@ -68,8 +71,8 @@ No requirements.
 
 | Name | Description |
 |------|-------------|
-| this\_ecs\_cluster\_arn | n/a |
-| this\_ecs\_cluster\_id | n/a |
+| this\_ecs\_cluster\_arn | ARN of the ECS Cluster |
+| this\_ecs\_cluster\_id | ID of the ECS Cluster |
 | this\_ecs\_cluster\_name | The name of the ECS cluster |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
