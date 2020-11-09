@@ -8,3 +8,9 @@ variable "include_ssm" {
   type        = bool
   default     = false
 }
+
+variable "tags" {
+  description = "A map of tags to add to instance profile role"
+  type        = map(string)
+  default     = {}
+}
