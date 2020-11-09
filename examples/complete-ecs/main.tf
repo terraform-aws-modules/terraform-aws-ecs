@@ -22,7 +22,7 @@ module "vpc" {
   private_subnets = ["10.1.1.0/24", "10.1.2.0/24"]
   public_subnets  = ["10.1.11.0/24", "10.1.12.0/24"]
 
-  enable_nat_gateway = true
+  enable_nat_gateway = false # false is just faster
 
   tags = {
     Environment = local.environment
@@ -32,20 +32,45 @@ module "vpc" {
 
 #----- ECS --------
 module "ecs" {
-  source             = "../../"
+  source = "../../"
+
   name               = local.name
   container_insights = true
+
+  capacity_providers = ["FARGATE", "FARGATE_SPOT", aws_ecs_capacity_provider.prov1.name]
+
+  default_capacity_provider_strategy = {
+    capacity_provider = aws_ecs_capacity_provider.prov1.name # "FARGATE_SPOT"
+  }
+
+  tags = {
+    Environment = local.environment
+  }
 }
 
 module "ec2_profile" {
   source = "../../modules/ecs-instance-profile"
-  name   = local.name
+
+  name = local.name
+
+  tags = {
+    Environment = local.environment
+  }
+}
+
+resource "aws_ecs_capacity_provider" "prov1" {
+  name = "prov1"
+
+  auto_scaling_group_provider {
+    auto_scaling_group_arn = module.asg.this_autoscaling_group_arn
+  }
+
 }
 
 #----- ECS  Services--------
-
 module "hello_world" {
   source     = "./service-hello-world"
+
   cluster_id = module.ecs.this_ecs_cluster_id
 }
 
@@ -68,7 +93,7 @@ data "aws_ami" "amazon_linux_ecs" {
   }
 }
 
-module "this" {
+module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
   version = "~> 3.0"
 
@@ -89,7 +114,7 @@ module "this" {
   health_check_type         = "EC2"
   min_size                  = 0
   max_size                  = 2
-  desired_capacity          = 0
+  desired_capacity          = 0 # we don't need them for the example
   wait_for_capacity_timeout = 0
 
   tags = [
@@ -112,4 +137,13 @@ data "template_file" "user_data" {
   vars = {
     cluster_name = local.name
   }
+}
+
+###################
+# Disabled cluster
+###################
+module "disabled_ecs" {
+  source = "../../"
+
+  create_ecs = false
 }
