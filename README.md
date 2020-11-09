@@ -22,6 +22,18 @@ module "ecs" {
   source = "terraform-aws-modules/ecs/aws"
 
   name = "my-ecs"
+
+  container_insights = true
+
+  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+
+  default_capacity_provider_strategy = {
+    capacity_provider = "FARGATE_SPOT"
+  }
+
+  tags = {
+    Environment = "Development"
+  }
 }
 ```
 
@@ -49,22 +61,24 @@ module "ecs" {
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.6, < 0.14 |
-| aws | >= 2.0, < 4.0 |
+| terraform | >= 0.12.6 |
+| aws | >= 2.48 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | >= 2.0, < 4.0 |
+| aws | >= 2.48 |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| capacity\_providers | List of short names of one or more capacity providers to associate with the cluster. Valid values also include FARGATE and FARGATE\_SPOT. | `list(string)` | `[]` | no |
 | container\_insights | Controls if ECS Cluster has container insights enabled | `bool` | `false` | no |
 | create\_ecs | Controls if ECS should be created | `bool` | `true` | no |
-| name | Name to be used on all the resources as identifier, also the name of the ECS cluster | `string` | n/a | yes |
+| default\_capacity\_provider\_strategy | The capacity provider strategy to use by default for the cluster. Can be one or more. | `map(any)` | `{}` | no |
+| name | Name to be used on all the resources as identifier, also the name of the ECS cluster | `string` | `null` | no |
 | tags | A map of tags to add to ECS Cluster | `map(string)` | `{}` | no |
 
 ## Outputs

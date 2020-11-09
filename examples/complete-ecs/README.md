@@ -43,16 +43,16 @@ Current version creates an high-available VPC with instances that are attached t
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.6, < 0.14 |
-| aws | >= 2.0, < 4.0 |
-| template | ~> 2.0 |
+| terraform | >= 0.12.6 |
+| aws | >= 2.48 |
+| template | >= 2.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | >= 2.0, < 4.0 |
-| template | ~> 2.0 |
+| aws | >= 2.48 |
+| template | >= 2.0 |
 
 ## Inputs
 
