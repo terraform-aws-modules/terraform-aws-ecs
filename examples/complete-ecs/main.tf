@@ -1,13 +1,13 @@
-provider "aws" {
-  region = "eu-west-1"
-}
-
 locals {
   name        = "complete-ecs"
   environment = "dev"
 
   # This is the convention we use to know what belongs to each other
   ec2_resources_name = "${local.name}-${local.environment}"
+}
+
+data "aws_availability_zones" "available" {
+  state = "available"
 }
 
 module "vpc" {
@@ -18,11 +18,11 @@ module "vpc" {
 
   cidr = "10.1.0.0/16"
 
-  azs             = ["eu-west-1a", "eu-west-1b"]
+  azs             = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1]]
   private_subnets = ["10.1.1.0/24", "10.1.2.0/24"]
   public_subnets  = ["10.1.11.0/24", "10.1.12.0/24"]
 
-  enable_nat_gateway = false # this is faster, but should be "true" for real
+  enable_nat_gateway = true
 
   tags = {
     Environment = local.environment
@@ -32,18 +32,19 @@ module "vpc" {
 
 #----- ECS --------
 module "ecs" {
-  source = "../../"
-  name   = local.name
+  source             = "../../"
+  name               = local.name
+  container_insights = true
 }
 
-module "ec2-profile" {
+module "ec2_profile" {
   source = "../../modules/ecs-instance-profile"
   name   = local.name
 }
 
 #----- ECS  Services--------
 
-module "hello-world" {
+module "hello_world" {
   source     = "./service-hello-world"
   cluster_id = module.ecs.this_ecs_cluster_id
 }
@@ -79,7 +80,7 @@ module "this" {
   image_id             = data.aws_ami.amazon_linux_ecs.id
   instance_type        = "t2.micro"
   security_groups      = [module.vpc.default_security_group_id]
-  iam_instance_profile = module.ec2-profile.this_iam_instance_profile_id
+  iam_instance_profile = module.ec2_profile.this_iam_instance_profile_id
   user_data            = data.template_file.user_data.rendered
 
   # Auto scaling group
@@ -87,7 +88,7 @@ module "this" {
   vpc_zone_identifier       = module.vpc.private_subnets
   health_check_type         = "EC2"
   min_size                  = 0
-  max_size                  = 1
+  max_size                  = 2
   desired_capacity          = 0
   wait_for_capacity_timeout = 0
 

@@ -1,6 +1,34 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+
 <a name="unreleased"></a>
 ## [Unreleased]
 
+
+
+<a name="v2.4.0"></a>
+## [v2.4.0] - 2020-10-06
+
+- feat: Added IAM role id to outputs ([#13](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/13))
+
+
+<a name="v2.3.0"></a>
+## [v2.3.0] - 2020-06-29
+
+- feat: Add container insights ([#10](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/10))
+
+
+<a name="v2.2.0"></a>
+## [v2.2.0] - 2020-06-23
+
+- fix: make the example workable ([#23](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/23))
+
+
+<a name="v2.1.0"></a>
+## [v2.1.0] - 2020-06-23
+
+- fix: Remove the dependency of hard coded region and availability zones ([#22](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/22))
 
 
 <a name="v2.0.0"></a>
@@ -20,7 +48,6 @@
 <a name="v1.3.0"></a>
 ## [v1.3.0] - 2019-03-08
 
-- Merge pull request [#6](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/6) from asantos-fuze/add-tag-support
 - Add tag support for ECS module
 
 
@@ -35,11 +62,8 @@
 ## [v1.1.0] - 2019-01-22
 
 - Run pre-commit -a
-- Merge pull request [#5](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/5) from martynova1/patch-2
 - Add ARN output to README
-- Merge pull request [#4](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/4) from martynova1/patch-1
 - Add arn output
-- Merge pull request [#3](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/3) from andig/typos
 - Fix typos
 
 
@@ -48,7 +72,6 @@
 
 - Updated README.md
 - Added pre-commit hooks with docs
-- Merge pull request [#2](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/2) from terraform-aws-modules/initial-setup
 - Use this_ in the outputs
 - Fix output when create cluster is false
 - Move ec2-instances to main.tf in the example for easier reading
@@ -72,7 +95,11 @@
 - Initial commit
 
 
-[Unreleased]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v2.4.0...HEAD
+[v2.4.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v2.3.0...v2.4.0
+[v2.3.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v2.2.0...v2.3.0
+[v2.2.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v2.1.0...v2.2.0
+[v2.1.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v2.0.0...v2.1.0
 [v2.0.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v1.4.0...v2.0.0
 [v1.4.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v1.3.0...v1.4.0
 [v1.3.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v1.2.0...v1.3.0

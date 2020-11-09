@@ -45,20 +45,34 @@ module "ecs" {
 * [Complete ECS](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete-ecs)
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| terraform | >= 0.12.6, < 0.14 |
+| aws | >= 2.0, < 4.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| aws | >= 2.0, < 4.0 |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| create\_ecs | Controls if ECS should be created | string | `"true"` | no |
-| name | Name to be used on all the resources as identifier, also the name of the ECS cluster | string | n/a | yes |
-| tags | A map of tags to add to ECS Cluster | map | `<map>` | no |
+|------|-------------|------|---------|:--------:|
+| container\_insights | Controls if ECS Cluster has container insights enabled | `bool` | `false` | no |
+| create\_ecs | Controls if ECS should be created | `bool` | `true` | no |
+| name | Name to be used on all the resources as identifier, also the name of the ECS cluster | `string` | n/a | yes |
+| tags | A map of tags to add to ECS Cluster | `map(string)` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| this\_ecs\_cluster\_arn |  |
-| this\_ecs\_cluster\_id |  |
+| this\_ecs\_cluster\_arn | ARN of the ECS Cluster |
+| this\_ecs\_cluster\_id | ID of the ECS Cluster |
 | this\_ecs\_cluster\_name | The name of the ECS cluster |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
