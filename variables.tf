@@ -18,8 +18,8 @@ variable "capacity_providers" {
 
 variable "default_capacity_provider_strategy" {
   description = "The capacity provider strategy to use by default for the cluster. Can be one or more."
-  type        = map(any)
-  default     = {}
+  type        = list(map(any))
+  default     = []
 }
 
 variable "container_insights" {
