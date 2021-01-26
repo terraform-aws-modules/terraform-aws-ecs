@@ -6,7 +6,7 @@ resource "aws_ecs_cluster" "this" {
   capacity_providers = var.capacity_providers
 
   dynamic "default_capacity_provider_strategy" {
-    for_each = length(keys(var.default_capacity_provider_strategy)) == 0 ? [] : [var.default_capacity_provider_strategy]
+    for_each = var.default_capacity_provider_strategy
     iterator = strategy
 
     content {
