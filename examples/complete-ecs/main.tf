@@ -39,9 +39,9 @@ module "ecs" {
 
   capacity_providers = ["FARGATE", "FARGATE_SPOT", aws_ecs_capacity_provider.prov1.name]
 
-  default_capacity_provider_strategy = {
+  default_capacity_provider_strategy = [{
     capacity_provider = aws_ecs_capacity_provider.prov1.name # "FARGATE_SPOT"
-  }
+  }]
 
   tags = {
     Environment = local.environment
