@@ -8,6 +8,8 @@ provider "template" {
 
 resource "aws_ecs_cluster" "this" {
   count = "${var.create_ecs ? 1 : 0}"
+  
+  capacity_providers = ["${var.capacity_providers}"]
 
   name = "${var.name}"
   tags = "${var.tags}"
