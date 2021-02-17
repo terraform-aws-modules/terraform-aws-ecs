@@ -72,6 +72,16 @@ module "ecs" {
 |------|---------|
 | aws | >= 2.48 |
 
+## Modules
+
+No Modules.
+
+## Resources
+
+| Name |
+|------|
+| [aws_ecs_cluster](https://registry.terraform.io/providers/hashicorp/aws/2.48/docs/resources/ecs_cluster) |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -90,7 +100,6 @@ module "ecs" {
 | this\_ecs\_cluster\_arn | ARN of the ECS Cluster |
 | this\_ecs\_cluster\_id | ID of the ECS Cluster |
 | this\_ecs\_cluster\_name | The name of the ECS cluster |
-
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Authors
