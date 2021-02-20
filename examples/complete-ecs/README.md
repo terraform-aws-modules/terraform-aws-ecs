@@ -54,6 +54,26 @@ Current version creates an high-available VPC with instances that are attached t
 | aws | >= 2.48 |
 | template | >= 2.0 |
 
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| asg | terraform-aws-modules/autoscaling/aws | ~> 3.0 |
+| disabled_ecs | ../../ |  |
+| ec2_profile | ../../modules/ecs-instance-profile |  |
+| ecs | ../../ |  |
+| hello_world | ./service-hello-world |  |
+| vpc | terraform-aws-modules/vpc/aws | ~> 2.0 |
+
+## Resources
+
+| Name |
+|------|
+| [aws_ami](https://registry.terraform.io/providers/hashicorp/aws/2.48/docs/data-sources/ami) |
+| [aws_availability_zones](https://registry.terraform.io/providers/hashicorp/aws/2.48/docs/data-sources/availability_zones) |
+| [aws_ecs_capacity_provider](https://registry.terraform.io/providers/hashicorp/aws/2.48/docs/resources/ecs_capacity_provider) |
+| [template_file](https://registry.terraform.io/providers/hashicorp/template/2.0/docs/data-sources/file) |
+
 ## Inputs
 
 No input.
@@ -61,5 +81,4 @@ No input.
 ## Outputs
 
 No output.
-
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
