@@ -43,7 +43,7 @@ Current version creates an high-available VPC with instances that are attached t
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.6 |
+| terraform | >= 0.12.26 |
 | aws | >= 2.48 |
 | template | >= 2.0 |
 
