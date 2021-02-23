@@ -69,10 +69,10 @@ Current version creates an high-available VPC with instances that are attached t
 
 | Name |
 |------|
-| [aws_ami](https://registry.terraform.io/providers/hashicorp/aws/2.48/docs/data-sources/ami) |
-| [aws_availability_zones](https://registry.terraform.io/providers/hashicorp/aws/2.48/docs/data-sources/availability_zones) |
-| [aws_ecs_capacity_provider](https://registry.terraform.io/providers/hashicorp/aws/2.48/docs/resources/ecs_capacity_provider) |
-| [template_file](https://registry.terraform.io/providers/hashicorp/template/2.0/docs/data-sources/file) |
+| [aws_ami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) |
+| [aws_availability_zones](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) |
+| [aws_ecs_capacity_provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_capacity_provider) |
+| [template_file](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) |
 
 ## Inputs
 

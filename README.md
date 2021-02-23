@@ -80,7 +80,7 @@ No Modules.
 
 | Name |
 |------|
-| [aws_ecs_cluster](https://registry.terraform.io/providers/hashicorp/aws/2.48/docs/resources/ecs_cluster) |
+| [aws_ecs_cluster](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_cluster) |
 
 ## Inputs
 
