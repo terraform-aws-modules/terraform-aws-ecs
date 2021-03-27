@@ -43,42 +43,42 @@ Current version creates an high-available VPC with instances that are attached t
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.26 |
-| aws | >= 2.48 |
-| template | >= 2.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.26 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 2.48 |
+| <a name="requirement_template"></a> [template](#requirement\_template) | >= 2.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | >= 2.48 |
-| template | >= 2.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 2.48 |
+| <a name="provider_template"></a> [template](#provider\_template) | >= 2.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| asg | terraform-aws-modules/autoscaling/aws | ~> 3.0 |
-| disabled_ecs | ../../ |  |
-| ec2_profile | ../../modules/ecs-instance-profile |  |
-| ecs | ../../ |  |
-| hello_world | ./service-hello-world |  |
-| vpc | terraform-aws-modules/vpc/aws | ~> 2.0 |
+| <a name="module_asg"></a> [asg](#module\_asg) | terraform-aws-modules/autoscaling/aws | ~> 3.0 |
+| <a name="module_disabled_ecs"></a> [disabled\_ecs](#module\_disabled\_ecs) | ../../ |  |
+| <a name="module_ec2_profile"></a> [ec2\_profile](#module\_ec2\_profile) | ../../modules/ecs-instance-profile |  |
+| <a name="module_ecs"></a> [ecs](#module\_ecs) | ../../ |  |
+| <a name="module_hello_world"></a> [hello\_world](#module\_hello\_world) | ./service-hello-world |  |
+| <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 2.0 |
 
 ## Resources
 
-| Name |
-|------|
-| [aws_ami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) |
-| [aws_availability_zones](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) |
-| [aws_ecs_capacity_provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_capacity_provider) |
-| [template_file](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) |
+| Name | Type |
+|------|------|
+| [aws_ecs_capacity_provider.prov1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_capacity_provider) | resource |
+| [aws_ami.amazon_linux_ecs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
+| [template_file.user_data](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) | data source |
 
 ## Inputs
 
-No input.
+No inputs.
 
 ## Outputs
 
-No output.
+No outputs.
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
