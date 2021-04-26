@@ -12,7 +12,7 @@ data "aws_availability_zones" "available" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   name = local.name
 
@@ -63,7 +63,7 @@ resource "aws_ecs_capacity_provider" "prov1" {
   name = "prov1"
 
   auto_scaling_group_provider {
-    auto_scaling_group_arn = module.asg.this_autoscaling_group_arn
+    auto_scaling_group_arn = module.asg.autoscaling_group_arn
   }
 
 }
@@ -72,7 +72,7 @@ resource "aws_ecs_capacity_provider" "prov1" {
 module "hello_world" {
   source = "./service-hello-world"
 
-  cluster_id = module.ecs.this_ecs_cluster_id
+  cluster_id = module.ecs.ecs_cluster_id
 }
 
 #----- ECS  Resources--------
@@ -96,21 +96,20 @@ data "aws_ami" "amazon_linux_ecs" {
 
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   name = local.ec2_resources_name
 
   # Launch configuration
   lc_name = local.ec2_resources_name
 
-  image_id             = data.aws_ami.amazon_linux_ecs.id
-  instance_type        = "t2.micro"
-  security_groups      = [module.vpc.default_security_group_id]
-  iam_instance_profile = module.ec2_profile.this_iam_instance_profile_id
-  user_data            = data.template_file.user_data.rendered
+  image_id                 = data.aws_ami.amazon_linux_ecs.id
+  instance_type            = "t2.micro"
+  security_groups          = [module.vpc.default_security_group_id]
+  iam_instance_profile_arn = module.ec2_profile.iam_instance_profile_arn
+  user_data                = data.template_file.user_data.rendered
 
   # Auto scaling group
-  asg_name                  = local.ec2_resources_name
   vpc_zone_identifier       = module.vpc.private_subnets
   health_check_type         = "EC2"
   min_size                  = 0

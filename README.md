@@ -97,9 +97,9 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_this_ecs_cluster_arn"></a> [this\_ecs\_cluster\_arn](#output\_this\_ecs\_cluster\_arn) | ARN of the ECS Cluster |
-| <a name="output_this_ecs_cluster_id"></a> [this\_ecs\_cluster\_id](#output\_this\_ecs\_cluster\_id) | ID of the ECS Cluster |
-| <a name="output_this_ecs_cluster_name"></a> [this\_ecs\_cluster\_name](#output\_this\_ecs\_cluster\_name) | The name of the ECS cluster |
+| <a name="output_ecs_cluster_arn"></a> [ecs\_cluster\_arn](#output\_ecs\_cluster\_arn) | ARN of the ECS Cluster |
+| <a name="output_ecs_cluster_id"></a> [ecs\_cluster\_id](#output\_ecs\_cluster\_id) | ID of the ECS Cluster |
+| <a name="output_ecs_cluster_name"></a> [ecs\_cluster\_name](#output\_ecs\_cluster\_name) | The name of the ECS cluster |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Authors

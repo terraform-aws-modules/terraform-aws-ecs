@@ -46,7 +46,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_this_iam_instance_profile_arn"></a> [this\_iam\_instance\_profile\_arn](#output\_this\_iam\_instance\_profile\_arn) | ARN of the IAM instance profile |
-| <a name="output_this_iam_instance_profile_id"></a> [this\_iam\_instance\_profile\_id](#output\_this\_iam\_instance\_profile\_id) | ID of the IAM instance profile |
-| <a name="output_this_iam_role_id"></a> [this\_iam\_role\_id](#output\_this\_iam\_role\_id) | ID of the IAM role |
+| <a name="output_iam_instance_profile_arn"></a> [iam\_instance\_profile\_arn](#output\_iam\_instance\_profile\_arn) | ARN of the IAM instance profile |
+| <a name="output_iam_instance_profile_id"></a> [iam\_instance\_profile\_id](#output\_iam\_instance\_profile\_id) | ID of the IAM instance profile |
+| <a name="output_iam_role_id"></a> [iam\_role\_id](#output\_iam\_role\_id) | ID of the IAM role |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
