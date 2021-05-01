@@ -4,16 +4,10 @@ Terraform module which creates ECS resources on AWS.
 
 This module focuses purely on ECS and nothing else. Therefore only these resources can be created with this module:
 
-* [ECS](https://www.terraform.io/docs/providers/aws/r/ecs_cluster.html)
-* [IAM](https://www.terraform.io/docs/providers/aws/r/iam_instance_profile.html)
+- [ECS](https://www.terraform.io/docs/providers/aws/r/ecs_cluster.html)
+- [IAM](https://www.terraform.io/docs/providers/aws/r/iam_instance_profile.html)
 
 However, having said the above to have a proper ECS cluster up and running multiple resources are needed. In most cases creating these resources is heavily opinionated and or context-bound. That is why this module does not create these resources. But you still need them to have a production ready environment. Therefore the example area shows how to create everything needed for a production environment.
-
-## Terraform versions
-
-Terraform 0.12. Pin module version to `~> v2.0`. Submit pull-requests to `master` branch.
-
-Terraform 0.11. Pin module version to `~> v1.0`. Submit pull-requests to `terraform011` branch.
 
 ## Usage
 
@@ -56,7 +50,7 @@ module "ecs" {
 
 ## Examples
 
-* [Complete ECS](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete-ecs)
+- [Complete ECS](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete-ecs)
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -104,8 +98,8 @@ No modules.
 
 ## Authors
 
-Module managed by [Armin Coralic](https://github.com/arminc), [Anton Babenko](https://github.com/antonbabenko) and [other awesome contributors](https://github.com/terraform-aws-modules/terraform-aws-ecs/graphs/contributors).
+Module is maintained by [Anton Babenko](https://github.com/antonbabenko) with help from [these awesome contributors](https://github.com/terraform-aws-modules/terraform-aws-ecs/graphs/contributors).
 
 ## License
 
-Apache 2 Licensed. See LICENSE for full details.
+Apache 2 Licensed. See [LICENSE](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/LICENSE) for full details.
