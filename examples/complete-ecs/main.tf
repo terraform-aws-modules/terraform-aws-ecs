@@ -101,7 +101,9 @@ module "asg" {
   name = local.ec2_resources_name
 
   # Launch configuration
-  lc_name = local.ec2_resources_name
+  lc_name   = local.ec2_resources_name
+  use_lc    = true
+  create_lc = true
 
   image_id                 = data.aws_ami.amazon_linux_ecs.id
   instance_type            = "t2.micro"
