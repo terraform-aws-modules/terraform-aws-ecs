@@ -1,3 +1,5 @@
+data "aws_partition" "current" {}
+
 resource "aws_iam_role" "this" {
   name = "${var.name}_ecs_instance_role"
   path = "/ecs/"
@@ -27,17 +29,17 @@ resource "aws_iam_instance_profile" "this" {
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_role" {
   role       = aws_iam_role.this.id
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
 resource "aws_iam_role_policy_attachment" "amazon_ssm_managed_instance_core" {
   count = var.include_ssm ? 1 : 0
 
   role       = aws_iam_role.this.id
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_cloudwatch_role" {
   role       = aws_iam_role.this.id
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchLogsFullAccess"
 }
