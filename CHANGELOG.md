@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v3.2.0"></a>
+## [v3.2.0] - 2021-06-20
+
+- feat: Add GovCloud support ([#44](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/44))
+
+
 <a name="v3.1.0"></a>
 ## [v3.1.0] - 2021-05-07
 
@@ -76,18 +82,6 @@ All notable changes to this project will be documented in this file.
 ## [v2.1.0] - 2020-06-23
 
 - fix: Remove the dependency of hard coded region and availability zones ([#22](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/22))
-- Merge pull request [#20](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/20) from terraform-aws-modules/terraform-provider-githubfile-1584635188886625000
-- [ci skip] Create ".chglog/CHANGELOG.tpl.md".
-- Merge pull request [#19](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/19) from terraform-aws-modules/terraform-provider-githubfile-1584536413549524000
-- [ci skip] Create "LICENSE".
-- Merge pull request [#15](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/15) from terraform-aws-modules/terraform-provider-githubfile-1584536361962668000
-- Merge pull request [#16](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/16) from terraform-aws-modules/terraform-provider-githubfile-1584536361962655000
-- Merge pull request [#18](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/18) from terraform-aws-modules/terraform-provider-githubfile-1584536361962671000
-- Merge pull request [#14](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/14) from terraform-aws-modules/terraform-provider-githubfile-1584536361962424000
-- [ci skip] Create ".pre-commit-config.yaml".
-- [ci skip] Create "Makefile".
-- [ci skip] Create ".gitignore".
-- [ci skip] Create ".editorconfig".
 
 
 <a name="v2.0.0"></a>
@@ -107,7 +101,6 @@ All notable changes to this project will be documented in this file.
 <a name="v1.3.0"></a>
 ## [v1.3.0] - 2019-03-08
 
-- Merge pull request [#6](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/6) from asantos-fuze/add-tag-support
 - Add tag support for ECS module
 
 
@@ -122,11 +115,8 @@ All notable changes to this project will be documented in this file.
 ## [v1.1.0] - 2019-01-22
 
 - Run pre-commit -a
-- Merge pull request [#5](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/5) from martynova1/patch-2
 - Add ARN output to README
-- Merge pull request [#4](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/4) from martynova1/patch-1
 - Add arn output
-- Merge pull request [#3](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/3) from andig/typos
 - Fix typos
 
 
@@ -135,7 +125,6 @@ All notable changes to this project will be documented in this file.
 
 - Updated README.md
 - Added pre-commit hooks with docs
-- Merge pull request [#2](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/2) from terraform-aws-modules/initial-setup
 - Use this_ in the outputs
 - Fix output when create cluster is false
 - Move ec2-instances to main.tf in the example for easier reading
@@ -159,7 +148,8 @@ All notable changes to this project will be documented in this file.
 - Initial commit
 
 
-[Unreleased]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v3.2.0...HEAD
+[v3.2.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v3.1.0...v3.2.0
 [v3.1.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v3.0.0...v3.1.0
 [v3.0.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v2.9.0...v3.0.0
 [v2.9.0]: https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v2.8.0...v2.9.0
