@@ -105,11 +105,11 @@ module "asg" {
   use_lc    = true
   create_lc = true
 
-  image_id                 = data.aws_ami.amazon_linux_ecs.id
-  instance_type            = "t2.micro"
-  security_groups          = [module.vpc.default_security_group_id]
-  iam_instance_profile_arn = module.ec2_profile.iam_instance_profile_arn
-  user_data                = data.template_file.user_data.rendered
+  image_id                  = data.aws_ami.amazon_linux_ecs.id
+  instance_type             = "t2.micro"
+  security_groups           = [module.vpc.default_security_group_id]
+  iam_instance_profile_name = module.ec2_profile.iam_instance_profile_id
+  user_data                 = data.template_file.user_data.rendered
 
   # Auto scaling group
   vpc_zone_identifier       = module.vpc.private_subnets
