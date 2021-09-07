@@ -25,6 +25,8 @@ EOF
 resource "aws_iam_instance_profile" "this" {
   name = "${var.name}_ecs_instance_profile"
   role = aws_iam_role.this.name
+  
+  tags = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_role" {
