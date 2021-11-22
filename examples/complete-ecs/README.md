@@ -59,10 +59,10 @@ Current version creates an high-available VPC with instances that are attached t
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_asg"></a> [asg](#module\_asg) | terraform-aws-modules/autoscaling/aws | ~> 4.0 |
-| <a name="module_disabled_ecs"></a> [disabled\_ecs](#module\_disabled\_ecs) | ../../ |  |
-| <a name="module_ec2_profile"></a> [ec2\_profile](#module\_ec2\_profile) | ../../modules/ecs-instance-profile |  |
-| <a name="module_ecs"></a> [ecs](#module\_ecs) | ../../ |  |
-| <a name="module_hello_world"></a> [hello\_world](#module\_hello\_world) | ./service-hello-world |  |
+| <a name="module_disabled_ecs"></a> [disabled\_ecs](#module\_disabled\_ecs) | ../../ | n/a |
+| <a name="module_ec2_profile"></a> [ec2\_profile](#module\_ec2\_profile) | ../../modules/ecs-instance-profile | n/a |
+| <a name="module_ecs"></a> [ecs](#module\_ecs) | ../../ | n/a |
+| <a name="module_hello_world"></a> [hello\_world](#module\_hello\_world) | ./service-hello-world | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 3.0 |
 
 ## Resources
