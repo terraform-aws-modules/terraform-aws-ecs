@@ -1,3 +1,14 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [3.4.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v3.4.0...v3.4.1) (2021-11-22)
+
+
+### Bug Fixes
+
+* update CI/CD process to enable auto-release workflow ([#51](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/51)) ([c9e282b](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/c9e282b6a6d65c57ff29e34a0bed4c06ac1dbabd))
+
 <a name="v3.4.0"></a>
 ## [v3.4.0] - 2021-09-07
 
