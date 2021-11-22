@@ -109,7 +109,9 @@ module "asg" {
   instance_type             = "t2.micro"
   security_groups           = [module.vpc.default_security_group_id]
   iam_instance_profile_name = module.ec2_profile.iam_instance_profile_id
-  user_data                 = data.template_file.user_data.rendered
+  user_data = templatefile("${path.module}/templates/user-data.sh", {
+    cluster_name = local.name
+  })
 
   # Auto scaling group
   vpc_zone_identifier       = module.vpc.private_subnets
@@ -133,17 +135,10 @@ module "asg" {
   ]
 }
 
-data "template_file" "user_data" {
-  template = file("${path.module}/templates/user-data.sh")
-
-  vars = {
-    cluster_name = local.name
-  }
-}
-
 ###################
 # Disabled cluster
 ###################
+
 module "disabled_ecs" {
   source = "../../"
 
