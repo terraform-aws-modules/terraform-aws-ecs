@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v3.4.1...v3.5.0) (2022-03-18)
+
+
+### Features
+
+* Add aws_ecs_cluster_capacity_providers resource ([#55](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/55)) ([bff70b3](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/bff70b384a337ed0a5f2254c08cd937c7a4ba90c))
+
 ## [3.4.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v3.4.0...v3.4.1) (2021-11-22)
 
 
