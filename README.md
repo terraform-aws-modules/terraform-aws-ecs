@@ -87,6 +87,7 @@ No modules.
 | <a name="input_default_capacity_provider_strategy"></a> [default\_capacity\_provider\_strategy](#input\_default\_capacity\_provider\_strategy) | The capacity provider strategy to use by default for the cluster. Can be one or more. | `list(map(any))` | `[]` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name to be used on all the resources as identifier, also the name of the ECS cluster | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to ECS Cluster | `map(string)` | `{}` | no |
+| <a name="input_configuration"></a> [configuration](#input\_configuration)                                                                      | A dynamic configuration block for the execute-command functionality at cluster level                                                      | <code> object({<br>  kms_key_id                     = string <br> logging                        = string <br> cloud_watch_encryption_enabled=bool <br> cloud_watch_log_group_name=string <br> s3_bucket_name                 = string <br> s3_bucket_encryption_enabled   = bool <br> s3_key_prefix                  = string <br> }) </code> | <code> {<br>  kms_key_id                     = null <br> logging                        = "NONE" <br> cloud_watch_encryption_enabled=null <br> cloud_watch_log_group_name=null <br> s3_bucket_name                 = null <br> s3_bucket_encryption_enabled   = null <br> s3_key_prefix                  = null <br> } </code> |    no    |
 
 ## Outputs
 
