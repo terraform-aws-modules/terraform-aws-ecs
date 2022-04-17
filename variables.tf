@@ -33,3 +33,26 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "configuration" {
+  description = "Define a dynamic configuration block for the execute-command functionality at cluster level. Valid values for logging (if specified) are: NONE, DEFAULT, OVERRIDE. If OVERRIDE is specified then the cloudwatch group name or the S3 bucket name is mandatory"
+  type = object({
+    kms_key_id                     = string
+    logging                        = string
+    cloud_watch_encryption_enabled = bool
+    cloud_watch_log_group_name     = string
+    s3_bucket_name                 = string
+    s3_bucket_encryption_enabled   = bool
+    s3_key_prefix                  = string
+
+  })
+  default = {
+    logging                        = "NONE"
+    kms_key_id                     = null
+    cloud_watch_encryption_enabled = null
+    cloud_watch_log_group_name     = null
+    s3_bucket_name                 = null
+    s3_bucket_encryption_enabled   = null
+    s3_key_prefix                  = null
+  }
+}
