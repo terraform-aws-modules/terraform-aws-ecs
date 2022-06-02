@@ -34,15 +34,13 @@ module "vpc" {
 module "ecs" {
   source = "../../"
 
-  name               = local.name
-  container_insights = true
+  cluster_name = local.name
 
-  capacity_providers = ["FARGATE", "FARGATE_SPOT", aws_ecs_capacity_provider.prov1.name]
-
-  default_capacity_provider_strategy = [{
-    capacity_provider = aws_ecs_capacity_provider.prov1.name # "FARGATE_SPOT"
-    weight            = "1"
-  }]
+  # capacity_providers = [aws_ecs_capacity_provider.prov1.name]
+  # cluster_default_capacity_provider_strategy = [{
+  #   capacity_provider = aws_ecs_capacity_provider.prov1.name # "FARGATE_SPOT"
+  #   weight            = "1"
+  # }]
 
   tags = {
     Environment = local.environment
@@ -72,7 +70,7 @@ resource "aws_ecs_capacity_provider" "prov1" {
 module "hello_world" {
   source = "./service-hello-world"
 
-  cluster_id = module.ecs.ecs_cluster_id
+  cluster_id = module.ecs.cluster_id
 }
 
 #----- ECS  Resources--------
@@ -121,18 +119,7 @@ module "asg" {
   desired_capacity          = 0 # we don't need them for the example
   wait_for_capacity_timeout = 0
 
-  tags = [
-    {
-      key                 = "Environment"
-      value               = local.environment
-      propagate_at_launch = true
-    },
-    {
-      key                 = "Cluster"
-      value               = local.name
-      propagate_at_launch = true
-    },
-  ]
+  # tags = local.tags
 }
 
 ###################
@@ -142,5 +129,5 @@ module "asg" {
 module "disabled_ecs" {
   source = "../../"
 
-  create_ecs = false
+  create = false
 }
