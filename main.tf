@@ -72,11 +72,12 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 
   dynamic "default_capacity_provider_strategy" {
     for_each = local.cluster_capacity_providers
+    iterator = strategy
 
     content {
-      capacity_provider = try(default_capacity_provider_strategy.value.name, default_capacity_provider_strategy.key)
-      base              = try(default_capacity_provider_strategy.value.default_capacity_provider_strategy.base, null)
-      weight            = try(default_capacity_provider_strategy.value.default_capacity_provider_strategy.weight, null)
+      capacity_provider = try(strategy.value.name, strategy.key)
+      base              = try(strategy.value.default_capacity_provider_strategy.base, null)
+      weight            = try(strategy.value.default_capacity_provider_strategy.weight, null)
     }
   }
 }
@@ -92,7 +93,7 @@ resource "aws_ecs_capacity_provider" "this" {
 
   auto_scaling_group_provider {
     auto_scaling_group_arn         = each.value.auto_scaling_group_arn
-    managed_termination_protection = each.value.managed_termination_protection
+    managed_termination_protection = try(each.value.managed_termination_protection, null)
 
     dynamic "managed_scaling" {
       for_each = try([each.value.managed_scaling], [])

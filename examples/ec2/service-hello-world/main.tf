@@ -18,7 +18,7 @@ resource "aws_ecs_task_definition" "this" {
       "options": {
         "awslogs-region": "eu-west-1",
         "awslogs-group": "${aws_cloudwatch_log_group.this.name}",
-        "awslogs-stream-prefix": "fargate"
+        "awslogs-stream-prefix": "ec2"
       }
     }
   }
