@@ -53,12 +53,11 @@ resource "aws_ecs_cluster" "this" {
 locals {
   # We are merging these together so that we can reference the ECS capacity provider
   # (ec2 autoscaling) created in this module below. Fargate is easy since its just
-  # a static string, but the ECs cappacity provider needs to be self-referenced from
-  # within this module. Therefore the input schema of `var.cluster_capacity_providers`
-  # is customized to allow for both routes
+  # static values, but the autoscaling cappacity provider needs to be self-referenced from
+  # within this module
   cluster_capacity_providers = merge(
-    var.cluster_capacity_providers,
-    { for k, v in var.capacity_providers : k => merge(aws_ecs_capacity_provider.this[k], v) }
+    var.fargate_capacity_providers,
+    { for k, v in var.autoscaling_capacity_providers : k => merge(aws_ecs_capacity_provider.this[k], v) }
   )
 }
 
@@ -67,8 +66,8 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 
   cluster_name = aws_ecs_cluster.this[0].name
   capacity_providers = distinct(concat(
-    [for k, v in var.cluster_capacity_providers : try(v.name, k)],
-    [for k, v in var.capacity_providers : try(v.name, k)]
+    [for k, v in var.fargate_capacity_providers : try(v.name, k)],
+    [for k, v in var.autoscaling_capacity_providers : try(v.name, k)]
   ))
 
   dynamic "default_capacity_provider_strategy" {
@@ -87,7 +86,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 ################################################################################
 
 resource "aws_ecs_capacity_provider" "this" {
-  for_each = { for k, v in var.capacity_providers : k => v if var.create }
+  for_each = { for k, v in var.autoscaling_capacity_providers : k => v if var.create }
 
   name = try(each.value.name, each.key)
 

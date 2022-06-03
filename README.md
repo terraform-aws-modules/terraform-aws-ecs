@@ -1,31 +1,177 @@
-# AWS Elastic Container Service (ECS) Terraform module
+# AWS ECS Terraform module
 
-Terraform module which creates ECS resources on AWS.
+Terraform module which creates ECS (Elastic Container Service) resources on AWS.
 
 ## Available Features
 
-- ECS cluster w/ support for EC2 AutoScaling Group and/or Fargate provisioners
+- ECS cluster
+- Fargate capacity providers
+- EC2 AutoScaling Group capacity providers
 
 ## Usage
+
+### Fargate Capacity Providers
 
 ```hcl
 module "ecs" {
   source = "terraform-aws-modules/ecs/aws"
 
-  name = "my-ecs"
+  name = "ecs-fargate"
 
-  container_insights = true
-
-  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
-
-  default_capacity_provider_strategy = [
-    {
-      capacity_provider = "FARGATE_SPOT"
+  cluster_configuration = {
+    execute_command_configuration = {
+      logging = "OVERRIDE"
+      log_configuration = {
+        cloud_watch_log_group_name = "/aws/ecs/aws-ec2"
+      }
     }
-  ]
+  }
+
+  fargate_capacity_providers = {
+    "FARGATE" = {
+      default_capacity_provider_strategy = {
+        weight = 50
+      }
+    }
+    "FARGATE_SPOT" = {
+      default_capacity_provider_strategy = {
+        weight = 50
+      }
+    }
+  }
 
   tags = {
     Environment = "Development"
+    Project     = "EcsEc2"
+  }
+}
+```
+
+### EC2 Autoscaling Capacity Providers
+
+```hcl
+module "ecs" {
+  source = "terraform-aws-modules/ecs/aws"
+
+  name = "ecs-ec2"
+
+  cluster_configuration = {
+    execute_command_configuration = {
+      logging = "OVERRIDE"
+      log_configuration = {
+        cloud_watch_log_group_name = "/aws/ecs/aws-ec2"
+      }
+    }
+  }
+
+  autoscaling_capacity_providers = {
+    one = {
+      auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-one-20220603194933774300000011"
+      managed_termination_protection = "ENABLED"
+
+      managed_scaling = {
+        maximum_scaling_step_size = 5
+        minimum_scaling_step_size = 1
+        status                    = "ENABLED"
+        target_capacity           = 60
+      }
+
+      default_capacity_provider_strategy = {
+        weight = 60
+        base   = 20
+      }
+    }
+    two = {
+      auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-two-20220603194933774300000022"
+      managed_termination_protection = "ENABLED"
+
+      managed_scaling = {
+        maximum_scaling_step_size = 15
+        minimum_scaling_step_size = 5
+        status                    = "ENABLED"
+        target_capacity           = 90
+      }
+
+      default_capacity_provider_strategy = {
+        weight = 40
+      }
+    }
+  }
+
+  tags = {
+    Environment = "Development"
+    Project     = "EcsEc2"
+  }
+}
+```
+
+### Fargate & EC2 Autoscaling Capacity Providers
+
+```hcl
+module "ecs" {
+  source = "terraform-aws-modules/ecs/aws"
+
+  name = "ecs-mixed"
+
+  cluster_configuration = {
+    execute_command_configuration = {
+      logging = "OVERRIDE"
+      log_configuration = {
+        cloud_watch_log_group_name = "/aws/ecs/aws-ec2"
+      }
+    }
+  }
+
+  fargate_capacity_providers = {
+    "FARGATE" = {
+      default_capacity_provider_strategy = {
+        weight = 50
+      }
+    }
+    "FARGATE_SPOT" = {
+      default_capacity_provider_strategy = {
+        weight = 50
+      }
+    }
+  }
+
+  autoscaling_capacity_providers = {
+    one = {
+      auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-one-20220603194933774300000011"
+      managed_termination_protection = "ENABLED"
+
+      managed_scaling = {
+        maximum_scaling_step_size = 5
+        minimum_scaling_step_size = 1
+        status                    = "ENABLED"
+        target_capacity           = 60
+      }
+
+      default_capacity_provider_strategy = {
+        weight = 60
+        base   = 20
+      }
+    }
+    two = {
+      auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-two-20220603194933774300000022"
+      managed_termination_protection = "ENABLED"
+
+      managed_scaling = {
+        maximum_scaling_step_size = 15
+        minimum_scaling_step_size = 5
+        status                    = "ENABLED"
+        target_capacity           = 90
+      }
+
+      default_capacity_provider_strategy = {
+        weight = 40
+      }
+    }
+  }
+
+  tags = {
+    Environment = "Development"
+    Project     = "EcsEc2"
   }
 }
 ```
@@ -47,8 +193,8 @@ module "ecs" {
 
 ## Examples
 
-- [ECS Cluster w/ EC2 Autoscaling](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2)
-- [ECS Clusters w/ Fargate](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
+- [ECS Cluster w/ EC2 Autoscaling Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2)
+- [ECS Cluster w/ Fargate Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -80,19 +226,19 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_capacity_providers"></a> [capacity\_providers](#input\_capacity\_providers) | Map of capacity provider definitons to create | `any` | `{}` | no |
-| <a name="input_cluster_capacity_providers"></a> [cluster\_capacity\_providers](#input\_cluster\_capacity\_providers) | The capacity providers to use for the cluster | `any` | `{}` | no |
+| <a name="input_autoscaling_capacity_providers"></a> [autoscaling\_capacity\_providers](#input\_autoscaling\_capacity\_providers) | Map of autoscaling capacity provider definitons to create for the cluster | `any` | `{}` | no |
 | <a name="input_cluster_configuration"></a> [cluster\_configuration](#input\_cluster\_configuration) | The execute command configuration for the cluster | `any` | `{}` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Name of the cluster (up to 255 letters, numbers, hyphens, and underscores) | `string` | `""` | no |
 | <a name="input_cluster_settings"></a> [cluster\_settings](#input\_cluster\_settings) | Configuration block(s) with cluster settings. For example, this can be used to enable CloudWatch Container Insights for a cluster | `map(string)` | <pre>{<br>  "name": "containerInsights",<br>  "value": "enabled"<br>}</pre> | no |
 | <a name="input_create"></a> [create](#input\_create) | Determines whether resources will be created (affects all resources) | `bool` | `true` | no |
+| <a name="input_fargate_capacity_providers"></a> [fargate\_capacity\_providers](#input\_fargate\_capacity\_providers) | Map of Fargate capacity provider definitions to use for the cluster | `any` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_capacity_providers"></a> [capacity\_providers](#output\_capacity\_providers) | Map of capacity providers created and their attributes |
+| <a name="output_autoscaling_capacity_providers"></a> [autoscaling\_capacity\_providers](#output\_autoscaling\_capacity\_providers) | Map of autoscaling capacity providers created and their attributes |
 | <a name="output_cluster_arn"></a> [cluster\_arn](#output\_cluster\_arn) | ARN that identifies the cluster |
 | <a name="output_cluster_capacity_providers"></a> [cluster\_capacity\_providers](#output\_cluster\_capacity\_providers) | Map of cluster capacity providers attributes |
 | <a name="output_cluster_id"></a> [cluster\_id](#output\_cluster\_id) | ID that identifies the cluster |

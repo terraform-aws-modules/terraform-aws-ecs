@@ -41,10 +41,11 @@ module "ecs" {
   }
 
   # Capacity provider
-  cluster_capacity_providers = {
+  fargate_capacity_providers = {
     "FARGATE" = {
       default_capacity_provider_strategy = {
         weight = 50
+        base   = 20
       }
     }
     "FARGATE_SPOT" = {

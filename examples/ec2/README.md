@@ -58,7 +58,7 @@ No inputs.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_capacity_providers"></a> [capacity\_providers](#output\_capacity\_providers) | Map of capacity providers created and their attributes |
+| <a name="output_autoscaling_capacity_providers"></a> [autoscaling\_capacity\_providers](#output\_autoscaling\_capacity\_providers) | Map of capacity providers created and their attributes |
 | <a name="output_cluster_arn"></a> [cluster\_arn](#output\_cluster\_arn) | ARN that identifies the cluster |
 | <a name="output_cluster_capacity_providers"></a> [cluster\_capacity\_providers](#output\_cluster\_capacity\_providers) | Map of cluster capacity providers attributes |
 | <a name="output_cluster_id"></a> [cluster\_id](#output\_cluster\_id) | ID that identifies the cluster |

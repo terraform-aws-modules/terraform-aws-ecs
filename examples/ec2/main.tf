@@ -49,7 +49,7 @@ module "ecs" {
   }
 
   # Capacity provider - autoscaling groups
-  capacity_providers = {
+  autoscaling_capacity_providers = {
     one = {
       auto_scaling_group_arn         = module.autoscaling["one"].autoscaling_group_arn
       managed_termination_protection = "ENABLED"

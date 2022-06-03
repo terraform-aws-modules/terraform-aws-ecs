@@ -25,7 +25,7 @@ output "cluster_capacity_providers" {
 # Capacity Provider
 ################################################################################
 
-output "capacity_providers" {
+output "autoscaling_capacity_providers" {
   description = "Map of capacity providers created and their attributes"
-  value       = module.ecs.capacity_providers
+  value       = module.ecs.autoscaling_capacity_providers
 }

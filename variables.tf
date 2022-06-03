@@ -36,21 +36,17 @@ variable "cluster_settings" {
 }
 
 ################################################################################
-# Cluster Capacity Providers
+# Capacity Providers
 ################################################################################
 
-variable "cluster_capacity_providers" {
-  description = "The capacity providers to use for the cluster"
+variable "fargate_capacity_providers" {
+  description = "Map of Fargate capacity provider definitions to use for the cluster"
   type        = any
   default     = {}
 }
 
-################################################################################
-# Capacity Provider
-################################################################################
-
-variable "capacity_providers" {
-  description = "Map of capacity provider definitons to create"
+variable "autoscaling_capacity_providers" {
+  description = "Map of autoscaling capacity provider definitons to create for the cluster"
   type        = any
   default     = {}
 }

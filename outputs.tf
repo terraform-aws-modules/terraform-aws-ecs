@@ -25,7 +25,7 @@ output "cluster_capacity_providers" {
 # Capacity Provider - Autoscaling Group(s)
 ################################################################################
 
-output "capacity_providers" {
-  description = "Map of capacity providers created and their attributes"
+output "autoscaling_capacity_providers" {
+  description = "Map of autoscaling capacity providers created and their attributes"
   value       = aws_ecs_capacity_provider.this
 }
