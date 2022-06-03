@@ -13,18 +13,14 @@ output "cluster_id" {
 }
 
 ################################################################################
-# CloudWatch Log Group
+# Cluster Capacity Providers
 ################################################################################
 
-output "cloudwatch_log_group_name" {
-  description = "Name of cloudwatch log group created"
-  value       = module.ecs.cloudwatch_log_group_name
+output "cluster_capacity_providers" {
+  description = "Map of cluster capacity providers attributes"
+  value       = module.ecs.cluster_capacity_providers
 }
 
-output "cloudwatch_log_group_arn" {
-  description = "Arn of cloudwatch log group created"
-  value       = module.ecs.cloudwatch_log_group_arn
-}
 ################################################################################
 # Capacity Provider
 ################################################################################

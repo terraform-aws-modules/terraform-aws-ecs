@@ -2,39 +2,24 @@
 # Cluster
 ################################################################################
 
-locals {
-  # Used to default to logs enabled and sent to cloudwatch group created by module
-  cluster_configuration = merge(
-    {
-      execute_command_configuration = {
-        log_configuration = {
-          cloud_watch_log_group_name = var.create_cloudwatch_log_group ? aws_cloudwatch_log_group.this[0].name : null
-        }
-      }
-    },
-    var.cluster_configuration,
-  )
-}
-
 resource "aws_ecs_cluster" "this" {
   count = var.create ? 1 : 0
 
   name = var.cluster_name
 
-
   dynamic "configuration" {
-    for_each = [local.cluster_configuration]
+    for_each = try([var.cluster_configuration], [])
 
     content {
       dynamic "execute_command_configuration" {
-        for_each = [configuration.value.execute_command_configuration]
+        for_each = try([configuration.value.execute_command_configuration], [])
 
         content {
           kms_key_id = try(execute_command_configuration.value.kms_key_id, null)
           logging    = try(execute_command_configuration.value.logging, "DEFAULT")
 
           dynamic "log_configuration" {
-            for_each = [execute_command_configuration.value.log_configuration]
+            for_each = try([execute_command_configuration.value.log_configuration], [])
 
             content {
               cloud_watch_encryption_enabled = try(log_configuration.value.cloud_watch_encryption_enabled, null)
@@ -62,36 +47,37 @@ resource "aws_ecs_cluster" "this" {
 }
 
 ################################################################################
-# CloudWatch Log Group
+# Cluster Capacity Providers
 ################################################################################
 
-resource "aws_cloudwatch_log_group" "this" {
-  count = var.create && var.create_cloudwatch_log_group ? 1 : 0
-
-  name              = coalesce(var.cloudwatch_log_group_name, "/aws/ecs/${var.cluster_name}")
-  retention_in_days = var.cloudwatch_log_group_retention_in_days
-  kms_key_id        = var.cloudwatch_log_group_kms_key_id
-
-  tags = var.tags
+locals {
+  # We are merging these together so that we can reference the ECS capacity provider
+  # (ec2 autoscaling) created in this module below. Fargate is easy since its just
+  # a static string, but the ECs cappacity provider needs to be self-referenced from
+  # within this module. Therefore the input schema of `var.cluster_capacity_providers`
+  # is customized to allow for both routes
+  cluster_capacity_providers = merge(
+    var.cluster_capacity_providers,
+    { for k, v in var.capacity_providers : k => merge(aws_ecs_capacity_provider.this[k], v) }
+  )
 }
-
-################################################################################
-# Cluster Capacity Providers - Fargate
-################################################################################
 
 resource "aws_ecs_cluster_capacity_providers" "this" {
   count = var.create ? 1 : 0
 
-  cluster_name       = aws_ecs_cluster.this[0].name
-  capacity_providers = var.cluster_capacity_providers
+  cluster_name = aws_ecs_cluster.this[0].name
+  capacity_providers = distinct(concat(
+    [for k, v in var.cluster_capacity_providers : try(v.name, k)],
+    [for k, v in var.capacity_providers : try(v.name, k)]
+  ))
 
   dynamic "default_capacity_provider_strategy" {
-    for_each = var.cluster_default_capacity_provider_strategy
+    for_each = local.cluster_capacity_providers
 
     content {
-      capacity_provider = default_capacity_provider_strategy.value.capacity_provider
-      base              = try(default_capacity_provider_strategy.value.base, null)
-      weight            = try(default_capacity_provider_strategy.value.weight, null)
+      capacity_provider = try(default_capacity_provider_strategy.value.name, default_capacity_provider_strategy.key)
+      base              = try(default_capacity_provider_strategy.value.default_capacity_provider_strategy.base, null)
+      weight            = try(default_capacity_provider_strategy.value.default_capacity_provider_strategy.weight, null)
     }
   }
 }

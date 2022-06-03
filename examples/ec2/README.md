@@ -1,8 +1,10 @@
-# ECS Clusters w/ Fargate
+# ECS Cluster w/ EC2 Autoscaling
 
 Configuration in this directory creates:
 
-- ECS cluster using Fargate (on-demand and spot) capacity provider
+- ECS cluster using autoscaling group capacity provider
+- Autoscaling groups with IAM instance profile to be used by ECS cluster
+- Example ECS service
 
 ## Usage
 
@@ -34,14 +36,19 @@ Note that this example may create resources which will incur monetary charges on
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_autoscaling"></a> [autoscaling](#module\_autoscaling) | terraform-aws-modules/autoscaling/aws | ~> 6.5 |
+| <a name="module_autoscaling_sg"></a> [autoscaling\_sg](#module\_autoscaling\_sg) | terraform-aws-modules/security-group/aws | ~> 4.0 |
 | <a name="module_ecs"></a> [ecs](#module\_ecs) | ../.. | n/a |
 | <a name="module_ecs_disabled"></a> [ecs\_disabled](#module\_ecs\_disabled) | ../.. | n/a |
+| <a name="module_hello_world"></a> [hello\_world](#module\_hello\_world) | ./service-hello-world | n/a |
+| <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 3.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
 | [aws_cloudwatch_log_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_ssm_parameter.ecs_optimised_ami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
 

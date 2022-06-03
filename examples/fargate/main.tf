@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 locals {
-  region = "us-east-1"
+  region = "eu-west-1"
   name   = "ecs-ex-${replace(basename(path.cwd), "_", "-")}"
 
   tags = {
@@ -27,26 +27,32 @@ module "ecs" {
   source = "../.."
 
   cluster_name = local.name
+
   cluster_configuration = {
     execute_command_configuration = {
-      kms_key_id = aws_kms_key.example.arn
-      logging    = "OVERRIDE"
+      logging = "OVERRIDE"
+      log_configuration = {
+        # You can set a simple string and ECS will create the CloudWatch log group for you
+        # or you can create the resource yourself as shown here to better manage retetion, tagging, etc.
+        # Embedding it into the module is not trivial and therefore it is externalized
+        cloud_watch_log_group_name = aws_cloudwatch_log_group.this.name
+      }
     }
   }
 
   # Capacity provider
-  cluster_capacity_providers = ["FARGATE", "FARGATE_SPOT"]
-  cluster_default_capacity_provider_strategy = [
-    {
-
-      capacity_provider = "FARGATE"
-      weight            = 50
-    },
-    {
-      capacity_provider = "FARGATE_SPOT"
-      weight            = 50
+  cluster_capacity_providers = {
+    "FARGATE" = {
+      default_capacity_provider_strategy = {
+        weight = 50
+      }
     }
-  ]
+    "FARGATE_SPOT" = {
+      default_capacity_provider_strategy = {
+        weight = 50
+      }
+    }
+  }
 
   tags = local.tags
 }
@@ -55,29 +61,9 @@ module "ecs" {
 # Supporting Resources
 ################################################################################
 
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 3.0"
-
-  create_vpc = false
-
-  name = local.name
-  cidr = "10.99.0.0/18"
-
-  azs             = ["${local.region}a", "${local.region}b", "${local.region}c"]
-  public_subnets  = ["10.99.0.0/24", "10.99.1.0/24", "10.99.2.0/24"]
-  private_subnets = ["10.99.3.0/24", "10.99.4.0/24", "10.99.5.0/24"]
-
-  enable_nat_gateway      = true
-  single_nat_gateway      = true
-  map_public_ip_on_launch = false
-
-  tags = local.tags
-}
-
-resource "aws_kms_key" "example" {
-  description             = local.name
-  deletion_window_in_days = 7
+resource "aws_cloudwatch_log_group" "this" {
+  name              = "/aws/ecs/${local.name}"
+  retention_in_days = 7
 
   tags = local.tags
 }

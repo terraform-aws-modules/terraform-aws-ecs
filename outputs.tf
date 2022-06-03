@@ -13,17 +13,12 @@ output "cluster_id" {
 }
 
 ################################################################################
-# CloudWatch Log Group
+# Cluster Capacity Providers
 ################################################################################
 
-output "cloudwatch_log_group_name" {
-  description = "Name of cloudwatch log group created"
-  value       = try(aws_cloudwatch_log_group.this[0].name, null)
-}
-
-output "cloudwatch_log_group_arn" {
-  description = "Arn of cloudwatch log group created"
-  value       = try(aws_cloudwatch_log_group.this[0].arn, null)
+output "cluster_capacity_providers" {
+  description = "Map of cluster capacity providers attributes"
+  value       = aws_ecs_cluster_capacity_providers.this
 }
 
 ################################################################################
