@@ -35,13 +35,13 @@ Please consult the `examples` directory for reference example configurations. If
 Where the current equivalent now looks like:
 ```hcl
     fargate_capacity_providers = {
-        "FARGATE" = {
+        FARGATE = {
             default_capacity_provider_strategy = {
                 weight = 50
                 base   = 20
             }
         }
-        "FARGATE_SPOT" = {
+        FARGATE_SPOT = {
             default_capacity_provider_strategy = {
                 weight = 50
             }
@@ -129,8 +129,8 @@ module "ecs" {
   cluster_name = "example"
 
   fargate_capacity_providers = {
-    "FARGATE"      = {}
-    "FARGATE_SPOT" = {}
+    FARGATE      = {}
+    FARGATE_SPOT = {}
   }
 
   autoscaling_capacity_providers = {
@@ -182,8 +182,8 @@ module "ec2_profile" {
 - }]
 
 +  fargate_capacity_providers = {
-+    "FARGATE"      = {}
-+    "FARGATE_SPOT" = {}
++    FARGATE      = {}
++    FARGATE_SPOT = {}
 +  }
 
 +  autoscaling_capacity_providers = {

@@ -17,12 +17,6 @@ locals {
 # Ecs Module
 ################################################################################
 
-module "ecs_disabled" {
-  source = "../.."
-
-  create = false
-}
-
 module "ecs" {
   source = "../.."
 
@@ -42,13 +36,13 @@ module "ecs" {
 
   # Capacity provider
   fargate_capacity_providers = {
-    "FARGATE" = {
+    FARGATE = {
       default_capacity_provider_strategy = {
         weight = 50
         base   = 20
       }
     }
-    "FARGATE_SPOT" = {
+    FARGATE_SPOT = {
       default_capacity_provider_strategy = {
         weight = 50
       }
@@ -56,6 +50,12 @@ module "ecs" {
   }
 
   tags = local.tags
+}
+
+module "ecs_disabled" {
+  source = "../.."
+
+  create = false
 }
 
 ################################################################################

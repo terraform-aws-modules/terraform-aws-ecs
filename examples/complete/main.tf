@@ -25,12 +25,6 @@ locals {
 # ECS Module
 ################################################################################
 
-module "ecs_disabled" {
-  source = "../.."
-
-  create = false
-}
-
 module "ecs" {
   source = "../.."
 
@@ -92,12 +86,18 @@ module "hello_world" {
   cluster_id = module.ecs.cluster_id
 }
 
+module "ecs_disabled" {
+  source = "../.."
+
+  create = false
+}
+
 ################################################################################
 # Supporting Resources
 ################################################################################
 
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html#ecs-optimized-ami-linux
-data "aws_ssm_parameter" "ecs_optimised_ami" {
+data "aws_ssm_parameter" "ecs_optimized_ami" {
   name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
 }
 
@@ -116,10 +116,8 @@ module "autoscaling" {
 
   name = "${local.name}-${each.key}"
 
-  image_id          = jsondecode(data.aws_ssm_parameter.ecs_optimised_ami.value)["image_id"]
-  instance_type     = each.value.instance_type
-  ebs_optimized     = true
-  enable_monitoring = true
+  image_id      = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
+  instance_type = each.value.instance_type
 
   security_groups                 = [module.autoscaling_sg.security_group_id]
   user_data                       = base64encode(local.user_data)
@@ -177,18 +175,10 @@ module "vpc" {
   public_subnets  = ["10.99.0.0/24", "10.99.1.0/24", "10.99.2.0/24"]
   private_subnets = ["10.99.3.0/24", "10.99.4.0/24", "10.99.5.0/24"]
 
-  enable_nat_gateway      = true
+  enable_nat_gateway      = false
   single_nat_gateway      = true
   enable_dns_hostnames    = true
   map_public_ip_on_launch = false
-
-  # Manage so we can name
-  manage_default_network_acl    = true
-  default_network_acl_tags      = { Name = "${local.name}-default" }
-  manage_default_route_table    = true
-  default_route_table_tags      = { Name = "${local.name}-default" }
-  manage_default_security_group = true
-  default_security_group_tags   = { Name = "${local.name}-default" }
 
   tags = local.tags
 }

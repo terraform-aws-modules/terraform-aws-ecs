@@ -28,12 +28,12 @@ module "ecs" {
   }
 
   fargate_capacity_providers = {
-    "FARGATE" = {
+    FARGATE = {
       default_capacity_provider_strategy = {
         weight = 50
       }
     }
-    "FARGATE_SPOT" = {
+    FARGATE_SPOT = {
       default_capacity_provider_strategy = {
         weight = 50
       }
@@ -123,12 +123,12 @@ module "ecs" {
   }
 
   fargate_capacity_providers = {
-    "FARGATE" = {
+    FARGATE = {
       default_capacity_provider_strategy = {
         weight = 50
       }
     }
-    "FARGATE_SPOT" = {
+    FARGATE_SPOT = {
       default_capacity_provider_strategy = {
         weight = 50
       }
@@ -193,7 +193,7 @@ module "ecs" {
 
 ## Examples
 
-- [ECS Cluster w/ EC2 Autoscaling Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2)
+- [ECS Cluster w/ EC2 Autoscaling Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete)
 - [ECS Cluster w/ Fargate Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

@@ -18,7 +18,9 @@ output "cluster_id" {
 
 output "cluster_capacity_providers" {
   description = "Map of cluster capacity providers attributes"
-  value       = aws_ecs_cluster_capacity_providers.this
+  value = {
+    for k, v in aws_ecs_cluster_capacity_providers.this : v.id => v
+  }
 }
 
 ################################################################################
