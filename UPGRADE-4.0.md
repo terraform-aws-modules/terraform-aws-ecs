@@ -6,7 +6,7 @@ Please consult the `examples` directory for reference example configurations. If
 
 - Minimum supported version of Terraform AWS provider updated to v4.6 to support the latest resources utilized
 - Minimum supported version of Terraform updated to v1.0
-- `ecs-instance-profile` sub-module has been removed; this functionality is available through the [`terraform-aws-modules/terraform-aws-autoscaling`](https://github.com/terraform-aws-modules/terraform-aws-autoscaling) module starting with version [v6.5.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/pull/194). Please see the [`examples/ec2`](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2) example for a demonstration on how to use and integrate with the `terraform-aws-autoscaling` module.
+- `ecs-instance-profile` sub-module has been removed; this functionality is available through the [`terraform-aws-modules/terraform-aws-autoscaling`](https://github.com/terraform-aws-modules/terraform-aws-autoscaling) module starting with version [v6.5.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/pull/194). Please see the [`examples/complete`](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete) example for a demonstration on how to use and integrate with the `terraform-aws-autoscaling` module.
 - The `container_insights` and `capacity_providers` variables have been replaced by new variables - see below for more details
 
 ## Additional changes
@@ -52,7 +52,7 @@ Where the current equivalent now looks like:
 
 ### Removed
 
-- `ecs-instance-profile` sub-module has been removed; this functionality is available through the [`terraform-aws-modules/terraform-aws-autoscaling`](https://github.com/terraform-aws-modules/terraform-aws-autoscaling) module starting with version [v6.5.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/pull/194). Please see the [`examples/ec2`](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2) example for a demonstration on how to use and integrate with the `terraform-aws-autoscaling` module.
+- `ecs-instance-profile` sub-module has been removed; this functionality is available through the [`terraform-aws-modules/terraform-aws-autoscaling`](https://github.com/terraform-aws-modules/terraform-aws-autoscaling) module starting with version [v6.5.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/pull/194). Please see the [`examples/complete`](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete) example for a demonstration on how to use and integrate with the `terraform-aws-autoscaling` module.
 
 ### Variable and output changes
 
