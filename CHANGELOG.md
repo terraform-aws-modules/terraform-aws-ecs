@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v3.5.0...v4.0.0) (2022-06-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* Upgrade module to include capacity providers and bump minimum supported versions (#60)
+
+### Features
+
+* Upgrade module to include capacity providers and bump minimum supported versions ([#60](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/60)) ([7a41657](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/7a41657bd07d42b73757863266b6ea68710c36ce))
+
 ## [3.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v3.4.1...v3.5.0) (2022-03-18)
 
 
