@@ -4,12 +4,12 @@
 
 output "cluster_arn" {
   description = "ARN that identifies the cluster"
-  value       = try(aws_ecs_cluster.this[0].arn, null)
+  value       = module.ecs.cluster_arn
 }
 
 output "cluster_id" {
   description = "ID that identifies the cluster"
-  value       = try(aws_ecs_cluster.this[0].id, null)
+  value       = module.ecs.cluster_id
 }
 
 ################################################################################
@@ -18,16 +18,14 @@ output "cluster_id" {
 
 output "cluster_capacity_providers" {
   description = "Map of cluster capacity providers attributes"
-  value = {
-    for k, v in aws_ecs_cluster_capacity_providers.this : v.id => v
-  }
+  value       = module.ecs.cluster_capacity_providers
 }
 
 ################################################################################
-# Capacity Provider - Autoscaling Group(s)
+# Capacity Provider
 ################################################################################
 
 output "autoscaling_capacity_providers" {
-  description = "Map of autoscaling capacity providers created and their attributes"
-  value       = aws_ecs_capacity_provider.this
+  description = "Map of capacity providers created and their attributes"
+  value       = module.ecs.autoscaling_capacity_providers
 }

@@ -1,35 +1,52 @@
-variable "create_ecs" {
-  description = "Controls if ECS should be created"
+variable "create" {
+  description = "Determines whether resources will be created (affects all resources)"
   type        = bool
   default     = true
 }
 
-variable "name" {
-  description = "Name to be used on all the resources as identifier, also the name of the ECS cluster"
-  type        = string
-  default     = null
-}
-
-variable "capacity_providers" {
-  description = "List of short names of one or more capacity providers to associate with the cluster. Valid values also include FARGATE and FARGATE_SPOT."
-  type        = list(string)
-  default     = []
-}
-
-variable "default_capacity_provider_strategy" {
-  description = "The capacity provider strategy to use by default for the cluster. Can be one or more."
-  type        = list(map(any))
-  default     = []
-}
-
-variable "container_insights" {
-  description = "Controls if ECS Cluster has container insights enabled"
-  type        = bool
-  default     = false
-}
-
 variable "tags" {
-  description = "A map of tags to add to ECS Cluster"
+  description = "A map of tags to add to all resources"
   type        = map(string)
+  default     = {}
+}
+
+################################################################################
+# Cluster
+################################################################################
+
+variable "cluster_name" {
+  description = "Name of the cluster (up to 255 letters, numbers, hyphens, and underscores)"
+  type        = string
+  default     = ""
+}
+
+variable "cluster_configuration" {
+  description = "The execute command configuration for the cluster"
+  type        = any
+  default     = {}
+}
+
+variable "cluster_settings" {
+  description = "Configuration block(s) with cluster settings. For example, this can be used to enable CloudWatch Container Insights for a cluster"
+  type        = map(string)
+  default = {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+}
+
+################################################################################
+# Capacity Providers
+################################################################################
+
+variable "fargate_capacity_providers" {
+  description = "Map of Fargate capacity provider definitions to use for the cluster"
+  type        = any
+  default     = {}
+}
+
+variable "autoscaling_capacity_providers" {
+  description = "Map of autoscaling capacity provider definitons to create for the cluster"
+  type        = any
   default     = {}
 }

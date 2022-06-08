@@ -1,9 +1,9 @@
-resource "aws_cloudwatch_log_group" "hello_world" {
-  name              = "hello_world"
+resource "aws_cloudwatch_log_group" "this" {
+  name_prefix       = "hello_world-"
   retention_in_days = 1
 }
 
-resource "aws_ecs_task_definition" "hello_world" {
+resource "aws_ecs_task_definition" "this" {
   family = "hello_world"
 
   container_definitions = <<EOF
@@ -17,8 +17,8 @@ resource "aws_ecs_task_definition" "hello_world" {
       "logDriver": "awslogs",
       "options": {
         "awslogs-region": "eu-west-1",
-        "awslogs-group": "hello_world",
-        "awslogs-stream-prefix": "complete-ecs"
+        "awslogs-group": "${aws_cloudwatch_log_group.this.name}",
+        "awslogs-stream-prefix": "ec2"
       }
     }
   }
@@ -26,10 +26,10 @@ resource "aws_ecs_task_definition" "hello_world" {
 EOF
 }
 
-resource "aws_ecs_service" "hello_world" {
+resource "aws_ecs_service" "this" {
   name            = "hello_world"
   cluster         = var.cluster_id
-  task_definition = aws_ecs_task_definition.hello_world.arn
+  task_definition = aws_ecs_task_definition.this.arn
 
   desired_count = 1
 
