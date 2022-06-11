@@ -12,7 +12,7 @@ resource "aws_ecs_cluster" "this" {
 
     content {
       dynamic "execute_command_configuration" {
-        for_each = try([configuration.value.execute_command_configuration], [])
+        for_each = try([configuration.value.execute_command_configuration], [{}])
 
         content {
           kms_key_id = try(execute_command_configuration.value.kms_key_id, null)
