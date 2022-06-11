@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [4.0.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.0.0...v4.0.1) (2022-06-11)
+
+
+### Bug Fixes
+
+* Add empty map to `execute_command_configuration` to avoid plugin crash from interface conversion ([#62](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/62)) ([1669236](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/16692361dfa3bd1506cea3e893f484790bab5c8a))
+
 ## [4.0.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v3.5.0...v4.0.0) (2022-06-08)
 
 
