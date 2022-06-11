@@ -14,7 +14,7 @@ locals {
 }
 
 ################################################################################
-# Ecs Module
+# ECS Module
 ################################################################################
 
 module "ecs" {
@@ -54,6 +54,24 @@ module "ecs" {
 
 module "ecs_disabled" {
   source = "../.."
+
+  create = false
+}
+
+################################################################################
+# Service Module
+################################################################################
+
+module "service" {
+  source = "../../modules/service"
+
+  create = false
+
+  tags = local.tags
+}
+
+module "service_disabled" {
+  source = "../../modules/service"
 
   create = false
 }

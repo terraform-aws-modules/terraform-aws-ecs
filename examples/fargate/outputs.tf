@@ -34,3 +34,17 @@ output "autoscaling_capacity_providers" {
   description = "Map of capacity providers created and their attributes"
   value       = module.ecs.autoscaling_capacity_providers
 }
+
+################################################################################
+# Service
+################################################################################
+
+output "id" {
+  description = "ARN that identifies the service"
+  value       = module.service.id
+}
+
+output "name" {
+  description = "Name of the service"
+  value       = module.service.name
+}
