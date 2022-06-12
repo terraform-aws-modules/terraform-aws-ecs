@@ -86,12 +86,6 @@ variable "health_check_grace_period_seconds" {
   default     = null
 }
 
-variable "iam_role" {
-  description = "ARN of the IAM role that allows Amazon ECS to make calls to your load balancer on your behalf"
-  type        = string
-  default     = null
-}
-
 variable "launch_type" {
   description = "Launch type on which to run your service. The valid values are `EC2`, `FARGATE`, and `EXTERNAL`. Defaults to `EC2`"
   type        = string
@@ -162,6 +156,58 @@ variable "wait_for_steady_state" {
   description = "If true, Terraform will wait for the service to reach a steady state before continuing. Default is `false`"
   type        = bool
   default     = null
+}
+
+################################################################################
+# Service - IAM Role
+################################################################################
+
+variable "create_iam_role" {
+  description = "Determines whether the ECS service IAM role should be created"
+  type        = bool
+  default     = false
+}
+
+variable "iam_role_arn" {
+  description = "Existing IAM role ARN for the service"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_name" {
+  description = "Name to use on IAM role created"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_use_name_prefix" {
+  description = "Determines whether the IAM role name (`iam_role_name`) is used as a prefix"
+  type        = bool
+  default     = true
+}
+
+variable "iam_role_path" {
+  description = "IAM role path"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_description" {
+  description = "Description of the role"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_permissions_boundary" {
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_tags" {
+  description = "A map of additional tags to add to the IAM role created"
+  type        = map(string)
+  default     = {}
 }
 
 ################################################################################

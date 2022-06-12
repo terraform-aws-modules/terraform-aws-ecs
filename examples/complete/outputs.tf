@@ -50,6 +50,25 @@ output "name" {
 }
 
 ################################################################################
+# IAM Role
+################################################################################
+
+output "iam_role_name" {
+  description = "Service IAM role name"
+  value       = module.service.iam_role_name
+}
+
+output "iam_role_arn" {
+  description = "Service IAM role ARN"
+  value       = module.service.iam_role_arn
+}
+
+output "iam_role_unique_id" {
+  description = "Stable and unique string identifying the service IAM role"
+  value       = module.service.iam_role_unique_id
+}
+
+################################################################################
 # Task Definition
 ################################################################################
 

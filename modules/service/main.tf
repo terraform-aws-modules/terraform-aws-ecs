@@ -1,3 +1,5 @@
+data "aws_partition" "current" {}
+
 ################################################################################
 # Service
 ################################################################################
@@ -41,7 +43,7 @@ resource "aws_ecs_service" "this" {
   enable_execute_command             = var.enable_execute_command
   force_new_deployment               = var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
-  iam_role                           = var.iam_role
+  iam_role                           = local.iam_role_arn
   launch_type                        = var.launch_type
 
   dynamic "load_balancer" {
@@ -104,6 +106,8 @@ resource "aws_ecs_service" "this" {
   wait_for_steady_state = var.wait_for_steady_state
 
   tags = var.tags
+
+  depends_on = [aws_iam_policy.service]
 }
 
 ################################################################################
@@ -149,7 +153,7 @@ resource "aws_ecs_service" "idc" {
   enable_execute_command             = var.enable_execute_command
   force_new_deployment               = var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
-  iam_role                           = var.iam_role
+  iam_role                           = local.iam_role_arn
   launch_type                        = var.launch_type
 
   dynamic "load_balancer" {
@@ -213,11 +217,93 @@ resource "aws_ecs_service" "idc" {
 
   tags = var.tags
 
+  depends_on = [aws_iam_policy.service]
+
   lifecycle {
     ignore_changes = [
       desired_count
     ]
   }
+}
+
+################################################################################
+# Service - IAM Role
+################################################################################
+locals {
+
+}
+locals {
+  # Role is not required if task definition uses `awsvpc` network mode or if a load balancer is not used
+  needs_iam_role  = var.task_network_mode != "awsvpc" && length(var.load_balancer) > 0
+  create_iam_role = var.create && var.create_iam_role && local.needs_iam_role
+  iam_role_arn    = local.needs_iam_role ? coalesce(var.iam_role_arn, aws_iam_role.service[0].arn) : null
+
+  iam_role_name = try(coalesce(var.iam_role_name, var.name), "")
+}
+
+data "aws_iam_policy_document" "service_assume" {
+  count = local.create_iam_role ? 1 : 0
+
+  statement {
+    sid     = "ECSServiceAssumeRole"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.${data.aws_partition.current.dns_suffix}"]
+    }
+  }
+}
+
+resource "aws_iam_role" "service" {
+  count = local.create_iam_role ? 1 : 0
+
+  name        = var.iam_role_use_name_prefix ? null : local.iam_role_name
+  name_prefix = var.iam_role_use_name_prefix ? "${local.iam_role_name}-" : null
+  path        = var.iam_role_path
+  description = var.iam_role_description
+
+  assume_role_policy    = data.aws_iam_policy_document.service_assume[0].json
+  permissions_boundary  = var.iam_role_permissions_boundary
+  force_detach_policies = true
+
+  tags = merge(var.tags, var.iam_role_tags)
+}
+
+data "aws_iam_policy_document" "service" {
+  count = local.create_iam_role ? 1 : 0
+
+  statement {
+    sid       = "ECSService"
+    resources = ["*"]
+
+    actions = [
+      "ec2:Describe*",
+      "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+      "elasticloadbalancing:DeregisterTargets",
+      "elasticloadbalancing:Describe*",
+      "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+      "elasticloadbalancing:RegisterTargets"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "service" {
+  count = local.create_iam_role ? 1 : 0
+
+  name_prefix = "${var.iam_role_name}-service-"
+  path        = var.iam_role_path
+  description = "ECS service policy that allows Amazon ECS to make calls to your load balancer on your behalf"
+  policy      = data.aws_iam_policy_document.service[0].json
+
+  tags = merge(var.tags, var.iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "service" {
+  count = local.create_iam_role ? 1 : 0
+
+  role       = aws_iam_role.service[0].name
+  policy_arn = aws_iam_policy.service[0].arn
 }
 
 ################################################################################
@@ -348,4 +434,8 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   tags = var.tags
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
