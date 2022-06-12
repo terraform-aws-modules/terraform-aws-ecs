@@ -41,6 +41,7 @@ Note that this example may create resources which will incur monetary charges on
 | <a name="module_ecs"></a> [ecs](#module\_ecs) | ../.. | n/a |
 | <a name="module_ecs_disabled"></a> [ecs\_disabled](#module\_ecs\_disabled) | ../.. | n/a |
 | <a name="module_hello_world"></a> [hello\_world](#module\_hello\_world) | ./service-hello-world | n/a |
+| <a name="module_service"></a> [service](#module\_service) | ../../modules/service | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 3.0 |
 
 ## Resources
@@ -63,4 +64,8 @@ No inputs.
 | <a name="output_cluster_capacity_providers"></a> [cluster\_capacity\_providers](#output\_cluster\_capacity\_providers) | Map of cluster capacity providers attributes |
 | <a name="output_cluster_id"></a> [cluster\_id](#output\_cluster\_id) | ID that identifies the cluster |
 | <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | Name that identifies the cluster |
+| <a name="output_id"></a> [id](#output\_id) | ARN that identifies the service |
+| <a name="output_name"></a> [name](#output\_name) | Name of the service |
+| <a name="output_task_arn"></a> [task\_arn](#output\_task\_arn) | Full ARN of the Task Definition (including both `family` and `revision`) |
+| <a name="output_task_revision"></a> [task\_revision](#output\_task\_revision) | Revision of the task in a particular family |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

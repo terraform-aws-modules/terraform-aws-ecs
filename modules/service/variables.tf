@@ -163,3 +163,115 @@ variable "wait_for_steady_state" {
   type        = bool
   default     = null
 }
+
+################################################################################
+# Task Definition
+################################################################################
+
+variable "create_task_definition" {
+  description = "Determines whether to create a task definition or use existing/provided"
+  type        = bool
+  default     = true
+}
+
+variable "task_container_definitions" {
+  description = "A list of valid [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html) provided as a single valid JSON document. Please note that you should only provide values that are part of the container definition document"
+  type        = string
+  default     = ""
+}
+
+variable "task_cpu" {
+  description = "Number of cpu units used by the task. If the `task_requires_compatibilities` is `FARGATE` this field is required"
+  type        = number
+  default     = null
+}
+
+variable "task_ephemeral_storage" {
+  description = "The amount of ephemeral storage to allocate for the task. This parameter is used to expand the total amount of ephemeral storage available, beyond the default amount, for tasks hosted on AWS Fargate"
+  type        = any
+  default     = {}
+}
+
+variable "task_execution_role_arn" {
+  description = "ARN of the task execution role that the Amazon ECS container agent and the Docker daemon can assume"
+  type        = string
+  default     = null
+}
+
+variable "task_family" {
+  description = "A unique name for your task definition"
+  type        = string
+  default     = null
+}
+
+variable "task_inference_accelerator" {
+  description = "Configuration block(s) with Inference Accelerators settings"
+  type        = any
+  default     = {}
+}
+
+variable "task_ipc_mode" {
+  description = "IPC resource namespace to be used for the containers in the task The valid values are `host`, `task`, and `none`"
+  type        = string
+  default     = null
+}
+
+variable "task_memory" {
+  description = "Amount (in MiB) of memory used by the task. If the `task_requires_compatibilities` is `FARGATE` this field is required"
+  type        = number
+  default     = null
+}
+
+variable "task_network_mode" {
+  description = "Docker networking mode to use for the containers in the task. Valid values are `none`, `bridge`, `awsvpc`, and `host`"
+  type        = string
+  default     = null
+}
+
+variable "task_pid_mode" {
+  description = "Process namespace to use for the containers in the task. The valid values are `host` and `task`"
+  type        = string
+  default     = null
+}
+
+variable "task_placement_constraints" {
+  description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10)"
+  type        = any
+  default     = {}
+}
+
+variable "task_proxy_configuration" {
+  description = "Configuration block for the App Mesh proxy"
+  type        = any
+  default     = {}
+}
+
+variable "task_requires_compatibilities" {
+  description = "Set of launch types required by the task. The valid values are `EC2` and `FARGATE`"
+  type        = list(string)
+  default     = []
+}
+
+variable "task_runtime_platform" {
+  description = "Configuration block for `task_runtime_platform` that containers in your task may use"
+  type        = any
+  default     = {}
+}
+
+variable "task_skip_destroy" {
+  description = "If true, the task is not deleted when the service is deleted"
+  type        = bool
+  default     = null
+}
+
+variable "task_role_arn" {
+  description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services"
+  type        = string
+  default     = null
+}
+
+variable "task_volume" {
+  description = "Configuration block for volumes that containers in your task may use"
+  type        = any
+  default     = {}
+}

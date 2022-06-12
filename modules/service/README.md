@@ -60,6 +60,7 @@ No modules.
 |------|------|
 | [aws_ecs_service.idc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_ecs_service.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
+| [aws_ecs_task_definition.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition) | resource |
 
 ## Inputs
 
@@ -68,6 +69,7 @@ No modules.
 | <a name="input_capacity_provider_strategy"></a> [capacity\_provider\_strategy](#input\_capacity\_provider\_strategy) | Capacity provider strategies to use for the service. Can be one or more | `any` | `{}` | no |
 | <a name="input_cluster"></a> [cluster](#input\_cluster) | ARN of an ECS cluster | `string` | `""` | no |
 | <a name="input_create"></a> [create](#input\_create) | Determines whether resources will be created (affects all resources) | `bool` | `true` | no |
+| <a name="input_create_task_definition"></a> [create\_task\_definition](#input\_create\_task\_definition) | Determines whether to create a task definition or use existing/provided | `bool` | `true` | no |
 | <a name="input_deployment_circuit_breaker"></a> [deployment\_circuit\_breaker](#input\_deployment\_circuit\_breaker) | Configuration block for deployment circuit breaker | `any` | `{}` | no |
 | <a name="input_deployment_controller"></a> [deployment\_controller](#input\_deployment\_controller) | Configuration block for deployment controller configuration | `any` | `{}` | no |
 | <a name="input_deployment_maximum_percent"></a> [deployment\_maximum\_percent](#input\_deployment\_maximum\_percent) | Upper limit (as a percentage of the service's desiredCount) of the number of running tasks that can be running in a service during a deployment | `number` | `null` | no |
@@ -90,7 +92,24 @@ No modules.
 | <a name="input_scheduling_strategy"></a> [scheduling\_strategy](#input\_scheduling\_strategy) | Scheduling strategy to use for the service. The valid values are `REPLICA` and `DAEMON`. Defaults to `REPLICA` | `string` | `null` | no |
 | <a name="input_service_registries"></a> [service\_registries](#input\_service\_registries) | Service discovery registries for the service | `any` | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | `{}` | no |
+| <a name="input_task_container_definitions"></a> [task\_container\_definitions](#input\_task\_container\_definitions) | A list of valid [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html) provided as a single valid JSON document. Please note that you should only provide values that are part of the container definition document | `string` | `""` | no |
+| <a name="input_task_cpu"></a> [task\_cpu](#input\_task\_cpu) | Number of cpu units used by the task. If the `task_requires_compatibilities` is `FARGATE` this field is required | `number` | `null` | no |
 | <a name="input_task_definition"></a> [task\_definition](#input\_task\_definition) | Family and revision (`family:revision`) or full ARN of the task definition that you want to run in your service. Required unless using the `EXTERNAL` deployment controller | `string` | `null` | no |
+| <a name="input_task_ephemeral_storage"></a> [task\_ephemeral\_storage](#input\_task\_ephemeral\_storage) | The amount of ephemeral storage to allocate for the task. This parameter is used to expand the total amount of ephemeral storage available, beyond the default amount, for tasks hosted on AWS Fargate | `any` | `{}` | no |
+| <a name="input_task_execution_role_arn"></a> [task\_execution\_role\_arn](#input\_task\_execution\_role\_arn) | ARN of the task execution role that the Amazon ECS container agent and the Docker daemon can assume | `string` | `null` | no |
+| <a name="input_task_family"></a> [task\_family](#input\_task\_family) | A unique name for your task definition | `string` | `null` | no |
+| <a name="input_task_inference_accelerator"></a> [task\_inference\_accelerator](#input\_task\_inference\_accelerator) | Configuration block(s) with Inference Accelerators settings | `any` | `{}` | no |
+| <a name="input_task_ipc_mode"></a> [task\_ipc\_mode](#input\_task\_ipc\_mode) | IPC resource namespace to be used for the containers in the task The valid values are `host`, `task`, and `none` | `string` | `null` | no |
+| <a name="input_task_memory"></a> [task\_memory](#input\_task\_memory) | Amount (in MiB) of memory used by the task. If the `task_requires_compatibilities` is `FARGATE` this field is required | `number` | `null` | no |
+| <a name="input_task_network_mode"></a> [task\_network\_mode](#input\_task\_network\_mode) | Docker networking mode to use for the containers in the task. Valid values are `none`, `bridge`, `awsvpc`, and `host` | `string` | `null` | no |
+| <a name="input_task_pid_mode"></a> [task\_pid\_mode](#input\_task\_pid\_mode) | Process namespace to use for the containers in the task. The valid values are `host` and `task` | `string` | `null` | no |
+| <a name="input_task_placement_constraints"></a> [task\_placement\_constraints](#input\_task\_placement\_constraints) | Configuration block for rules that are taken into consideration during task placement (up to max of 10) | `any` | `{}` | no |
+| <a name="input_task_proxy_configuration"></a> [task\_proxy\_configuration](#input\_task\_proxy\_configuration) | Configuration block for the App Mesh proxy | `any` | `{}` | no |
+| <a name="input_task_requires_compatibilities"></a> [task\_requires\_compatibilities](#input\_task\_requires\_compatibilities) | Set of launch types required by the task. The valid values are `EC2` and `FARGATE` | `list(string)` | `[]` | no |
+| <a name="input_task_role_arn"></a> [task\_role\_arn](#input\_task\_role\_arn) | ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services | `string` | `null` | no |
+| <a name="input_task_runtime_platform"></a> [task\_runtime\_platform](#input\_task\_runtime\_platform) | Configuration block for `task_runtime_platform` that containers in your task may use | `any` | `{}` | no |
+| <a name="input_task_skip_destroy"></a> [task\_skip\_destroy](#input\_task\_skip\_destroy) | If true, the task is not deleted when the service is deleted | `bool` | `null` | no |
+| <a name="input_task_volume"></a> [task\_volume](#input\_task\_volume) | Configuration block for volumes that containers in your task may use | `any` | `{}` | no |
 | <a name="input_wait_for_steady_state"></a> [wait\_for\_steady\_state](#input\_wait\_for\_steady\_state) | If true, Terraform will wait for the service to reach a steady state before continuing. Default is `false` | `bool` | `null` | no |
 
 ## Outputs
@@ -99,4 +118,6 @@ No modules.
 |------|-------------|
 | <a name="output_id"></a> [id](#output\_id) | ARN that identifies the service |
 | <a name="output_name"></a> [name](#output\_name) | Name of the service |
+| <a name="output_task_arn"></a> [task\_arn](#output\_task\_arn) | Full ARN of the Task Definition (including both `family` and `revision`) |
+| <a name="output_task_revision"></a> [task\_revision](#output\_task\_revision) | Revision of the task in a particular family |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

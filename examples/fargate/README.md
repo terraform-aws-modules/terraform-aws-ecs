@@ -60,4 +60,6 @@ No inputs.
 | <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | Name that identifies the cluster |
 | <a name="output_id"></a> [id](#output\_id) | ARN that identifies the service |
 | <a name="output_name"></a> [name](#output\_name) | Name of the service |
+| <a name="output_task_arn"></a> [task\_arn](#output\_task\_arn) | Full ARN of the Task Definition (including both `family` and `revision`) |
+| <a name="output_task_revision"></a> [task\_revision](#output\_task\_revision) | Revision of the task in a particular family |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
