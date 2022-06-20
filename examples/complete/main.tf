@@ -175,7 +175,7 @@ module "vpc" {
   public_subnets  = ["10.99.0.0/24", "10.99.1.0/24", "10.99.2.0/24"]
   private_subnets = ["10.99.3.0/24", "10.99.4.0/24", "10.99.5.0/24"]
 
-  enable_nat_gateway      = false
+  enable_nat_gateway      = true
   single_nat_gateway      = true
   enable_dns_hostnames    = true
   map_public_ip_on_launch = false
