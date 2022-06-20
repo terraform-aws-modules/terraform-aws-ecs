@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [4.0.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.0.1...v4.0.2) (2022-06-20)
+
+
+### Bug Fixes
+
+* Complete example EC2 instance cluster joining issue ([#64](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/64)) ([81a7a56](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/81a7a560ab976c7c4b983355de4b97af3637734a))
+
 ### [4.0.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.0.0...v4.0.1) (2022-06-11)
 
 
