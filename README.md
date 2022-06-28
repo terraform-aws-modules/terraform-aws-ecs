@@ -16,7 +16,7 @@ Terraform module which creates ECS (Elastic Container Service) resources on AWS.
 module "ecs" {
   source = "terraform-aws-modules/ecs/aws"
 
-  name = "ecs-fargate"
+  cluster_name = "ecs-fargate"
 
   cluster_configuration = {
     execute_command_configuration = {
@@ -53,7 +53,7 @@ module "ecs" {
 module "ecs" {
   source = "terraform-aws-modules/ecs/aws"
 
-  name = "ecs-ec2"
+  cluster_name = "ecs-ec2"
 
   cluster_configuration = {
     execute_command_configuration = {
@@ -111,7 +111,7 @@ module "ecs" {
 module "ecs" {
   source = "terraform-aws-modules/ecs/aws"
 
-  name = "ecs-mixed"
+  cluster_name = "ecs-mixed"
 
   cluster_configuration = {
     execute_command_configuration = {
