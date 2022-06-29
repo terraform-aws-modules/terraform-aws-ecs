@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.1.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.0.2...v4.1.0) (2022-06-29)
+
+
+### Features
+
+* Export cluster name since cluster ID is exporting the ARN ([#67](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/67)) ([8c9273f](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/8c9273ff625ca8897d27af7bcb9e5d177a3a45c4))
+
 ### [4.0.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.0.1...v4.0.2) (2022-06-20)
 
 
