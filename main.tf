@@ -51,18 +51,14 @@ resource "aws_ecs_cluster" "this" {
 ################################################################################
 
 locals {
-  # We are merging these together so that we can reference the ECS capacity provider
-  # (ec2 autoscaling) created in this module below. Fargate is easy since its just
-  # static values, but the autoscaling cappacity provider needs to be self-referenced from
-  # within this module
-  cluster_capacity_providers = merge(
-    var.fargate_capacity_providers,
-    { for k, v in var.autoscaling_capacity_providers : k => merge(aws_ecs_capacity_provider.this[k], v) }
+  default_capacity_providers = merge(
+    { for k, v in var.fargate_capacity_providers : k => v if var.default_capacity_provider_use_fargate },
+    { for k, v in var.autoscaling_capacity_providers : k => v if !var.default_capacity_provider_use_fargate }
   )
 }
 
 resource "aws_ecs_cluster_capacity_providers" "this" {
-  count = var.create ? 1 : 0
+  count = var.create && length(merge(var.fargate_capacity_providers, var.autoscaling_capacity_providers)) > 0 ? 1 : 0
 
   cluster_name = aws_ecs_cluster.this[0].name
   capacity_providers = distinct(concat(
@@ -71,7 +67,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
   ))
 
   dynamic "default_capacity_provider_strategy" {
-    for_each = local.cluster_capacity_providers
+    for_each = local.default_capacity_providers
     iterator = strategy
 
     content {
@@ -80,6 +76,10 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
       weight            = try(strategy.value.default_capacity_provider_strategy.weight, null)
     }
   }
+
+  depends_on = [
+    aws_ecs_capacity_provider.this
+  ]
 }
 
 ################################################################################
