@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [4.1.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.1.0...v4.1.1) (2022-07-25)
+
+
+### Bug Fixes
+
+* Allow for both Fargate and EC2/Autoscaling capacity providers in same cluster ([#69](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/69)) ([9cb2b84](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/9cb2b84e5bb3983392c2d4c0e1f2879b42bbf9a7))
+
 ## [4.1.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.0.2...v4.1.0) (2022-06-29)
 
 
