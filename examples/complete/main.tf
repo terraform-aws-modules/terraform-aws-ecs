@@ -42,6 +42,14 @@ module "ecs" {
     }
   }
 
+  default_capacity_provider_use_fargate = false
+
+  # Capacity provider - Fargate
+  fargate_capacity_providers = {
+    FARGATE      = {}
+    FARGATE_SPOT = {}
+  }
+
   # Capacity provider - autoscaling groups
   autoscaling_capacity_providers = {
     one = {
