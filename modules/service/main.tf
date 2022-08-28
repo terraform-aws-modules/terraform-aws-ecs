@@ -6,11 +6,19 @@ data "aws_region" "current" {}
 # Service
 ################################################################################
 
+locals {
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-external.html
+  is_external_deployment = try(var.deployment_controller.type, null) == "EXTERNAL"
+  is_daemon              = var.scheduling_strategy == "DAEMON"
+  is_fargate             = var.launch_type == "FARGATE"
+}
+
 resource "aws_ecs_service" "this" {
   count = var.create && !var.ignore_desired_count_changes ? 1 : 0
 
   dynamic "capacity_provider_strategy" {
-    for_each = var.capacity_provider_strategy
+    # Set by task set if deployment controller is external
+    for_each = length(var.capacity_provider_strategy) ? { for k, v in var.capacity_provider_strategy : k => v if !local.is_external_deployment } : {}
 
     content {
       base              = try(capacity_provider_strategy.value.base, null)
@@ -22,7 +30,7 @@ resource "aws_ecs_service" "this" {
   cluster = var.cluster
 
   dynamic "deployment_circuit_breaker" {
-    for_each = [var.deployment_circuit_breaker]
+    for_each = length(var.deployment_circuit_breaker) ? [var.deployment_circuit_breaker] : []
 
     content {
       enable   = deployment_circuit_breaker.value.enable
@@ -31,25 +39,27 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "deployment_controller" {
-    for_each = [var.deployment_controller]
+    for_each = length(var.deployment_controller) > 0 ? [var.deployment_controller] : []
 
     content {
       type = try(deployment_controller.value.type, null)
     }
   }
 
-  deployment_maximum_percent         = var.scheduling_strategy == "DAEMON" ? null : var.deployment_maximum_percent
-  deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
-  desired_count                      = var.scheduling_strategy == "DAEMON" ? null : var.desired_count
+  deployment_maximum_percent         = local.is_daemon || local.is_external_deployment ? null : var.deployment_maximum_percent
+  deployment_minimum_healthy_percent = local.is_external_deployment ? null : var.deployment_minimum_healthy_percent
+  desired_count                      = local.is_daemon || local.is_external_deployment ? null : var.desired_count
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
   enable_execute_command             = var.enable_execute_command
-  force_new_deployment               = var.force_new_deployment
+  force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
-  launch_type                        = var.launch_type
+  # Set by task set if deployment controller is external
+  launch_type = local.is_external_deployment ? var.launch_type : null
 
   dynamic "load_balancer" {
-    for_each = var.load_balancer
+    # Set by task set if deployment controller is external
+    for_each = length(var.load_balancer) > 0 ? { for k, v in var.load_balancer : k => v if !local.is_external_deployment } : {}
 
     content {
       container_name   = load_balancer.value.container_name
@@ -62,7 +72,8 @@ resource "aws_ecs_service" "this" {
   name = var.name
 
   dynamic "network_configuration" {
-    for_each = [var.network_configuration]
+    # Set by task set if deployment controller is external
+    for_each = length(var.network_configuration) > 0 ? [{ for k, v in var.network_configuration : k => v if !local.is_external_deployment }] : []
 
     content {
       assign_public_ip = try(network_configuration.value.assign_public_ip, null)
@@ -72,7 +83,7 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "ordered_placement_strategy" {
-    for_each = var.ordered_placement_strategy
+    for_each = length(var.ordered_placement_strategy) > 0 ? var.ordered_placement_strategy : {}
 
     content {
       field = try(ordered_placement_strategy.value.field, null)
@@ -81,7 +92,7 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "placement_constraints" {
-    for_each = var.placement_constraints
+    for_each = length(var.placement_constraints) > 0 ? var.placement_constraints : {}
 
     content {
       expression = try(placement_constraints.value.expression, null)
@@ -89,12 +100,14 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-  platform_version    = var.launch_type == "FARGATE" ? var.platform_version : null
+  # Set by task set if deployment controller is external
+  platform_version    = local.is_fargate && !local.is_external_deployment ? var.platform_version : null
   propagate_tags      = var.propagate_tags
-  scheduling_strategy = var.launch_type == "FARGATE" ? "REPLICA" : var.scheduling_strategy
+  scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
 
   dynamic "service_registries" {
-    for_each = [var.service_registries]
+    # Set by task set if deployment controller is external
+    for_each = length(var.service_registries) > 0 ? [{ for k, v in var.service_registries : k => v if !local.is_external_deployment }] : []
 
     content {
       container_name = try(service_registries.value.container_name, null)
@@ -104,7 +117,7 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-  task_definition       = var.task_definition
+  task_definition       = aws_ecs_task_definition.this[0].arn
   wait_for_steady_state = var.wait_for_steady_state
 
   tags = var.tags
@@ -120,7 +133,8 @@ resource "aws_ecs_service" "idc" {
   count = var.create && var.ignore_desired_count_changes ? 1 : 0
 
   dynamic "capacity_provider_strategy" {
-    for_each = var.capacity_provider_strategy
+    # Set by task set if deployment controller is external
+    for_each = length(var.capacity_provider_strategy) ? { for k, v in var.capacity_provider_strategy : k => v if !local.is_external_deployment } : {}
 
     content {
       base              = try(capacity_provider_strategy.value.base, null)
@@ -132,7 +146,7 @@ resource "aws_ecs_service" "idc" {
   cluster = var.cluster
 
   dynamic "deployment_circuit_breaker" {
-    for_each = [var.deployment_circuit_breaker]
+    for_each = length(var.deployment_circuit_breaker) ? [var.deployment_circuit_breaker] : []
 
     content {
       enable   = deployment_circuit_breaker.value.enable
@@ -141,25 +155,27 @@ resource "aws_ecs_service" "idc" {
   }
 
   dynamic "deployment_controller" {
-    for_each = [var.deployment_controller]
+    for_each = length(var.deployment_controller) > 0 ? [var.deployment_controller] : []
 
     content {
       type = try(deployment_controller.value.type, null)
     }
   }
 
-  deployment_maximum_percent         = var.scheduling_strategy == "DAEMON" ? null : var.deployment_maximum_percent
-  deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
-  desired_count                      = var.scheduling_strategy == "DAEMON" ? null : var.desired_count
+  deployment_maximum_percent         = local.is_daemon || local.is_external_deployment ? null : var.deployment_maximum_percent
+  deployment_minimum_healthy_percent = local.is_external_deployment ? null : var.deployment_minimum_healthy_percent
+  desired_count                      = local.is_daemon || local.is_external_deployment ? null : var.desired_count
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
   enable_execute_command             = var.enable_execute_command
-  force_new_deployment               = var.force_new_deployment
+  force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
-  launch_type                        = var.launch_type
+  # Set by task set if deployment controller is external
+  launch_type = local.is_external_deployment ? var.launch_type : null
 
   dynamic "load_balancer" {
-    for_each = var.load_balancer
+    # Set by task set if deployment controller is external
+    for_each = length(var.load_balancer) > 0 ? { for k, v in var.load_balancer : k => v if !local.is_external_deployment } : {}
 
     content {
       container_name   = load_balancer.value.container_name
@@ -172,7 +188,8 @@ resource "aws_ecs_service" "idc" {
   name = var.name
 
   dynamic "network_configuration" {
-    for_each = [var.network_configuration]
+    # Set by task set if deployment controller is external
+    for_each = length(var.network_configuration) > 0 ? [{ for k, v in var.network_configuration : k => v if !local.is_external_deployment }] : []
 
     content {
       assign_public_ip = try(network_configuration.value.assign_public_ip, null)
@@ -182,7 +199,7 @@ resource "aws_ecs_service" "idc" {
   }
 
   dynamic "ordered_placement_strategy" {
-    for_each = var.ordered_placement_strategy
+    for_each = length(var.ordered_placement_strategy) > 0 ? var.ordered_placement_strategy : {}
 
     content {
       field = try(ordered_placement_strategy.value.field, null)
@@ -191,7 +208,7 @@ resource "aws_ecs_service" "idc" {
   }
 
   dynamic "placement_constraints" {
-    for_each = var.placement_constraints
+    for_each = length(var.placement_constraints) > 0 ? var.placement_constraints : {}
 
     content {
       expression = try(placement_constraints.value.expression, null)
@@ -199,12 +216,14 @@ resource "aws_ecs_service" "idc" {
     }
   }
 
-  platform_version    = var.launch_type == "FARGATE" ? var.platform_version : null
+  # Set by task set if deployment controller is external
+  platform_version    = local.is_fargate && !local.is_external_deployment ? var.platform_version : null
   propagate_tags      = var.propagate_tags
-  scheduling_strategy = var.launch_type == "FARGATE" ? "REPLICA" : var.scheduling_strategy
+  scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
 
   dynamic "service_registries" {
-    for_each = [var.service_registries]
+    # Set by task set if deployment controller is external
+    for_each = length(var.service_registries) > 0 ? [{ for k, v in var.service_registries : k => v if !local.is_external_deployment }] : []
 
     content {
       container_name = try(service_registries.value.container_name, null)
@@ -214,7 +233,7 @@ resource "aws_ecs_service" "idc" {
     }
   }
 
-  task_definition       = var.task_definition
+  task_definition       = aws_ecs_task_definition.this[0].arn
   wait_for_steady_state = var.wait_for_steady_state
 
   tags = var.tags
@@ -548,4 +567,79 @@ resource "aws_iam_role_policy_attachment" "tasks" {
 
   role       = aws_iam_role.tasks[0].name
   policy_arn = each.value
+}
+
+################################################################################
+# Task Set
+################################################################################
+
+resource "aws_ecs_task_set" "this" {
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskset.html
+  count = var.create && local.is_external_deployment ? 1 : 0
+
+  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.idc[0].id)
+  cluster         = var.cluster
+  external_id     = var.task_set_external_id
+  task_definition = aws_ecs_task_definition.this[0].arn
+
+  dynamic "network_configuration" {
+    for_each = length(var.network_configuration) > 0 ? [var.network_configuration] : []
+
+    content {
+      security_groups  = try(network_configuration.value.security_groups, null)
+      subnets          = network_configuration.value.subnets
+      assign_public_ip = try(network_configuration.value.assign_public_ip, null)
+    }
+  }
+
+  dynamic "load_balancer" {
+    for_each = length(var.load_balancer) > 0 ? var.load_balancer : {}
+
+    content {
+      load_balancer_name = try(load_balancer.value.load_balancer_name, null)
+      target_group_arn   = try(load_balancer.value.target_group_arn, null)
+      container_name     = load_balancer.value.container_name
+      container_port     = try(load_balancer.value.container_port, null)
+    }
+  }
+
+  dynamic "service_registries" {
+    for_each = length(var.service_registries) > 0 ? [var.service_registries] : []
+
+    content {
+      container_name = try(service_registries.value.container_name, null)
+      container_port = try(service_registries.value.container_port, null)
+      port           = try(service_registries.value.port, null)
+      registry_arn   = service_registries.value.registry_arn
+    }
+  }
+
+  launch_type = var.launch_type
+
+  dynamic "capacity_provider_strategy" {
+    for_each = length(var.capacity_provider_strategy) > 0 ? var.capacity_provider_strategy : {}
+
+    content {
+      base              = try(capacity_provider_strategy.value.base, null)
+      capacity_provider = capacity_provider_strategy.value.capacity_provider
+      weight            = capacity_provider.value.weight
+    }
+  }
+
+  platform_version = local.is_fargate ? var.platform_version : null
+
+  dynamic "scale" {
+    for_each = length(var.task_set_scale) > 0 ? [var.task_set_scale] : []
+
+    content {
+      unit  = try(scale.value.unit, null)
+      value = try(scale.value.value, null)
+    }
+  }
+
+  force_delete              = var.task_set_force_delete
+  wait_until_stable         = var.task_set_wait_until_stable
+  wait_until_stable_timeout = var.task_set_wait_until_stable_timeout
+
+  tags = var.tags
 }

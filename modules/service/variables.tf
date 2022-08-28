@@ -146,12 +146,6 @@ variable "service_registries" {
   default     = {}
 }
 
-variable "task_definition" {
-  description = "Family and revision (`family:revision`) or full ARN of the task definition that you want to run in your service. Required unless using the `EXTERNAL` deployment controller"
-  type        = string
-  default     = null
-}
-
 variable "wait_for_steady_state" {
   description = "If true, Terraform will wait for the service to reach a steady state before continuing. Default is `false`"
   type        = bool
@@ -426,4 +420,38 @@ variable "tasks_iam_role_policies" {
   description = "Map of IAM role policy ARNs to attach to the IAM role"
   type        = map(string)
   default     = {}
+}
+
+################################################################################
+# Task Set
+################################################################################
+
+variable "task_set_external_id" {
+  description = "The external ID associated with the task set"
+  type        = string
+  default     = null
+}
+
+variable "task_set_scale" {
+  description = "A floating-point percentage of the desired number of tasks to place and keep running in the task set"
+  type        = any
+  default     = {}
+}
+
+variable "task_set_force_delete" {
+  description = "Whether to allow deleting the task set without waiting for scaling down to 0"
+  type        = bool
+  default     = null
+}
+
+variable "task_set_wait_until_stable" {
+  description = "Whether terraform should wait until the task set has reached `STEADY_STATE`"
+  type        = bool
+  default     = null
+}
+
+variable "task_set_wait_until_stable_timeout" {
+  description = "Wait timeout for task set to reach `STEADY_STATE`. Valid time units include `ns`, `us` (or µs), `ms`, `s`, `m`, and `h`. Default `10m`"
+  type        = number
+  default     = null
 }

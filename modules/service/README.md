@@ -8,7 +8,7 @@ Configuration in this directory creates an ECS Service EKS Profile
 
 - [x] `aws_ecs_service` (one default, one with `ignore_changes` for things like `desired_count`)
 - [x] `aws_ecs_task_definition`
-- [ ] `aws_ecs_task_set`
+- [x] `aws_ecs_task_set`
 - [ ] `aws_appautoscaling_target` & `aws_appautoscaling_policy` (`for_each` over a shared map where each key = 1 target and 2 policies, 1 policy for scale up, 1 for scale down)
 - [x] Task role (`aws_iam_role`, `aws_iam_role_policy_attachment`, assume role `aws_iam_policy_document`)
 - [x] Task exectution role (`aws_iam_role`, `aws_iam_role_policy_attachment`, assume role `aws_iam_policy_document`)
@@ -61,6 +61,7 @@ No modules.
 | [aws_ecs_service.idc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_ecs_service.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_ecs_task_definition.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition) | resource |
+| [aws_ecs_task_set.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_set) | resource |
 | [aws_iam_policy.service](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.service](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.task_exec](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
@@ -130,7 +131,6 @@ No modules.
 | <a name="input_task_def_runtime_platform"></a> [task\_def\_runtime\_platform](#input\_task\_def\_runtime\_platform) | Configuration block for `task_runtime_platform` that containers in your task may use | `any` | `{}` | no |
 | <a name="input_task_def_skip_destroy"></a> [task\_def\_skip\_destroy](#input\_task\_def\_skip\_destroy) | If true, the task is not deleted when the service is deleted | `bool` | `null` | no |
 | <a name="input_task_def_volume"></a> [task\_def\_volume](#input\_task\_def\_volume) | Configuration block for volumes that containers in your task may use | `any` | `{}` | no |
-| <a name="input_task_definition"></a> [task\_definition](#input\_task\_definition) | Family and revision (`family:revision`) or full ARN of the task definition that you want to run in your service. Required unless using the `EXTERNAL` deployment controller | `string` | `null` | no |
 | <a name="input_task_exec_iam_role_arn"></a> [task\_exec\_iam\_role\_arn](#input\_task\_exec\_iam\_role\_arn) | Existing IAM role ARN | `string` | `null` | no |
 | <a name="input_task_exec_iam_role_description"></a> [task\_exec\_iam\_role\_description](#input\_task\_exec\_iam\_role\_description) | Description of the role | `string` | `null` | no |
 | <a name="input_task_exec_iam_role_name"></a> [task\_exec\_iam\_role\_name](#input\_task\_exec\_iam\_role\_name) | Name to use on IAM role created | `string` | `null` | no |
@@ -139,6 +139,11 @@ No modules.
 | <a name="input_task_exec_iam_role_policies"></a> [task\_exec\_iam\_role\_policies](#input\_task\_exec\_iam\_role\_policies) | Map of IAM role policy ARNs to attach to the IAM role | `map(string)` | `{}` | no |
 | <a name="input_task_exec_iam_role_tags"></a> [task\_exec\_iam\_role\_tags](#input\_task\_exec\_iam\_role\_tags) | A map of additional tags to add to the IAM role created | `map(string)` | `{}` | no |
 | <a name="input_task_exec_iam_role_use_name_prefix"></a> [task\_exec\_iam\_role\_use\_name\_prefix](#input\_task\_exec\_iam\_role\_use\_name\_prefix) | Determines whether the IAM role name (`task_exec_iam_role_name`) is used as a prefix | `bool` | `true` | no |
+| <a name="input_task_set_external_id"></a> [task\_set\_external\_id](#input\_task\_set\_external\_id) | The external ID associated with the task set | `string` | `null` | no |
+| <a name="input_task_set_force_delete"></a> [task\_set\_force\_delete](#input\_task\_set\_force\_delete) | Whether to allow deleting the task set without waiting for scaling down to 0 | `bool` | `null` | no |
+| <a name="input_task_set_scale"></a> [task\_set\_scale](#input\_task\_set\_scale) | A floating-point percentage of the desired number of tasks to place and keep running in the task set | `any` | `{}` | no |
+| <a name="input_task_set_wait_until_stable"></a> [task\_set\_wait\_until\_stable](#input\_task\_set\_wait\_until\_stable) | Whether terraform should wait until the task set has reached `STEADY_STATE` | `bool` | `null` | no |
+| <a name="input_task_set_wait_until_stable_timeout"></a> [task\_set\_wait\_until\_stable\_timeout](#input\_task\_set\_wait\_until\_stable\_timeout) | Wait timeout for task set to reach `STEADY_STATE`. Valid time units include `ns`, `us` (or µs), `ms`, `s`, `m`, and `h`. Default `10m` | `number` | `null` | no |
 | <a name="input_tasks_iam_role_arn"></a> [tasks\_iam\_role\_arn](#input\_tasks\_iam\_role\_arn) | Existing IAM role ARN | `string` | `null` | no |
 | <a name="input_tasks_iam_role_description"></a> [tasks\_iam\_role\_description](#input\_tasks\_iam\_role\_description) | Description of the role | `string` | `null` | no |
 | <a name="input_tasks_iam_role_name"></a> [tasks\_iam\_role\_name](#input\_tasks\_iam\_role\_name) | Name to use on IAM role created | `string` | `null` | no |
@@ -163,6 +168,10 @@ No modules.
 | <a name="output_task_exec_iam_role_arn"></a> [task\_exec\_iam\_role\_arn](#output\_task\_exec\_iam\_role\_arn) | Task execution IAM role ARN |
 | <a name="output_task_exec_iam_role_name"></a> [task\_exec\_iam\_role\_name](#output\_task\_exec\_iam\_role\_name) | Task execution IAM role name |
 | <a name="output_task_exec_iam_role_unique_id"></a> [task\_exec\_iam\_role\_unique\_id](#output\_task\_exec\_iam\_role\_unique\_id) | Stable and unique string identifying the task execution IAM role |
+| <a name="output_task_set_arn"></a> [task\_set\_arn](#output\_task\_set\_arn) | The Amazon Resource Name (ARN) that identifies the task set |
+| <a name="output_task_set_id"></a> [task\_set\_id](#output\_task\_set\_id) | The ID of the task set |
+| <a name="output_task_set_stability_status"></a> [task\_set\_stability\_status](#output\_task\_set\_stability\_status) | The stability status. This indicates whether the task set has reached a steady state |
+| <a name="output_task_set_status"></a> [task\_set\_status](#output\_task\_set\_status) | The status of the task set |
 | <a name="output_tasks_iam_role_arn"></a> [tasks\_iam\_role\_arn](#output\_tasks\_iam\_role\_arn) | Tasks IAM role ARN |
 | <a name="output_tasks_iam_role_name"></a> [tasks\_iam\_role\_name](#output\_tasks\_iam\_role\_name) | Tasjs IAM role name |
 | <a name="output_tasks_iam_role_unique_id"></a> [tasks\_iam\_role\_unique\_id](#output\_tasks\_iam\_role\_unique\_id) | Stable and unique string identifying the tasks IAM role |

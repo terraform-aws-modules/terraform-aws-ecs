@@ -84,3 +84,27 @@ output "tasks_iam_role_unique_id" {
   description = "Stable and unique string identifying the tasks IAM role"
   value       = try(aws_iam_role.tasks[0].unique_id, null)
 }
+
+################################################################################
+# Task Set
+################################################################################
+
+output "task_set_id" {
+  description = "The ID of the task set"
+  value       = try(aws_ecs_task_set.this[0].task_set_id, null)
+}
+
+output "task_set_arn" {
+  description = "The Amazon Resource Name (ARN) that identifies the task set"
+  value       = try(aws_ecs_task_set.this[0].arn, null)
+}
+
+output "task_set_stability_status" {
+  description = "The stability status. This indicates whether the task set has reached a steady state"
+  value       = try(aws_ecs_task_set.this[0].stability_status, null)
+}
+
+output "task_set_status" {
+  description = "The status of the task set"
+  value       = try(aws_ecs_task_set.this[0].status, null)
+}
