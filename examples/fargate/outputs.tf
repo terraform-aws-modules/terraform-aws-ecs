@@ -67,17 +67,3 @@ output "iam_role_unique_id" {
   description = "Stable and unique string identifying the service IAM role"
   value       = module.service.iam_role_unique_id
 }
-
-################################################################################
-# Task Definition
-################################################################################
-
-output "task_arn" {
-  description = "Full ARN of the Task Definition (including both `family` and `revision`)"
-  value       = module.service.task_arn
-}
-
-output "task_revision" {
-  description = "Revision of the task in a particular family"
-  value       = module.service.task_revision
-}

@@ -1,4 +1,6 @@
+data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
+data "aws_region" "current" {}
 
 ################################################################################
 # Service
@@ -229,12 +231,10 @@ resource "aws_ecs_service" "idc" {
 ################################################################################
 # Service - IAM Role
 ################################################################################
-locals {
 
-}
 locals {
   # Role is not required if task definition uses `awsvpc` network mode or if a load balancer is not used
-  needs_iam_role  = var.task_network_mode != "awsvpc" && length(var.load_balancer) > 0
+  needs_iam_role  = var.task_def_network_mode != "awsvpc" && length(var.load_balancer) > 0
   create_iam_role = var.create && var.create_iam_role && local.needs_iam_role
   iam_role_arn    = local.needs_iam_role ? coalesce(var.iam_role_arn, aws_iam_role.service[0].arn) : null
 
@@ -311,24 +311,24 @@ resource "aws_iam_role_policy_attachment" "service" {
 ################################################################################
 
 resource "aws_ecs_task_definition" "this" {
-  count = var.create && var.create_task_definition ? 1 : 0
+  count = var.create && var.create_task_def ? 1 : 0
 
-  container_definitions = var.task_container_definitions
-  cpu                   = var.task_cpu
+  container_definitions = var.task_def_container_definitions
+  cpu                   = var.task_def_cpu
 
   dynamic "ephemeral_storage" {
-    for_each = [var.task_ephemeral_storage]
+    for_each = [var.task_def_ephemeral_storage]
 
     content {
       size_in_gib = ephemeral_storage.value.size_in_gib
     }
   }
 
-  execution_role_arn = var.task_execution_role_arn
-  family             = var.task_family
+  execution_role_arn = var.create_task_exec_iam_role ? aws_iam_role.task_exec[0].arn : var.task_exec_iam_role_arn
+  family             = var.task_def_family
 
   dynamic "inference_accelerator" {
-    for_each = var.task_inference_accelerator
+    for_each = var.task_def_inference_accelerator
 
     content {
       device_name = inference_accelerator.value.device_name
@@ -336,13 +336,13 @@ resource "aws_ecs_task_definition" "this" {
     }
   }
 
-  ipc_mode     = var.task_ipc_mode
-  memory       = var.task_memory
-  network_mode = var.task_network_mode
-  pid_mode     = var.task_pid_mode
+  ipc_mode     = var.task_def_ipc_mode
+  memory       = var.task_def_memory
+  network_mode = var.task_def_network_mode
+  pid_mode     = var.task_def_pid_mode
 
   dynamic "placement_constraints" {
-    for_each = var.task_placement_constraints
+    for_each = var.task_def_placement_constraints
 
     content {
       expression = try(placement_constraints.value.expression, null)
@@ -351,7 +351,7 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   dynamic "proxy_configuration" {
-    for_each = [var.task_proxy_configuration]
+    for_each = [var.task_def_proxy_configuration]
 
     content {
       container_name = proxy_configuration.value.container_name
@@ -360,10 +360,10 @@ resource "aws_ecs_task_definition" "this" {
     }
   }
 
-  requires_compatibilities = var.task_requires_compatibilities
+  requires_compatibilities = var.task_def_requires_compatibilities
 
   dynamic "runtime_platform" {
-    for_each = [var.task_runtime_platform]
+    for_each = [var.task_def_runtime_platform]
 
     content {
       cpu_architecture        = try(runtime_platform.value.cpu_architecture, null)
@@ -371,11 +371,11 @@ resource "aws_ecs_task_definition" "this" {
     }
   }
 
-  skip_destroy  = var.task_skip_destroy
-  task_role_arn = var.task_role_arn
+  skip_destroy  = var.task_def_skip_destroy
+  task_role_arn = var.create_tasks_iam_role ? aws_iam_role.tasks[0].arn : var.tasks_iam_role_arn
 
   dynamic "volume" {
-    for_each = var.task_volume
+    for_each = var.task_def_volume
 
     content {
       dynamic "docker_volume_configuration" {
@@ -438,4 +438,114 @@ resource "aws_ecs_task_definition" "this" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+################################################################################
+# Task Execution - IAM Role
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html
+################################################################################
+
+locals {
+  task_exec_iam_role_name = try(coalesce(var.task_exec_iam_role_name, var.name), "")
+
+  task_exec_iam_role_policies = merge(
+    var.task_exec_iam_role_policies,
+    {
+      "AmazonECSTaskExecutionRolePolicy" : "arn:${data.aws_partition.current.id}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+    }
+  )
+}
+
+data "aws_iam_policy_document" "task_exec_assume" {
+  count = var.create && var.create_task_exec_iam_role ? 1 : 0
+
+  statement {
+    sid     = "ECSTaskExecutionAssumeRole"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.${data.aws_partition.current.dns_suffix}"]
+    }
+  }
+}
+
+resource "aws_iam_role" "task_exec" {
+  count = var.create && var.create_task_exec_iam_role ? 1 : 0
+
+  name        = var.task_exec_iam_role_use_name_prefix ? null : local.task_exec_iam_role_name
+  name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
+  path        = var.task_exec_iam_role_path
+  description = var.task_exec_iam_role_description
+
+  assume_role_policy    = data.aws_iam_policy_document.task_exec_assume[0].json
+  permissions_boundary  = var.task_exec_iam_role_permissions_boundary
+  force_detach_policies = true
+
+  tags = merge(var.tags, var.task_exec_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "task_def" {
+  for_each = { for k, v in local.task_exec_iam_role_policies : k => v if var.create && var.create_task_exec_iam_role }
+
+  role       = aws_iam_role.task_exec[0].name
+  policy_arn = each.value
+}
+
+################################################################################
+# Tasks - IAM role
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html
+################################################################################
+
+locals {
+  tasks_iam_role_name = try(coalesce(var.tasks_iam_role_name, var.name), "")
+}
+
+data "aws_iam_policy_document" "tasks_assume" {
+  count = var.create && var.create_tasks_iam_role ? 1 : 0
+
+  statement {
+    sid     = "ECSTasksAssumeRole"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.${data.aws_partition.current.dns_suffix}"]
+    }
+
+    # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html#create_task_iam_policy_and_role
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = ["arn:${data.aws_partition.current.id}:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+}
+
+resource "aws_iam_role" "tasks" {
+  count = var.create && var.create_tasks_iam_role ? 1 : 0
+
+  name        = var.tasks_iam_role_use_name_prefix ? null : local.tasks_iam_role_name
+  name_prefix = var.tasks_iam_role_use_name_prefix ? "${local.tasks_iam_role_name}-" : null
+  path        = var.tasks_iam_role_path
+  description = var.tasks_iam_role_description
+
+  assume_role_policy    = data.aws_iam_policy_document.tasks_assume[0].json
+  permissions_boundary  = var.tasks_iam_role_permissions_boundary
+  force_detach_policies = true
+
+  tags = merge(var.tags, var.tasks_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "tasks" {
+  for_each = { for k, v in var.tasks_iam_role_policies : k => v if var.create && var.create_tasks_iam_role }
+
+  role       = aws_iam_role.tasks[0].name
+  policy_arn = each.value
 }
