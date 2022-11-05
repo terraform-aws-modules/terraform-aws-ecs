@@ -27,13 +27,13 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.6 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.37 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.6 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.37 |
 
 ## Modules
 
@@ -103,5 +103,4 @@ No modules.
 | <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | Arn of cloudwatch log group created |
 | <a name="output_cloudwatch_log_group_name"></a> [cloudwatch\_log\_group\_name](#output\_cloudwatch\_log\_group\_name) | Name of cloudwatch log group created |
 | <a name="output_container_definition"></a> [container\_definition](#output\_container\_definition) | Container definition |
-| <a name="output_encoded_container_definition"></a> [encoded\_container\_definition](#output\_encoded\_container\_definition) | JSON encoded container definition |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

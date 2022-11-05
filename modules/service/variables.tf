@@ -117,7 +117,7 @@ variable "ordered_placement_strategy" {
 }
 
 variable "placement_constraints" {
-  description = "Rules that are taken into consideration during task placement"
+  description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10)"
   type        = any
   default     = {}
 }
@@ -208,97 +208,107 @@ variable "iam_role_tags" {
 # Task Definition
 ################################################################################
 
-variable "create_task_def" {
+variable "create_task_definition" {
   description = "Determines whether to create a task definition or use existing/provided"
   type        = bool
   default     = true
 }
 
-variable "task_def_container_definitions" {
-  description = "A list of valid [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html) provided as a single valid JSON document. Please note that you should only provide values that are part of the container definition document"
-  type        = string
-  default     = ""
+variable "container_definitions" {
+  description = "A map of valid [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html). Please note that you should only provide values that are part of the container definition document"
+  type        = any
+  default     = {}
 }
 
-variable "task_def_cpu" {
-  description = "Number of cpu units used by the task. If the `task_requires_compatibilities` is `FARGATE` this field is required"
+variable "container_definition_defaults" {
+  description = "A map of default values for [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html) created by `container_definitions`"
+  type        = any
+  default     = {}
+}
+
+variable "cpu" {
+  description = "Number of cpu units used by the task. If the `requires_compatibilities` is `FARGATE` this field is required"
   type        = number
-  default     = null
+  default     = 1024
 }
 
-variable "task_def_ephemeral_storage" {
+variable "ephemeral_storage" {
   description = "The amount of ephemeral storage to allocate for the task. This parameter is used to expand the total amount of ephemeral storage available, beyond the default amount, for tasks hosted on AWS Fargate"
   type        = any
   default     = {}
 }
 
-variable "task_def_family" {
+variable "family" {
   description = "A unique name for your task definition"
   type        = string
   default     = null
 }
 
-variable "task_def_inference_accelerator" {
+variable "inference_accelerator" {
   description = "Configuration block(s) with Inference Accelerators settings"
   type        = any
   default     = {}
 }
 
-variable "task_def_ipc_mode" {
+variable "ipc_mode" {
   description = "IPC resource namespace to be used for the containers in the task The valid values are `host`, `task`, and `none`"
   type        = string
   default     = null
 }
 
-variable "task_def_memory" {
-  description = "Amount (in MiB) of memory used by the task. If the `task_requires_compatibilities` is `FARGATE` this field is required"
+variable "memory" {
+  description = "Amount (in MiB) of memory used by the task. If the `requires_compatibilities` is `FARGATE` this field is required"
   type        = number
-  default     = null
+  default     = 2048
 }
 
-variable "task_def_network_mode" {
+variable "network_mode" {
   description = "Docker networking mode to use for the containers in the task. Valid values are `none`, `bridge`, `awsvpc`, and `host`"
   type        = string
-  default     = null
+  default     = "awsvpc"
 }
 
-variable "task_def_pid_mode" {
+variable "pid_mode" {
   description = "Process namespace to use for the containers in the task. The valid values are `host` and `task`"
   type        = string
   default     = null
 }
 
-variable "task_def_placement_constraints" {
-  description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10)"
-  type        = any
-  default     = {}
-}
+# Shared between service and task definition
+# variable "placement_constraints" {
+#   description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10)"
+#   type        = any
+#   default     = {}
+# }
 
-variable "task_def_proxy_configuration" {
+variable "proxy_configuration" {
   description = "Configuration block for the App Mesh proxy"
   type        = any
   default     = {}
 }
 
-variable "task_def_requires_compatibilities" {
+variable "requires_compatibilities" {
   description = "Set of launch types required by the task. The valid values are `EC2` and `FARGATE`"
   type        = list(string)
-  default     = []
+  default     = ["FARGATE"]
 }
 
-variable "task_def_runtime_platform" {
-  description = "Configuration block for `task_runtime_platform` that containers in your task may use"
+variable "runtime_platform" {
+  description = "Configuration block for `runtime_platform` that containers in your task may use"
   type        = any
-  default     = {}
+  default = {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "X86_64"
+  }
 }
 
-variable "task_def_skip_destroy" {
+variable "skip_destroy" {
   description = "If true, the task is not deleted when the service is deleted"
   type        = bool
   default     = null
 }
 
-variable "task_def_volume" {
+variable "volume" {
   description = "Configuration block for volumes that containers in your task may use"
   type        = any
   default     = {}
@@ -426,31 +436,31 @@ variable "tasks_iam_role_policies" {
 # Task Set
 ################################################################################
 
-variable "task_set_external_id" {
+variable "external_id" {
   description = "The external ID associated with the task set"
   type        = string
   default     = null
 }
 
-variable "task_set_scale" {
+variable "scale" {
   description = "A floating-point percentage of the desired number of tasks to place and keep running in the task set"
   type        = any
   default     = {}
 }
 
-variable "task_set_force_delete" {
+variable "force_delete" {
   description = "Whether to allow deleting the task set without waiting for scaling down to 0"
   type        = bool
   default     = null
 }
 
-variable "task_set_wait_until_stable" {
+variable "wait_until_stable" {
   description = "Whether terraform should wait until the task set has reached `STEADY_STATE`"
   type        = bool
   default     = null
 }
 
-variable "task_set_wait_until_stable_timeout" {
+variable "wait_until_stable_timeout" {
   description = "Wait timeout for task set to reach `STEADY_STATE`. Valid time units include `ns`, `us` (or µs), `ms`, `s`, `m`, and `h`. Default `10m`"
   type        = number
   default     = null

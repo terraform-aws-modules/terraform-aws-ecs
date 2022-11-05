@@ -17,18 +17,10 @@ output "cluster_name" {
   value       = module.ecs.cluster_name
 }
 
-################################################################################
-# Cluster Capacity Providers
-################################################################################
-
 output "cluster_capacity_providers" {
   description = "Map of cluster capacity providers attributes"
   value       = module.ecs.cluster_capacity_providers
 }
-
-################################################################################
-# Capacity Provider
-################################################################################
 
 output "autoscaling_capacity_providers" {
   description = "Map of capacity providers created and their attributes"
@@ -48,10 +40,6 @@ output "name" {
   description = "Name of the service"
   value       = module.service.name
 }
-
-################################################################################
-# IAM Role
-################################################################################
 
 output "iam_role_name" {
   description = "Service IAM role name"

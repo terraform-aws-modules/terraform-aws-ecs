@@ -18,7 +18,7 @@ resource "aws_ecs_service" "this" {
 
   dynamic "capacity_provider_strategy" {
     # Set by task set if deployment controller is external
-    for_each = length(var.capacity_provider_strategy) ? { for k, v in var.capacity_provider_strategy : k => v if !local.is_external_deployment } : {}
+    for_each = { for k, v in var.capacity_provider_strategy : k => v if !local.is_external_deployment }
 
     content {
       base              = try(capacity_provider_strategy.value.base, null)
@@ -30,7 +30,7 @@ resource "aws_ecs_service" "this" {
   cluster = var.cluster
 
   dynamic "deployment_circuit_breaker" {
-    for_each = length(var.deployment_circuit_breaker) ? [var.deployment_circuit_breaker] : []
+    for_each = length(var.deployment_circuit_breaker) > 0 ? [var.deployment_circuit_breaker] : []
 
     content {
       enable   = deployment_circuit_breaker.value.enable
@@ -47,15 +47,14 @@ resource "aws_ecs_service" "this" {
   }
 
   deployment_maximum_percent         = local.is_daemon || local.is_external_deployment ? null : var.deployment_maximum_percent
-  deployment_minimum_healthy_percent = local.is_external_deployment ? null : var.deployment_minimum_healthy_percent
+  deployment_minimum_healthy_percent = local.is_daemon || local.is_external_deployment ? null : var.deployment_minimum_healthy_percent
   desired_count                      = local.is_daemon || local.is_external_deployment ? null : var.desired_count
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
   enable_execute_command             = var.enable_execute_command
   force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
-  # Set by task set if deployment controller is external
-  launch_type = local.is_external_deployment ? var.launch_type : null
+  launch_type                        = local.is_external_deployment ? var.launch_type : null
 
   dynamic "load_balancer" {
     # Set by task set if deployment controller is external
@@ -117,10 +116,9 @@ resource "aws_ecs_service" "this" {
     }
   }
 
+  tags                  = var.tags
   task_definition       = aws_ecs_task_definition.this[0].arn
   wait_for_steady_state = var.wait_for_steady_state
-
-  tags = var.tags
 
   depends_on = [aws_iam_policy.service]
 }
@@ -134,7 +132,7 @@ resource "aws_ecs_service" "idc" {
 
   dynamic "capacity_provider_strategy" {
     # Set by task set if deployment controller is external
-    for_each = length(var.capacity_provider_strategy) ? { for k, v in var.capacity_provider_strategy : k => v if !local.is_external_deployment } : {}
+    for_each = { for k, v in var.capacity_provider_strategy : k => v if !local.is_external_deployment }
 
     content {
       base              = try(capacity_provider_strategy.value.base, null)
@@ -146,7 +144,7 @@ resource "aws_ecs_service" "idc" {
   cluster = var.cluster
 
   dynamic "deployment_circuit_breaker" {
-    for_each = length(var.deployment_circuit_breaker) ? [var.deployment_circuit_breaker] : []
+    for_each = length(var.deployment_circuit_breaker) > 0 ? [var.deployment_circuit_breaker] : []
 
     content {
       enable   = deployment_circuit_breaker.value.enable
@@ -163,15 +161,14 @@ resource "aws_ecs_service" "idc" {
   }
 
   deployment_maximum_percent         = local.is_daemon || local.is_external_deployment ? null : var.deployment_maximum_percent
-  deployment_minimum_healthy_percent = local.is_external_deployment ? null : var.deployment_minimum_healthy_percent
+  deployment_minimum_healthy_percent = local.is_daemon || local.is_external_deployment ? null : var.deployment_minimum_healthy_percent
   desired_count                      = local.is_daemon || local.is_external_deployment ? null : var.desired_count
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
   enable_execute_command             = var.enable_execute_command
   force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
-  # Set by task set if deployment controller is external
-  launch_type = local.is_external_deployment ? var.launch_type : null
+  launch_type                        = local.is_external_deployment ? var.launch_type : null
 
   dynamic "load_balancer" {
     # Set by task set if deployment controller is external
@@ -233,10 +230,9 @@ resource "aws_ecs_service" "idc" {
     }
   }
 
+  tags                  = var.tags
   task_definition       = aws_ecs_task_definition.this[0].arn
   wait_for_steady_state = var.wait_for_steady_state
-
-  tags = var.tags
 
   depends_on = [aws_iam_policy.service]
 
@@ -253,7 +249,7 @@ resource "aws_ecs_service" "idc" {
 
 locals {
   # Role is not required if task definition uses `awsvpc` network mode or if a load balancer is not used
-  needs_iam_role  = var.task_def_network_mode != "awsvpc" && length(var.load_balancer) > 0
+  needs_iam_role  = var.network_mode != "awsvpc" && length(var.load_balancer) > 0
   create_iam_role = var.create && var.create_iam_role && local.needs_iam_role
   iam_role_arn    = local.needs_iam_role ? coalesce(var.iam_role_arn, aws_iam_role.service[0].arn) : null
 
@@ -310,8 +306,8 @@ data "aws_iam_policy_document" "service" {
 resource "aws_iam_policy" "service" {
   count = local.create_iam_role ? 1 : 0
 
-  name_prefix = "${var.iam_role_name}-service-"
-  path        = var.iam_role_path
+  name        = var.iam_role_use_name_prefix ? null : local.iam_role_name
+  name_prefix = var.iam_role_use_name_prefix ? "${local.iam_role_name}-" : null
   description = "ECS service policy that allows Amazon ECS to make calls to your load balancer on your behalf"
   policy      = data.aws_iam_policy_document.service[0].json
 
@@ -329,14 +325,76 @@ resource "aws_iam_role_policy_attachment" "service" {
 # Task Definition
 ################################################################################
 
-resource "aws_ecs_task_definition" "this" {
-  count = var.create && var.create_task_def ? 1 : 0
+locals {
+  create_task_definition = var.create && var.create_task_definition
+}
 
-  container_definitions = var.task_def_container_definitions
-  cpu                   = var.task_def_cpu
+module "container_definition" {
+  source = "../container-definition"
+
+  for_each = { for k, v in var.container_definitions : k => v if local.create_task_definition }
+
+  operating_system_family = try(var.runtime_platform.operating_system_family, "LINUX")
+
+  # Container Definition
+  command                  = try(each.value.command, var.container_definition_defaults.command, [])
+  cpu                      = try(each.value.cpu, var.container_definition_defaults.cpu, null)
+  dependencies             = try(each.value.dependencies, var.container_definition_defaults.dependencies, []) # depends_on is a reserved word
+  disable_networking       = try(each.value.disable_networking, var.container_definition_defaults.disable_networking, null)
+  dns_search_domains       = try(each.value.dns_search_domains, var.container_definition_defaults.dns_search_domains, [])
+  dns_servers              = try(each.value.dns_servers, var.container_definition_defaults.dns_servers, [])
+  docker_labels            = try(each.value.docker_labels, var.container_definition_defaults.docker_labels, {})
+  docker_security_options  = try(each.value.docker_security_options, var.container_definition_defaults.docker_security_options, [])
+  entrypoint               = try(each.value.entrypoint, var.container_definition_defaults.entrypoint, [])
+  environment              = try(each.value.environment, var.container_definition_defaults.environment, [])
+  environment_files        = try(each.value.environment_files, var.container_definition_defaults.environment_files, [])
+  essential                = try(each.value.essential, var.container_definition_defaults.essential, null)
+  extra_hosts              = try(each.value.extra_hosts, var.container_definition_defaults.extra_hosts, [])
+  firelens_configuration   = try(each.value.firelens_configuration, var.container_definition_defaults.firelens_configuration, {})
+  health_check             = try(each.value.health_check, var.container_definition_defaults.health_check, {})
+  hostname                 = try(each.value.hostname, var.container_definition_defaults.hostname, null)
+  image                    = try(each.value.image, var.container_definition_defaults.image, null)
+  interactive              = try(each.value.interactive, var.container_definition_defaults.interactive, false)
+  links                    = try(each.value.links, var.container_definition_defaults.links, [])
+  linux_parameters         = try(each.value.linux_parameters, var.container_definition_defaults.linux_parameters, {})
+  log_configuration        = try(each.value.log_configuration, var.container_definition_defaults.log_configuration, {})
+  memory                   = try(each.value.memory, var.container_definition_defaults.memory, null)
+  memory_reservation       = try(each.value.memory_reservation, var.container_definition_defaults.memory_reservation, null)
+  mount_points             = try(each.value.mount_points, var.container_definition_defaults.mount_points, [])
+  name                     = try(each.value.name, each.key)
+  port_mappings            = try(each.value.port_mappings, var.container_definition_defaults.port_mappings, [])
+  privileged               = try(each.value.privileged, var.container_definition_defaults.privileged, false)
+  pseudo_terminal          = try(each.value.pseudo_terminal, var.container_definition_defaults.pseudo_terminal, false)
+  readonly_root_filesystem = try(each.value.readonly_root_filesystem, var.container_definition_defaults.readonly_root_filesystem, true)
+  repository_credentials   = try(each.value.repository_credentials, var.container_definition_defaults.repository_credentials, {})
+  resource_requirements    = try(each.value.resource_requirements, var.container_definition_defaults.resource_requirements, [])
+  secrets                  = try(each.value.secrets, var.container_definition_defaults.secrets, [])
+  start_timeout            = try(each.value.start_timeout, var.container_definition_defaults.start_timeout, 30)
+  stop_timeout             = try(each.value.stop_timeout, var.container_definition_defaults.stop_timeout, 30)
+  system_controls          = try(each.value.system_controls, var.container_definition_defaults.system_controls, [])
+  ulimits                  = try(each.value.ulimits, var.container_definition_defaults.ulimits, [])
+  user                     = try(each.value.user, var.container_definition_defaults.user, null)
+  volumes_from             = try(each.value.volumes_from, var.container_definition_defaults.volumes_from, [])
+  working_directory        = try(each.value.working_directory, var.container_definition_defaults.working_directory, null)
+
+  # CloudWatch Log Group
+  service                                = var.name
+  create_cloudwatch_log_group            = try(each.value.create_cloudwatch_log_group, var.container_definition_defaults.create_cloudwatch_log_group, true)
+  cloudwatch_log_group_retention_in_days = try(each.value.cloudwatch_log_group_retention_in_days, var.container_definition_defaults.cloudwatch_log_group_retention_in_days, 14)
+  cloudwatch_log_group_kms_key_id        = try(each.value.cloudwatch_log_group_kms_key_id, var.container_definition_defaults.cloudwatch_log_group_kms_key_id, null)
+
+  tags = var.tags
+}
+
+resource "aws_ecs_task_definition" "this" {
+  count = local.create_task_definition ? 1 : 0
+
+  # Convert map of maps to array of maps before JSON encoding
+  container_definitions = jsonencode([for k, v in module.container_definition.container_definition : v])
+  cpu                   = var.cpu
 
   dynamic "ephemeral_storage" {
-    for_each = [var.task_def_ephemeral_storage]
+    for_each = length(var.ephemeral_storage) > 0 ? [var.ephemeral_storage] : []
 
     content {
       size_in_gib = ephemeral_storage.value.size_in_gib
@@ -344,10 +402,10 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   execution_role_arn = var.create_task_exec_iam_role ? aws_iam_role.task_exec[0].arn : var.task_exec_iam_role_arn
-  family             = var.task_def_family
+  family             = var.family
 
   dynamic "inference_accelerator" {
-    for_each = var.task_def_inference_accelerator
+    for_each = length(var.inference_accelerator) > 0 ? var.inference_accelerator : {}
 
     content {
       device_name = inference_accelerator.value.device_name
@@ -355,13 +413,13 @@ resource "aws_ecs_task_definition" "this" {
     }
   }
 
-  ipc_mode     = var.task_def_ipc_mode
-  memory       = var.task_def_memory
-  network_mode = var.task_def_network_mode
-  pid_mode     = var.task_def_pid_mode
+  ipc_mode     = var.ipc_mode
+  memory       = var.memory
+  network_mode = var.network_mode
+  pid_mode     = var.pid_mode
 
   dynamic "placement_constraints" {
-    for_each = var.task_def_placement_constraints
+    for_each = length(var.placement_constraints) > 0 ? var.placement_constraints : {}
 
     content {
       expression = try(placement_constraints.value.expression, null)
@@ -370,7 +428,7 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   dynamic "proxy_configuration" {
-    for_each = [var.task_def_proxy_configuration]
+    for_each = length(var.proxy_configuration) > 0 ? [var.proxy_configuration] : []
 
     content {
       container_name = proxy_configuration.value.container_name
@@ -379,10 +437,10 @@ resource "aws_ecs_task_definition" "this" {
     }
   }
 
-  requires_compatibilities = var.task_def_requires_compatibilities
+  requires_compatibilities = var.requires_compatibilities
 
   dynamic "runtime_platform" {
-    for_each = [var.task_def_runtime_platform]
+    for_each = length(var.runtime_platform) > 0 ? [var.runtime_platform] : []
 
     content {
       cpu_architecture        = try(runtime_platform.value.cpu_architecture, null)
@@ -390,11 +448,12 @@ resource "aws_ecs_task_definition" "this" {
     }
   }
 
-  skip_destroy  = var.task_def_skip_destroy
+  skip_destroy  = var.skip_destroy
+  tags          = var.tags
   task_role_arn = var.create_tasks_iam_role ? aws_iam_role.tasks[0].arn : var.tasks_iam_role_arn
 
   dynamic "volume" {
-    for_each = var.task_def_volume
+    for_each = length(var.volume) > 0 ? var.volume : {}
 
     content {
       dynamic "docker_volume_configuration" {
@@ -452,8 +511,6 @@ resource "aws_ecs_task_definition" "this" {
     }
   }
 
-  tags = var.tags
-
   lifecycle {
     create_before_destroy = true
   }
@@ -476,7 +533,7 @@ locals {
 }
 
 data "aws_iam_policy_document" "task_exec_assume" {
-  count = var.create && var.create_task_exec_iam_role ? 1 : 0
+  count = local.create_task_definition && var.create_task_exec_iam_role ? 1 : 0
 
   statement {
     sid     = "ECSTaskExecutionAssumeRole"
@@ -490,7 +547,7 @@ data "aws_iam_policy_document" "task_exec_assume" {
 }
 
 resource "aws_iam_role" "task_exec" {
-  count = var.create && var.create_task_exec_iam_role ? 1 : 0
+  count = local.create_task_definition && var.create_task_exec_iam_role ? 1 : 0
 
   name        = var.task_exec_iam_role_use_name_prefix ? null : local.task_exec_iam_role_name
   name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
@@ -505,7 +562,7 @@ resource "aws_iam_role" "task_exec" {
 }
 
 resource "aws_iam_role_policy_attachment" "task_def" {
-  for_each = { for k, v in local.task_exec_iam_role_policies : k => v if var.create && var.create_task_exec_iam_role }
+  for_each = { for k, v in local.task_exec_iam_role_policies : k => v if local.create_task_definition && var.create_task_exec_iam_role }
 
   role       = aws_iam_role.task_exec[0].name
   policy_arn = each.value
@@ -521,7 +578,7 @@ locals {
 }
 
 data "aws_iam_policy_document" "tasks_assume" {
-  count = var.create && var.create_tasks_iam_role ? 1 : 0
+  count = local.create_task_definition && var.create_tasks_iam_role ? 1 : 0
 
   statement {
     sid     = "ECSTasksAssumeRole"
@@ -548,7 +605,7 @@ data "aws_iam_policy_document" "tasks_assume" {
 }
 
 resource "aws_iam_role" "tasks" {
-  count = var.create && var.create_tasks_iam_role ? 1 : 0
+  count = local.create_task_definition && var.create_tasks_iam_role ? 1 : 0
 
   name        = var.tasks_iam_role_use_name_prefix ? null : local.tasks_iam_role_name
   name_prefix = var.tasks_iam_role_use_name_prefix ? "${local.tasks_iam_role_name}-" : null
@@ -563,7 +620,7 @@ resource "aws_iam_role" "tasks" {
 }
 
 resource "aws_iam_role_policy_attachment" "tasks" {
-  for_each = { for k, v in var.tasks_iam_role_policies : k => v if var.create && var.create_tasks_iam_role }
+  for_each = { for k, v in var.tasks_iam_role_policies : k => v if local.create_task_definition && var.create_tasks_iam_role }
 
   role       = aws_iam_role.tasks[0].name
   policy_arn = each.value
@@ -575,11 +632,11 @@ resource "aws_iam_role_policy_attachment" "tasks" {
 
 resource "aws_ecs_task_set" "this" {
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskset.html
-  count = var.create && local.is_external_deployment ? 1 : 0
+  count = local.create_task_definition && local.is_external_deployment ? 1 : 0
 
   service         = try(aws_ecs_service.this[0].id, aws_ecs_service.idc[0].id)
   cluster         = var.cluster
-  external_id     = var.task_set_external_id
+  external_id     = var.external_id
   task_definition = aws_ecs_task_definition.this[0].arn
 
   dynamic "network_configuration" {
@@ -629,7 +686,7 @@ resource "aws_ecs_task_set" "this" {
   platform_version = local.is_fargate ? var.platform_version : null
 
   dynamic "scale" {
-    for_each = length(var.task_set_scale) > 0 ? [var.task_set_scale] : []
+    for_each = length(var.scale) > 0 ? [var.scale] : []
 
     content {
       unit  = try(scale.value.unit, null)
@@ -637,9 +694,8 @@ resource "aws_ecs_task_set" "this" {
     }
   }
 
-  force_delete              = var.task_set_force_delete
-  wait_until_stable         = var.task_set_wait_until_stable
-  wait_until_stable_timeout = var.task_set_wait_until_stable_timeout
-
-  tags = var.tags
+  force_delete              = var.force_delete
+  tags                      = var.tags
+  wait_until_stable         = var.wait_until_stable
+  wait_until_stable_timeout = var.wait_until_stable_timeout
 }

@@ -7,11 +7,6 @@ output "container_definition" {
   value       = local.container_definition
 }
 
-output "encoded_container_definition" {
-  description = "JSON encoded container definition"
-  value       = jsonencode(local.container_definition)
-}
-
 ################################################################################
 # CloudWatch Log Group
 ################################################################################

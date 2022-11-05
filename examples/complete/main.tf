@@ -2,9 +2,14 @@ provider "aws" {
   region = local.region
 }
 
+data "aws_availability_zones" "available" {}
+
 locals {
   region = "eu-west-1"
-  name   = "ecs-ex-${replace(basename(path.cwd), "_", "-")}"
+  name   = "ecs-ex-${basename(path.cwd)}"
+
+  vpc_cidr = "10.0.0.0/16"
+  azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
   user_data = <<-EOT
     #!/bin/bash
@@ -88,12 +93,6 @@ module "ecs" {
   tags = local.tags
 }
 
-module "hello_world" {
-  source = "./service-hello-world"
-
-  cluster_id = module.ecs.cluster_id
-}
-
 module "ecs_disabled" {
   source = "../.."
 
@@ -112,6 +111,12 @@ module "service" {
   tags = local.tags
 }
 
+module "service_disabled" {
+  source = "../../modules/service"
+
+  create = false
+}
+
 ################################################################################
 # Supporting Resources
 ################################################################################
@@ -127,10 +132,10 @@ module "autoscaling" {
 
   for_each = {
     one = {
-      instance_type = "t3.micro"
+      instance_type = "t3.small"
     }
     two = {
-      instance_type = "t3.small"
+      instance_type = "t3.medium"
     }
   }
 
@@ -153,9 +158,9 @@ module "autoscaling" {
 
   vpc_zone_identifier = module.vpc.private_subnets
   health_check_type   = "EC2"
-  min_size            = 0
-  max_size            = 2
-  desired_capacity    = 1
+  min_size            = 1
+  max_size            = 5
+  desired_capacity    = 2
 
   # https://github.com/hashicorp/terraform-provider-aws/issues/12582
   autoscaling_group_tags = {
@@ -189,11 +194,11 @@ module "vpc" {
   version = "~> 3.0"
 
   name = local.name
-  cidr = "10.99.0.0/18"
+  cidr = local.vpc_cidr
 
-  azs             = ["${local.region}a", "${local.region}b", "${local.region}c"]
-  public_subnets  = ["10.99.0.0/24", "10.99.1.0/24", "10.99.2.0/24"]
-  private_subnets = ["10.99.3.0/24", "10.99.4.0/24", "10.99.5.0/24"]
+  azs             = local.azs
+  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 4, k)]
+  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 48)]
 
   enable_nat_gateway      = true
   single_nat_gateway      = true
