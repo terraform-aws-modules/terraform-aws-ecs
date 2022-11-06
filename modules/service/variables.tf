@@ -45,39 +45,39 @@ variable "deployment_controller" {
 }
 
 variable "deployment_maximum_percent" {
-  description = "Upper limit (as a percentage of the service's desiredCount) of the number of running tasks that can be running in a service during a deployment"
+  description = "Upper limit (as a percentage of the service's `desired_count`) of the number of running tasks that can be running in a service during a deployment"
   type        = number
-  default     = null
+  default     = 200
 }
 
 variable "deployment_minimum_healthy_percent" {
-  description = "Lower limit (as a percentage of the service's desiredCount) of the number of running tasks that must remain running and healthy in a service during a deployment"
+  description = "Lower limit (as a percentage of the service's `desired_count`) of the number of running tasks that must remain running and healthy in a service during a deployment"
   type        = number
-  default     = null
+  default     = 66
 }
 
 variable "desired_count" {
   description = "Number of instances of the task definition to place and keep running. Defaults to `0`"
   type        = number
-  default     = null
+  default     = 1
 }
 
 variable "enable_ecs_managed_tags" {
   description = "Specifies whether to enable Amazon ECS managed tags for the tasks within the service"
   type        = bool
-  default     = null
+  default     = true
 }
 
 variable "enable_execute_command" {
   description = "Specifies whether to enable Amazon ECS Exec for the tasks within the service"
   type        = bool
-  default     = null
+  default     = false
 }
 
 variable "force_new_deployment" {
   description = "Enable to force a new task deployment of the service. This can be used to update tasks to use a newer Docker image with same image/tag combination, roll Fargate tasks onto a newer platform version, or immediately deploy `ordered_placement_strategy` and `placement_constraints` updates"
   type        = bool
-  default     = null
+  default     = true
 }
 
 variable "health_check_grace_period_seconds" {
@@ -89,7 +89,7 @@ variable "health_check_grace_period_seconds" {
 variable "launch_type" {
   description = "Launch type on which to run your service. The valid values are `EC2`, `FARGATE`, and `EXTERNAL`. Defaults to `EC2`"
   type        = string
-  default     = null
+  default     = "FARGATE"
 }
 
 variable "load_balancer" {
@@ -105,7 +105,7 @@ variable "name" {
 }
 
 variable "network_configuration" {
-  description = "Network configuration for the service. This parameter is required for task definitions that use the awsvpc network mode to receive their own Elastic Network Interface, and it is not supported for other network modes"
+  description = "Network configuration for the service. This parameter is required for task definitions that use the `awsvpc` network mode to receive their own Elastic Network Interface, and it is not supported for other network modes"
   type        = any
   default     = {}
 }
@@ -159,7 +159,7 @@ variable "wait_for_steady_state" {
 variable "create_iam_role" {
   description = "Determines whether the ECS service IAM role should be created"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "iam_role_arn" {
@@ -229,7 +229,7 @@ variable "container_definition_defaults" {
 variable "cpu" {
   description = "Number of cpu units used by the task. If the `requires_compatibilities` is `FARGATE` this field is required"
   type        = number
-  default     = 1024
+  default     = 512
 }
 
 variable "ephemeral_storage" {
@@ -259,7 +259,7 @@ variable "ipc_mode" {
 variable "memory" {
   description = "Amount (in MiB) of memory used by the task. If the `requires_compatibilities` is `FARGATE` this field is required"
   type        = number
-  default     = 2048
+  default     = 1024
 }
 
 variable "network_mode" {

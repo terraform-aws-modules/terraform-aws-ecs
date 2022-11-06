@@ -23,7 +23,7 @@ resource "aws_ecs_service" "this" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider.value.weight, null)
+      weight            = try(capacity_provider_strategy.value.weight, null)
     }
   }
 
@@ -72,7 +72,7 @@ resource "aws_ecs_service" "this" {
 
   dynamic "network_configuration" {
     # Set by task set if deployment controller is external
-    for_each = length(var.network_configuration) > 0 ? [{ for k, v in var.network_configuration : k => v if !local.is_external_deployment }] : []
+    for_each = var.network_mode == "awsvpc" ? [{ for k, v in var.network_configuration : k => v if !local.is_external_deployment }] : []
 
     content {
       assign_public_ip = try(network_configuration.value.assign_public_ip, null)
@@ -137,7 +137,7 @@ resource "aws_ecs_service" "idc" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider.value.weight, null)
+      weight            = try(capacity_provider_strategy.value.weight, null)
     }
   }
 
@@ -186,7 +186,7 @@ resource "aws_ecs_service" "idc" {
 
   dynamic "network_configuration" {
     # Set by task set if deployment controller is external
-    for_each = length(var.network_configuration) > 0 ? [{ for k, v in var.network_configuration : k => v if !local.is_external_deployment }] : []
+    for_each = var.network_mode == "awsvpc" ? [{ for k, v in var.network_configuration : k => v if !local.is_external_deployment }] : []
 
     content {
       assign_public_ip = try(network_configuration.value.assign_public_ip, null)
@@ -338,7 +338,7 @@ module "container_definition" {
 
   # Container Definition
   command                  = try(each.value.command, var.container_definition_defaults.command, [])
-  cpu                      = try(each.value.cpu, var.container_definition_defaults.cpu, null)
+  cpu                      = try(each.value.cpu, var.container_definition_defaults.cpu, var.cpu)
   dependencies             = try(each.value.dependencies, var.container_definition_defaults.dependencies, []) # depends_on is a reserved word
   disable_networking       = try(each.value.disable_networking, var.container_definition_defaults.disable_networking, null)
   dns_search_domains       = try(each.value.dns_search_domains, var.container_definition_defaults.dns_search_domains, [])
@@ -358,7 +358,7 @@ module "container_definition" {
   links                    = try(each.value.links, var.container_definition_defaults.links, [])
   linux_parameters         = try(each.value.linux_parameters, var.container_definition_defaults.linux_parameters, {})
   log_configuration        = try(each.value.log_configuration, var.container_definition_defaults.log_configuration, {})
-  memory                   = try(each.value.memory, var.container_definition_defaults.memory, null)
+  memory                   = try(each.value.memory, var.container_definition_defaults.memory, var.memory)
   memory_reservation       = try(each.value.memory_reservation, var.container_definition_defaults.memory_reservation, null)
   mount_points             = try(each.value.mount_points, var.container_definition_defaults.mount_points, [])
   name                     = try(each.value.name, each.key)
@@ -390,7 +390,7 @@ resource "aws_ecs_task_definition" "this" {
   count = local.create_task_definition ? 1 : 0
 
   # Convert map of maps to array of maps before JSON encoding
-  container_definitions = jsonencode([for k, v in module.container_definition.container_definition : v])
+  container_definitions = jsonencode([for k, v in module.container_definition : v.container_definition])
   cpu                   = var.cpu
 
   dynamic "ephemeral_storage" {
@@ -402,7 +402,7 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   execution_role_arn = var.create_task_exec_iam_role ? aws_iam_role.task_exec[0].arn : var.task_exec_iam_role_arn
-  family             = var.family
+  family             = coalesce(var.family, var.name)
 
   dynamic "inference_accelerator" {
     for_each = length(var.inference_accelerator) > 0 ? var.inference_accelerator : {}
@@ -640,12 +640,12 @@ resource "aws_ecs_task_set" "this" {
   task_definition = aws_ecs_task_definition.this[0].arn
 
   dynamic "network_configuration" {
-    for_each = length(var.network_configuration) > 0 ? [var.network_configuration] : []
+    for_each = var.network_mode == "awsvpc" ? [var.network_configuration] : []
 
     content {
+      assign_public_ip = try(network_configuration.value.assign_public_ip, null)
       security_groups  = try(network_configuration.value.security_groups, null)
       subnets          = network_configuration.value.subnets
-      assign_public_ip = try(network_configuration.value.assign_public_ip, null)
     }
   }
 
@@ -679,7 +679,7 @@ resource "aws_ecs_task_set" "this" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider.value.weight
+      weight            = capacity_provider_strategy.value.weight
     }
   }
 

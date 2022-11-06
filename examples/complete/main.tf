@@ -106,7 +106,37 @@ module "ecs_disabled" {
 module "service" {
   source = "../../modules/service"
 
-  create = false
+  # Service
+  name    = local.name
+  cluster = module.ecs.cluster_arn
+
+  # capacity_provider_strategy = {
+  #   default = {
+  #     capacity_provider = "FARGATE"
+  #     weight            = 100
+  #   }
+  # }
+
+  network_configuration = {
+    security_groups = [module.service_sg.security_group_id]
+    subnets         = module.vpc.private_subnets
+  }
+
+  # Task Definition
+  requires_compatibilities = ["EC2", "FARGATE"]
+
+  # Container definition(s)
+  container_definitions = {
+    ecsdemo-frontend = {
+      image = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+      port_mappings = [
+        {
+          containerPort = 3000
+          protocol      = "tcp"
+        }
+      ]
+    }
+  }
 
   tags = local.tags
 }
@@ -211,6 +241,29 @@ module "vpc" {
 resource "aws_cloudwatch_log_group" "this" {
   name              = "/aws/ecs/${local.name}"
   retention_in_days = 7
+
+  tags = local.tags
+}
+
+module "service_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "~> 4.0"
+
+  name        = "${local.name}-service"
+  description = "Service security group"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 3000
+      to_port     = 3000
+      protocol    = "tcp"
+      description = "Service port"
+      cidr_blocks = module.vpc.vpc_cidr_block
+    },
+  ]
+
+  egress_rules = ["all-all"]
 
   tags = local.tags
 }

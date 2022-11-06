@@ -17,7 +17,7 @@ variable "command" {
 variable "cpu" {
   description = "The number of cpu units to reserve for the container. This is optional for tasks using Fargate launch type and the total amount of `cpu` of all containers in a task will need to be lower than the task-level cpu value"
   type        = number
-  default     = null
+  default     = 512
 }
 
 variable "dependencies" {
@@ -149,7 +149,7 @@ variable "log_configuration" {
 variable "memory" {
   description = "The amount (in MiB) of memory to present to the container. If your container attempts to exceed the memory specified here, the container is killed. The total amount of memory reserved for all containers within a task must be lower than the task `memory` value, if one is specified"
   type        = number
-  default     = null
+  default     = 1024
 }
 
 variable "memory_reservation" {
