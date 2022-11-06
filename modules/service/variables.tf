@@ -27,7 +27,7 @@ variable "capacity_provider_strategy" {
 }
 
 variable "cluster" {
-  description = "ARN of an ECS cluster"
+  description = "ID/ARN of the ECS cluster where the resources will be provisioned"
   type        = string
   default     = ""
 }
@@ -464,4 +464,57 @@ variable "wait_until_stable_timeout" {
   description = "Wait timeout for task set to reach `STEADY_STATE`. Valid time units include `ns`, `us` (or µs), `ms`, `s`, `m`, and `h`. Default `10m`"
   type        = number
   default     = null
+}
+
+################################################################################
+# Autoscaling
+################################################################################
+
+variable "enable_autoscaling" {
+  description = "Determines whether to enable autoscaling for the service"
+  type        = bool
+  default     = true
+}
+
+variable "autoscaling_min_capacity" {
+  description = "Minimum number of tasks to run in your service"
+  type        = number
+  default     = 1
+}
+
+variable "autoscaling_max_capacity" {
+  description = "Maximum number of tasks to run in your service"
+  type        = number
+  default     = 10
+}
+
+variable "autoscaling_policies" {
+  description = "Map of autoscaling policies to create for the service"
+  type        = any
+  default = {
+    cpu = {
+      policy_type = "TargetTrackingScaling"
+
+      target_tracking_scaling_policy_configuration = {
+        predefined_metric_specification = {
+          predefined_metric_type = "ECSServiceAverageCPUUtilization"
+        }
+      }
+    }
+    memory = {
+      policy_type = "TargetTrackingScaling"
+
+      target_tracking_scaling_policy_configuration = {
+        predefined_metric_specification = {
+          predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+        }
+      }
+    }
+  }
+}
+
+variable "autoscaling_scheduled_actions" {
+  description = "Map of autoscaling scheduled actions to create for the service"
+  type        = any
+  default     = {}
 }

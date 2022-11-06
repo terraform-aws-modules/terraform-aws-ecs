@@ -91,20 +91,34 @@ output "tasks_iam_role_unique_id" {
 
 output "task_set_id" {
   description = "The ID of the task set"
-  value       = try(aws_ecs_task_set.this[0].task_set_id, null)
+  value       = try(aws_ecs_task_set.this[0].task_set_id, aws_ecs_task_set.idc[0].task_set_id, null)
 }
 
 output "task_set_arn" {
   description = "The Amazon Resource Name (ARN) that identifies the task set"
-  value       = try(aws_ecs_task_set.this[0].arn, null)
+  value       = try(aws_ecs_task_set.this[0].arn, aws_ecs_task_set.idc[0].arn, null)
 }
 
 output "task_set_stability_status" {
   description = "The stability status. This indicates whether the task set has reached a steady state"
-  value       = try(aws_ecs_task_set.this[0].stability_status, null)
+  value       = try(aws_ecs_task_set.this[0].stability_status, aws_ecs_task_set.idc[0].stability_status, null)
 }
 
 output "task_set_status" {
   description = "The status of the task set"
-  value       = try(aws_ecs_task_set.this[0].status, null)
+  value       = try(aws_ecs_task_set.this[0].status, aws_ecs_task_set.idc[0].status, null)
+}
+
+################################################################################
+# Autoscaling
+################################################################################
+
+output "autoscaling_policies" {
+  description = "Map of autoscaling policies and their attributes"
+  value       = aws_appautoscaling_policy.this
+}
+
+output "autoscaling_scheduled_actions" {
+  description = "Map of autoscaling scheduled actions and their attributes"
+  value       = aws_appautoscaling_scheduled_action.this
 }

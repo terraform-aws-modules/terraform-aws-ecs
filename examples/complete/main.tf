@@ -6,7 +6,7 @@ data "aws_availability_zones" "available" {}
 
 locals {
   region = "eu-west-1"
-  name   = "ecs-ex-${basename(path.cwd)}"
+  name   = "ex-${basename(path.cwd)}"
 
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
@@ -108,7 +108,7 @@ module "service" {
 
   # Service
   name    = local.name
-  cluster = module.ecs.cluster_arn
+  cluster = module.ecs.cluster_id
 
   # capacity_provider_strategy = {
   #   default = {

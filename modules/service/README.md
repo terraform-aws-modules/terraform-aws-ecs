@@ -8,8 +8,8 @@ Configuration in this directory creates an ECS Service EKS Profile
 
 - [x] `aws_ecs_service` (one default, one with `ignore_changes` for things like `desired_count`)
 - [x] `aws_ecs_task_definition`
-- [x] `aws_ecs_task_set`
-- [ ] `aws_appautoscaling_target` & `aws_appautoscaling_policy` (`for_each` over a shared map where each key = 1 target and 2 policies, 1 policy for scale up, 1 for scale down)
+- [x] `aws_ecs_task_set` (one default, one with `ignore_changes` for things like `scale`)
+- [x] `aws_appautoscaling_target` & `aws_appautoscaling_policy`
 - [x] Task role (`aws_iam_role`, `aws_iam_role_policy_attachment`, assume role `aws_iam_policy_document`)
 - [x] Task exectution role (`aws_iam_role`, `aws_iam_role_policy_attachment`, assume role `aws_iam_policy_document`)
 - [ ] ECS CloudWatch events role (`aws_iam_role`, `aws_iam_role_policy_attachment`, assume role `aws_iam_policy_document`)
@@ -60,9 +60,13 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 
 | Name | Type |
 |------|------|
+| [aws_appautoscaling_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_policy) | resource |
+| [aws_appautoscaling_scheduled_action.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_scheduled_action) | resource |
+| [aws_appautoscaling_target.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_target) | resource |
 | [aws_ecs_service.idc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_ecs_service.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_ecs_task_definition.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition) | resource |
+| [aws_ecs_task_set.idc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_set) | resource |
 | [aws_ecs_task_set.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_set) | resource |
 | [aws_iam_policy.service](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.service](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
@@ -83,8 +87,12 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_autoscaling_max_capacity"></a> [autoscaling\_max\_capacity](#input\_autoscaling\_max\_capacity) | Maximum number of tasks to run in your service | `number` | `10` | no |
+| <a name="input_autoscaling_min_capacity"></a> [autoscaling\_min\_capacity](#input\_autoscaling\_min\_capacity) | Minimum number of tasks to run in your service | `number` | `1` | no |
+| <a name="input_autoscaling_policies"></a> [autoscaling\_policies](#input\_autoscaling\_policies) | Map of autoscaling policies to create for the service | `any` | <pre>{<br>  "cpu": {<br>    "policy_type": "TargetTrackingScaling",<br>    "target_tracking_scaling_policy_configuration": {<br>      "predefined_metric_specification": {<br>        "predefined_metric_type": "ECSServiceAverageCPUUtilization"<br>      }<br>    }<br>  },<br>  "memory": {<br>    "policy_type": "TargetTrackingScaling",<br>    "target_tracking_scaling_policy_configuration": {<br>      "predefined_metric_specification": {<br>        "predefined_metric_type": "ECSServiceAverageMemoryUtilization"<br>      }<br>    }<br>  }<br>}</pre> | no |
+| <a name="input_autoscaling_scheduled_actions"></a> [autoscaling\_scheduled\_actions](#input\_autoscaling\_scheduled\_actions) | Map of autoscaling scheduled actions to create for the service | `any` | `{}` | no |
 | <a name="input_capacity_provider_strategy"></a> [capacity\_provider\_strategy](#input\_capacity\_provider\_strategy) | Capacity provider strategies to use for the service. Can be one or more | `any` | `{}` | no |
-| <a name="input_cluster"></a> [cluster](#input\_cluster) | ARN of an ECS cluster | `string` | `""` | no |
+| <a name="input_cluster"></a> [cluster](#input\_cluster) | ID/ARN of the ECS cluster where the resources will be provisioned | `string` | `""` | no |
 | <a name="input_container_definition_defaults"></a> [container\_definition\_defaults](#input\_container\_definition\_defaults) | A map of default values for [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html) created by `container_definitions` | `any` | `{}` | no |
 | <a name="input_container_definitions"></a> [container\_definitions](#input\_container\_definitions) | A map of valid [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html). Please note that you should only provide values that are part of the container definition document | `any` | `{}` | no |
 | <a name="input_cpu"></a> [cpu](#input\_cpu) | Number of cpu units used by the task. If the `requires_compatibilities` is `FARGATE` this field is required | `number` | `512` | no |
@@ -98,6 +106,7 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 | <a name="input_deployment_maximum_percent"></a> [deployment\_maximum\_percent](#input\_deployment\_maximum\_percent) | Upper limit (as a percentage of the service's `desired_count`) of the number of running tasks that can be running in a service during a deployment | `number` | `200` | no |
 | <a name="input_deployment_minimum_healthy_percent"></a> [deployment\_minimum\_healthy\_percent](#input\_deployment\_minimum\_healthy\_percent) | Lower limit (as a percentage of the service's `desired_count`) of the number of running tasks that must remain running and healthy in a service during a deployment | `number` | `66` | no |
 | <a name="input_desired_count"></a> [desired\_count](#input\_desired\_count) | Number of instances of the task definition to place and keep running. Defaults to `0` | `number` | `1` | no |
+| <a name="input_enable_autoscaling"></a> [enable\_autoscaling](#input\_enable\_autoscaling) | Determines whether to enable autoscaling for the service | `bool` | `true` | no |
 | <a name="input_enable_ecs_managed_tags"></a> [enable\_ecs\_managed\_tags](#input\_enable\_ecs\_managed\_tags) | Specifies whether to enable Amazon ECS managed tags for the tasks within the service | `bool` | `true` | no |
 | <a name="input_enable_execute_command"></a> [enable\_execute\_command](#input\_enable\_execute\_command) | Specifies whether to enable Amazon ECS Exec for the tasks within the service | `bool` | `false` | no |
 | <a name="input_ephemeral_storage"></a> [ephemeral\_storage](#input\_ephemeral\_storage) | The amount of ephemeral storage to allocate for the task. This parameter is used to expand the total amount of ephemeral storage available, beyond the default amount, for tasks hosted on AWS Fargate | `any` | `{}` | no |
@@ -160,6 +169,8 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 
 | Name | Description |
 |------|-------------|
+| <a name="output_autoscaling_policies"></a> [autoscaling\_policies](#output\_autoscaling\_policies) | Map of autoscaling policies and their attributes |
+| <a name="output_autoscaling_scheduled_actions"></a> [autoscaling\_scheduled\_actions](#output\_autoscaling\_scheduled\_actions) | Map of autoscaling scheduled actions and their attributes |
 | <a name="output_iam_role_arn"></a> [iam\_role\_arn](#output\_iam\_role\_arn) | Service IAM role ARN |
 | <a name="output_iam_role_name"></a> [iam\_role\_name](#output\_iam\_role\_name) | Service IAM role name |
 | <a name="output_iam_role_unique_id"></a> [iam\_role\_unique\_id](#output\_iam\_role\_unique\_id) | Stable and unique string identifying the service IAM role |

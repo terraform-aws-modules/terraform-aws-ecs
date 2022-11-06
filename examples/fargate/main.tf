@@ -6,7 +6,7 @@ data "aws_availability_zones" "available" {}
 
 locals {
   region = "eu-west-1"
-  name   = "ecs-ex-${basename(path.cwd)}"
+  name   = "ex-${basename(path.cwd)}"
 
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
@@ -67,28 +67,16 @@ module "ecs_disabled" {
 # Service
 ################################################################################
 
-
 module "service" {
   source = "../../modules/service"
 
-  # Service
   name    = local.name
-  cluster = module.ecs.cluster_arn
-
-  # capacity_provider_strategy = {
-  #   default = {
-  #     capacity_provider = "FARGATE"
-  #     weight            = 100
-  #   }
-  # }
+  cluster = module.ecs.cluster_id
 
   network_configuration = {
     security_groups = [module.service_sg.security_group_id]
     subnets         = module.vpc.private_subnets
   }
-
-  # Task Definition
-  requires_compatibilities = ["EC2", "FARGATE"]
 
   # Container definition(s)
   container_definitions = {
@@ -100,6 +88,8 @@ module "service" {
           protocol      = "tcp"
         }
       ]
+      # Example image used requires access to write to root filesystem
+      readonly_root_filesystem = false
     }
   }
 

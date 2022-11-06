@@ -632,7 +632,7 @@ resource "aws_iam_role_policy_attachment" "tasks" {
 
 resource "aws_ecs_task_set" "this" {
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskset.html
-  count = local.create_task_definition && local.is_external_deployment ? 1 : 0
+  count = local.create_task_definition && local.is_external_deployment && !var.ignore_desired_count_changes ? 1 : 0
 
   service         = try(aws_ecs_service.this[0].id, aws_ecs_service.idc[0].id)
   cluster         = var.cluster
@@ -698,4 +698,193 @@ resource "aws_ecs_task_set" "this" {
   tags                      = var.tags
   wait_until_stable         = var.wait_until_stable
   wait_until_stable_timeout = var.wait_until_stable_timeout
+}
+
+resource "aws_ecs_task_set" "idc" {
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskset.html
+  count = local.create_task_definition && local.is_external_deployment && var.ignore_desired_count_changes ? 1 : 0
+
+  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.idc[0].id)
+  cluster         = var.cluster
+  external_id     = var.external_id
+  task_definition = aws_ecs_task_definition.this[0].arn
+
+  dynamic "network_configuration" {
+    for_each = var.network_mode == "awsvpc" ? [var.network_configuration] : []
+
+    content {
+      assign_public_ip = try(network_configuration.value.assign_public_ip, null)
+      security_groups  = try(network_configuration.value.security_groups, null)
+      subnets          = network_configuration.value.subnets
+    }
+  }
+
+  dynamic "load_balancer" {
+    for_each = length(var.load_balancer) > 0 ? var.load_balancer : {}
+
+    content {
+      load_balancer_name = try(load_balancer.value.load_balancer_name, null)
+      target_group_arn   = try(load_balancer.value.target_group_arn, null)
+      container_name     = load_balancer.value.container_name
+      container_port     = try(load_balancer.value.container_port, null)
+    }
+  }
+
+  dynamic "service_registries" {
+    for_each = length(var.service_registries) > 0 ? [var.service_registries] : []
+
+    content {
+      container_name = try(service_registries.value.container_name, null)
+      container_port = try(service_registries.value.container_port, null)
+      port           = try(service_registries.value.port, null)
+      registry_arn   = service_registries.value.registry_arn
+    }
+  }
+
+  launch_type = var.launch_type
+
+  dynamic "capacity_provider_strategy" {
+    for_each = length(var.capacity_provider_strategy) > 0 ? var.capacity_provider_strategy : {}
+
+    content {
+      base              = try(capacity_provider_strategy.value.base, null)
+      capacity_provider = capacity_provider_strategy.value.capacity_provider
+      weight            = capacity_provider_strategy.value.weight
+    }
+  }
+
+  platform_version = local.is_fargate ? var.platform_version : null
+
+  dynamic "scale" {
+    for_each = length(var.scale) > 0 ? [var.scale] : []
+
+    content {
+      unit  = try(scale.value.unit, null)
+      value = try(scale.value.value, null)
+    }
+  }
+
+  force_delete              = var.force_delete
+  tags                      = var.tags
+  wait_until_stable         = var.wait_until_stable
+  wait_until_stable_timeout = var.wait_until_stable_timeout
+
+  lifecycle {
+    ignore_changes = [
+      scale
+    ]
+  }
+}
+
+################################################################################
+# Autoscaling
+################################################################################
+
+locals {
+  enable_autoscaling = var.create && var.enable_autoscaling
+
+  cluster_name = element(split("/", var.cluster), 1)
+}
+
+resource "aws_appautoscaling_target" "this" {
+  count = local.enable_autoscaling ? 1 : 0
+
+  # Desired needs to be between or equalt to min/max
+  min_capacity = min(var.autoscaling_min_capacity, var.desired_count)
+  max_capacity = max(var.autoscaling_max_capacity, var.desired_count)
+
+  resource_id        = "service/${local.cluster_name}/${try(aws_ecs_service.this[0].name, aws_ecs_service.idc[0].name)}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "this" {
+  for_each = { for k, v in var.autoscaling_policies : k => v if local.enable_autoscaling }
+
+  name               = try(each.value.name, each.key)
+  policy_type        = try(each.value.policy_type, "TargetTrackingScaling")
+  resource_id        = aws_appautoscaling_target.this[0].resource_id
+  scalable_dimension = aws_appautoscaling_target.this[0].scalable_dimension
+  service_namespace  = aws_appautoscaling_target.this[0].service_namespace
+
+  dynamic "step_scaling_policy_configuration" {
+    for_each = try([each.value.step_scaling_policy_configuration], [])
+
+    content {
+      adjustment_type          = try(step_scaling_policy_configuration.value.adjustment_type, null)
+      cooldown                 = try(step_scaling_policy_configuration.value.cooldown, null)
+      metric_aggregation_type  = try(step_scaling_policy_configuration.value.metric_aggregation_type, null)
+      min_adjustment_magnitude = try(step_scaling_policy_configuration.value.min_adjustment_magnitude, null)
+
+      dynamic "step_adjustment" {
+        for_each = try(step_scaling_policy_configuration.value.step_adjustment, [])
+
+        content {
+          metric_interval_lower_bound = try(step_adjustment.value.metric_interval_lower_bound, null)
+          metric_interval_upper_bound = try(step_adjustment.value.metric_interval_upper_bound, null)
+          scaling_adjustment          = try(step_adjustment.value.scaling_adjustment, null)
+        }
+      }
+    }
+  }
+
+  dynamic "target_tracking_scaling_policy_configuration" {
+    for_each = try(each.value.policy_type, null) == "TargetTrackingScaling" ? try([each.value.target_tracking_scaling_policy_configuration], []) : []
+
+    content {
+      dynamic "customized_metric_specification" {
+        for_each = try([target_tracking_scaling_policy_configuration.value.customized_metric_specification], [])
+
+        content {
+          dynamic "dimensions" {
+            for_each = try(customized_metric_specification.value.dimensions, [])
+
+            content {
+              name  = dimensions.value.name
+              value = dimensions.value.value
+            }
+          }
+
+          metric_name = customized_metric_specification.value.metric_name
+          namespace   = customized_metric_specification.value.namespace
+          statistic   = customized_metric_specification.value.statistic
+          unit        = try(customized_metric_specification.value.unit, null)
+        }
+      }
+
+      disable_scale_in = try(target_tracking_scaling_policy_configuration.value.disable_scale_in, null)
+
+      dynamic "predefined_metric_specification" {
+        for_each = try([target_tracking_scaling_policy_configuration.value.predefined_metric_specification], [])
+
+        content {
+          predefined_metric_type = predefined_metric_specification.value.predefined_metric_type
+          resource_label         = try(predefined_metric_specification.value.resource_label, null)
+        }
+      }
+
+      scale_in_cooldown  = try(target_tracking_scaling_policy_configuration.value.scale_in_cooldown, 300)
+      scale_out_cooldown = try(target_tracking_scaling_policy_configuration.value.scale_out_cooldown, 60)
+      target_value       = try(target_tracking_scaling_policy_configuration.value.target_value, 75)
+    }
+  }
+}
+
+resource "aws_appautoscaling_scheduled_action" "this" {
+  for_each = { for k, v in var.autoscaling_scheduled_actions : k => v if local.enable_autoscaling }
+
+  name               = try(each.value.name, each.key)
+  service_namespace  = aws_appautoscaling_target.this[0].service_namespace
+  resource_id        = aws_appautoscaling_target.this[0].resource_id
+  scalable_dimension = aws_appautoscaling_target.this[0].scalable_dimension
+
+  scalable_target_action {
+    min_capacity = each.value.min_capacity
+    max_capacity = each.value.max_capacity
+  }
+
+  schedule   = each.value.schedule
+  start_time = try(each.value.start_time, null)
+  end_time   = try(each.value.end_time, null)
+  timezone   = try(each.value.timezone, null)
 }
