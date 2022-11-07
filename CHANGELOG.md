@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [4.1.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.1.1...v4.1.2) (2022-11-07)
+
+
+### Bug Fixes
+
+* Update CI configuration files to use latest version ([#71](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/71)) ([2f68113](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/2f68113130c3a815a2d0b83af0f645d561c1fbe0))
+
 ### [4.1.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.1.0...v4.1.1) (2022-07-25)
 
 
