@@ -66,6 +66,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
     [for k, v in var.autoscaling_capacity_providers : try(v.name, k)]
   ))
 
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-capacity-providers.html#capacity-providers-considerations
   dynamic "default_capacity_provider_strategy" {
     for_each = local.default_capacity_providers
     iterator = strategy
@@ -73,7 +74,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
     content {
       capacity_provider = try(strategy.value.name, strategy.key)
       base              = try(strategy.value.default_capacity_provider_strategy.base, null)
-      weight            = try(strategy.value.default_capacity_provider_strategy.weight, null)
+      weight            = try(strategy.value.default_capacity_provider_strategy.weight, 1)
     }
   }
 
@@ -92,8 +93,9 @@ resource "aws_ecs_capacity_provider" "this" {
   name = try(each.value.name, each.key)
 
   auto_scaling_group_provider {
-    auto_scaling_group_arn         = each.value.auto_scaling_group_arn
-    managed_termination_protection = try(each.value.managed_termination_protection, null)
+    auto_scaling_group_arn = each.value.auto_scaling_group_arn
+    # When you use managed termination protection, you must also use managed scaling otherwise managed termination protection won't work
+    managed_termination_protection = length(try([each.value.managed_scaling], [])) == 0 ? "DISABLED" : try(each.value.managed_termination_protection, null)
 
     dynamic "managed_scaling" {
       for_each = try([each.value.managed_scaling], [])

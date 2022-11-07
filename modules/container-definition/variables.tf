@@ -227,7 +227,7 @@ variable "start_timeout" {
 variable "stop_timeout" {
   description = "Time duration (in seconds) to wait before the container is forcefully killed if it doesn't exit normally on its own"
   type        = number
-  default     = 30
+  default     = 120
 }
 
 variable "system_controls" {

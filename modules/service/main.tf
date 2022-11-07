@@ -23,7 +23,7 @@ resource "aws_ecs_service" "this" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider_strategy.value.weight, null)
+      weight            = try(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -137,7 +137,7 @@ resource "aws_ecs_service" "idc" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider_strategy.value.weight, null)
+      weight            = try(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -370,7 +370,7 @@ module "container_definition" {
   resource_requirements    = try(each.value.resource_requirements, var.container_definition_defaults.resource_requirements, [])
   secrets                  = try(each.value.secrets, var.container_definition_defaults.secrets, [])
   start_timeout            = try(each.value.start_timeout, var.container_definition_defaults.start_timeout, 30)
-  stop_timeout             = try(each.value.stop_timeout, var.container_definition_defaults.stop_timeout, 30)
+  stop_timeout             = try(each.value.stop_timeout, var.container_definition_defaults.stop_timeout, 120)
   system_controls          = try(each.value.system_controls, var.container_definition_defaults.system_controls, [])
   ulimits                  = try(each.value.ulimits, var.container_definition_defaults.ulimits, [])
   user                     = try(each.value.user, var.container_definition_defaults.user, null)
@@ -679,7 +679,7 @@ resource "aws_ecs_task_set" "this" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
+      weight            = try(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -749,7 +749,7 @@ resource "aws_ecs_task_set" "idc" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
+      weight            = try(capacity_provider_strategy.value.weight, 1)
     }
   }
 
