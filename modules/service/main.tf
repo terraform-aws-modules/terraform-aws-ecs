@@ -166,7 +166,14 @@ resource "aws_ecs_service" "this" {
 
   tags                  = var.tags
   task_definition       = aws_ecs_task_definition.this[0].arn
+  triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state
+
+  timeouts {
+    create = try(var.timeouts.create, null)
+    update = try(var.timeouts.update, null)
+    delete = try(var.timeouts.delete, null)
+  }
 
   depends_on = [aws_iam_policy.service]
 }
@@ -328,7 +335,14 @@ resource "aws_ecs_service" "idc" {
 
   tags                  = var.tags
   task_definition       = aws_ecs_task_definition.this[0].arn
+  triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state
+
+  timeouts {
+    create = try(var.timeouts.create, null)
+    update = try(var.timeouts.update, null)
+    delete = try(var.timeouts.delete, null)
+  }
 
   depends_on = [aws_iam_policy.service]
 

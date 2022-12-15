@@ -152,6 +152,18 @@ variable "service_registries" {
   default     = {}
 }
 
+variable "timeouts" {
+  description = "Create, update, and delete timeout configurations for the service"
+  type        = map(string)
+  default     = {}
+}
+
+variable "triggers" {
+  description = "Map of arbitrary keys and values that, when changed, will trigger an in-place update (redeployment). Useful with `timestamp()`"
+  type        = any
+  default     = {}
+}
+
 variable "wait_for_steady_state" {
   description = "If true, Terraform will wait for the service to reach a steady state before continuing. Default is `false`"
   type        = bool
