@@ -104,6 +104,54 @@ resource "aws_ecs_service" "this" {
   propagate_tags      = var.propagate_tags
   scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
 
+  dynamic "service_connect_configuration" {
+    for_each = length(var.service_connect_configuration) > 0 ? [var.service_connect_configuration] : []
+
+    content {
+      enabled = service_connect_configuration.value.enabled
+
+      dynamic "log_configuration" {
+        for_each = try([service_connect_configuration.value.log_configuration], [])
+
+        content {
+          log_driver = try(log_configuration.value.log_driver, null)
+          options    = try(log_configuration.value.options, null)
+
+          dynamic "secret_option" {
+            for_each = try(log_configuration.value.secret_option, [])
+
+            content {
+              name       = secret_option.value.name
+              value_from = secret_option.value.value_from
+            }
+          }
+        }
+      }
+
+      namespace = try(service_connect_configuration.value.namespace, null)
+
+      dynamic "service" {
+        for_each = try([service_connect_configuration.value.service], [])
+
+        content {
+
+          dynamic "client_alias" {
+            for_each = try(service.value.client_alias, [])
+
+            content {
+              dns_name = try(client_alias.value.dns_name, null)
+              port     = client_alias.value.port
+            }
+          }
+
+          discovery_name        = try(service.value.discovery_name, null)
+          ingress_port_override = try(service.value.ingress_port_override, null)
+          port_name             = service.value.port_name
+        }
+      }
+    }
+  }
+
   dynamic "service_registries" {
     # Set by task set if deployment controller is external
     for_each = length(var.service_registries) > 0 ? [{ for k, v in var.service_registries : k => v if !local.is_external_deployment }] : []
@@ -217,6 +265,54 @@ resource "aws_ecs_service" "idc" {
   platform_version    = local.is_fargate && !local.is_external_deployment ? var.platform_version : null
   propagate_tags      = var.propagate_tags
   scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
+
+  dynamic "service_connect_configuration" {
+    for_each = length(var.service_connect_configuration) > 0 ? [var.service_connect_configuration] : []
+
+    content {
+      enabled = service_connect_configuration.value.enabled
+
+      dynamic "log_configuration" {
+        for_each = try([service_connect_configuration.value.log_configuration], [])
+
+        content {
+          log_driver = try(log_configuration.value.log_driver, null)
+          options    = try(log_configuration.value.options, null)
+
+          dynamic "secret_option" {
+            for_each = try(log_configuration.value.secret_option, [])
+
+            content {
+              name       = secret_option.value.name
+              value_from = secret_option.value.value_from
+            }
+          }
+        }
+      }
+
+      namespace = try(service_connect_configuration.value.namespace, null)
+
+      dynamic "service" {
+        for_each = try([service_connect_configuration.value.service], [])
+
+        content {
+
+          dynamic "client_alias" {
+            for_each = try(service.value.client_alias, [])
+
+            content {
+              dns_name = try(client_alias.value.dns_name, null)
+              port     = client_alias.value.port
+            }
+          }
+
+          discovery_name        = try(service.value.discovery_name, null)
+          ingress_port_override = try(service.value.ingress_port_override, null)
+          port_name             = service.value.port_name
+        }
+      }
+    }
+  }
 
   dynamic "service_registries" {
     # Set by task set if deployment controller is external

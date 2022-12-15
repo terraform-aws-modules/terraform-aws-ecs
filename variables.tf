@@ -35,6 +35,12 @@ variable "cluster_settings" {
   }
 }
 
+variable "cluster_service_connect_defaults" {
+  description = "Configures a default Service Connect namespace"
+  type        = map(string)
+  default     = {}
+}
+
 ################################################################################
 # Capacity Providers
 ################################################################################

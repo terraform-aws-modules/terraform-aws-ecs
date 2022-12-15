@@ -27,13 +27,13 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.37 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.43 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.37 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.43 |
 
 ## Modules
 
