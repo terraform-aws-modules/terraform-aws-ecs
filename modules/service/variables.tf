@@ -14,10 +14,10 @@ variable "tags" {
 # Service
 ################################################################################
 
-variable "ignore_desired_count_changes" {
-  description = "Whether changes to service `desired_count` changes should be ignored. Used for autoscaling of tasks; will replace entire service when changed"
+variable "ignore_task_definition_changes" {
+  description = "Whether changes to service `task_definition` changes should be ignored"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "capacity_provider_strategy" {

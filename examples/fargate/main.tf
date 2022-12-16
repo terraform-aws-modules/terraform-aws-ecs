@@ -67,6 +67,30 @@ module "ecs_disabled" {
 # Service
 ################################################################################
 
+module "service_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "~> 4.0"
+
+  name        = "${local.name}-service"
+  description = "Service security group"
+  vpc_id      = module.vpc.vpc_id
+
+  computed_ingress_with_source_security_group_id = [
+    {
+      from_port                = 3000
+      to_port                  = 3000
+      protocol                 = "tcp"
+      description              = "Service port"
+      source_security_group_id = module.alb_sg.security_group_id
+    }
+  ]
+  number_of_computed_ingress_with_source_security_group_id = 1
+
+  egress_rules = ["all-all"]
+
+  tags = local.tags
+}
+
 module "service" {
   source = "../../modules/service"
 
@@ -93,6 +117,14 @@ module "service" {
     }
   }
 
+  load_balancer = {
+    service = {
+      target_group_arn = element(module.alb.target_group_arns, 0)
+      container_name   = "ecsdemo-frontend"
+      container_port   = 3000
+    }
+  }
+
   tags = local.tags
 }
 
@@ -105,6 +137,55 @@ module "service_disabled" {
 ################################################################################
 # Supporting Resources
 ################################################################################
+
+module "alb_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "~> 4.0"
+
+  name        = "${local.name}-service"
+  description = "Service security group"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress_rules       = ["http-80-tcp"]
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+
+  egress_rules       = ["all-all"]
+  egress_cidr_blocks = module.vpc.private_subnets_cidr_blocks
+
+  tags = local.tags
+}
+
+module "alb" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "~> 8.0"
+
+  name = local.name
+
+  load_balancer_type = "application"
+
+  vpc_id          = module.vpc.vpc_id
+  subnets         = module.vpc.public_subnets
+  security_groups = [module.alb_sg.security_group_id]
+
+  http_tcp_listeners = [
+    {
+      port               = 80
+      protocol           = "HTTP"
+      target_group_index = 0
+    },
+  ]
+
+  target_groups = [
+    {
+      name             = "ecsdemo"
+      backend_protocol = "HTTP"
+      backend_port     = 3000
+      target_type      = "ip"
+    },
+  ]
+
+  tags = local.tags
+}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -128,29 +209,6 @@ module "vpc" {
 resource "aws_cloudwatch_log_group" "this" {
   name              = "/aws/ecs/${local.name}"
   retention_in_days = 7
-
-  tags = local.tags
-}
-
-module "service_sg" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
-
-  name        = "${local.name}-service"
-  description = "Service security group"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress_with_cidr_blocks = [
-    {
-      from_port   = 3000
-      to_port     = 3000
-      protocol    = "tcp"
-      description = "Service port"
-      cidr_blocks = module.vpc.vpc_cidr_block
-    },
-  ]
-
-  egress_rules = ["all-all"]
 
   tags = local.tags
 }

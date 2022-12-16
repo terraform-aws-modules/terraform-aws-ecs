@@ -3,14 +3,17 @@ data "aws_region" "current" {}
 locals {
   is_not_windows = contains(["LINUX"], var.operating_system_family)
 
-  log_configuration = {
-    logDriver : "awslogs",
-    options : {
-      awslogs-region : data.aws_region.current.name,
-      awslogs-group : try(aws_cloudwatch_log_group.this[0].name, ""),
-      awslogs-stream-prefix : "ecs"
-    }
-  }
+  log_configuration = merge(
+    {
+      logDriver = "awslogs",
+      options = {
+        awslogs-region        = data.aws_region.current.name,
+        awslogs-group         = try(aws_cloudwatch_log_group.this[0].name, ""),
+        awslogs-stream-prefix = "ecs"
+      },
+    },
+    var.log_configuration
+  )
 
   definition = {
     command                = length(var.command) > 0 ? var.command : null
@@ -33,7 +36,7 @@ locals {
     interactive            = var.interactive
     links                  = local.is_not_windows && length(var.links) > 0 ? var.links : null
     linuxParameters        = local.is_not_windows && length(var.linux_parameters) > 0 ? var.linux_parameters : null
-    logConfiguration       = local.log_configuration # length(var.log_configuration) > 0 ? var.log_configuration : local.log_configuration
+    logConfiguration       = local.log_configuration
     memory                 = var.memory
     memoryReservation      = var.memory_reservation
     mountPoints            = length(var.mount_points) > 0 ? var.mount_points : null
