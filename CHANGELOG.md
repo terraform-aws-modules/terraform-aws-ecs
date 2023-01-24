@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [4.1.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.1.2...v4.1.3) (2023-01-24)
+
+
+### Bug Fixes
+
+* Use a version for  to avoid GitHub API rate limiting on CI workflows ([#73](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/73)) ([fbff232](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/fbff232279bc5292a8469aa2a999ed08f4457011))
+
 ### [4.1.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.1.1...v4.1.2) (2022-11-07)
 
 
