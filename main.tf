@@ -82,7 +82,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
     content {
       capacity_provider = try(strategy.value.name, strategy.key)
       base              = try(strategy.value.default_capacity_provider_strategy.base, null)
-      weight            = try(strategy.value.default_capacity_provider_strategy.weight, 1)
+      weight            = try(strategy.value.default_capacity_provider_strategy.weight, null)
     }
   }
 
