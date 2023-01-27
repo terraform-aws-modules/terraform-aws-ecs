@@ -128,7 +128,7 @@ resource "aws_ecs_service" "this" {
         }
       }
 
-      namespace = try(service_connect_configuration.value.namespace, null)
+      namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
         for_each = try([service_connect_configuration.value.service], [])
@@ -303,7 +303,7 @@ resource "aws_ecs_service" "itd" {
         }
       }
 
-      namespace = try(service_connect_configuration.value.namespace, null)
+      namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
         for_each = try([service_connect_configuration.value.service], [])
