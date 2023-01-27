@@ -23,7 +23,7 @@ resource "aws_ecs_service" "this" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider_strategy.value.weight, 1)
+      weight            = try(capacity_provider_strategy.value.weight, null)
     }
   }
 
@@ -198,7 +198,7 @@ resource "aws_ecs_service" "itd" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider_strategy.value.weight, 1)
+      weight            = try(capacity_provider_strategy.value.weight, null)
     }
   }
 
@@ -796,7 +796,7 @@ resource "aws_ecs_task_set" "this" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider_strategy.value.weight, 1)
+      weight            = try(capacity_provider_strategy.value.weight, null)
     }
   }
 
@@ -876,7 +876,7 @@ resource "aws_ecs_task_set" "itd" {
     content {
       base              = try(capacity_provider_strategy.value.base, null)
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider_strategy.value.weight, 1)
+      weight            = try(capacity_provider_strategy.value.weight, null)
     }
   }
 
