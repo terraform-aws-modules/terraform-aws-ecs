@@ -54,11 +54,11 @@ resource "aws_ecs_service" "this" {
   force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
-  launch_type                        = local.is_external_deployment ? var.launch_type : null
+  launch_type                        = local.is_external_deployment ? null : var.launch_type
 
   dynamic "load_balancer" {
     # Set by task set if deployment controller is external
-    for_each = length(var.load_balancer) > 0 ? { for k, v in var.load_balancer : k => v if !local.is_external_deployment } : {}
+    for_each = { for k, v in var.load_balancer : k => v if !local.is_external_deployment }
 
     content {
       container_name   = load_balancer.value.container_name
@@ -82,7 +82,7 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "ordered_placement_strategy" {
-    for_each = length(var.ordered_placement_strategy) > 0 ? var.ordered_placement_strategy : {}
+    for_each = var.ordered_placement_strategy
 
     content {
       field = try(ordered_placement_strategy.value.field, null)
@@ -91,7 +91,7 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "placement_constraints" {
-    for_each = length(var.placement_constraints) > 0 ? var.placement_constraints : {}
+    for_each = var.placement_constraints
 
     content {
       expression = try(placement_constraints.value.expression, null)
@@ -229,11 +229,11 @@ resource "aws_ecs_service" "itd" {
   force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
-  launch_type                        = local.is_external_deployment ? var.launch_type : null
+  launch_type                        = local.is_external_deployment ? null : var.launch_type
 
   dynamic "load_balancer" {
     # Set by task set if deployment controller is external
-    for_each = length(var.load_balancer) > 0 ? { for k, v in var.load_balancer : k => v if !local.is_external_deployment } : {}
+    for_each = { for k, v in var.load_balancer : k => v if !local.is_external_deployment }
 
     content {
       container_name   = load_balancer.value.container_name
@@ -257,7 +257,7 @@ resource "aws_ecs_service" "itd" {
   }
 
   dynamic "ordered_placement_strategy" {
-    for_each = length(var.ordered_placement_strategy) > 0 ? var.ordered_placement_strategy : {}
+    for_each = var.ordered_placement_strategy
 
     content {
       field = try(ordered_placement_strategy.value.field, null)
@@ -266,7 +266,7 @@ resource "aws_ecs_service" "itd" {
   }
 
   dynamic "placement_constraints" {
-    for_each = length(var.placement_constraints) > 0 ? var.placement_constraints : {}
+    for_each = var.placement_constraints
 
     content {
       expression = try(placement_constraints.value.expression, null)
@@ -522,7 +522,7 @@ resource "aws_ecs_task_definition" "this" {
   family             = coalesce(var.family, var.name)
 
   dynamic "inference_accelerator" {
-    for_each = length(var.inference_accelerator) > 0 ? var.inference_accelerator : {}
+    for_each = var.inference_accelerator
 
     content {
       device_name = inference_accelerator.value.device_name
@@ -536,7 +536,7 @@ resource "aws_ecs_task_definition" "this" {
   pid_mode     = var.pid_mode
 
   dynamic "placement_constraints" {
-    for_each = length(var.placement_constraints) > 0 ? var.placement_constraints : {}
+    for_each = var.placement_constraints
 
     content {
       expression = try(placement_constraints.value.expression, null)
@@ -570,7 +570,7 @@ resource "aws_ecs_task_definition" "this" {
   task_role_arn = var.create_tasks_iam_role ? aws_iam_role.tasks[0].arn : var.tasks_iam_role_arn
 
   dynamic "volume" {
-    for_each = length(var.volume) > 0 ? var.volume : {}
+    for_each = var.volume
 
     content {
       dynamic "docker_volume_configuration" {
@@ -767,7 +767,7 @@ resource "aws_ecs_task_set" "this" {
   }
 
   dynamic "load_balancer" {
-    for_each = length(var.load_balancer) > 0 ? var.load_balancer : {}
+    for_each = var.load_balancer
 
     content {
       load_balancer_name = try(load_balancer.value.load_balancer_name, null)
@@ -791,7 +791,7 @@ resource "aws_ecs_task_set" "this" {
   launch_type = var.launch_type
 
   dynamic "capacity_provider_strategy" {
-    for_each = length(var.capacity_provider_strategy) > 0 ? var.capacity_provider_strategy : {}
+    for_each = var.capacity_provider_strategy
 
     content {
       base              = try(capacity_provider_strategy.value.base, null)
@@ -847,7 +847,7 @@ resource "aws_ecs_task_set" "itd" {
   }
 
   dynamic "load_balancer" {
-    for_each = length(var.load_balancer) > 0 ? var.load_balancer : {}
+    for_each = var.load_balancer
 
     content {
       load_balancer_name = try(load_balancer.value.load_balancer_name, null)
@@ -871,7 +871,7 @@ resource "aws_ecs_task_set" "itd" {
   launch_type = var.launch_type
 
   dynamic "capacity_provider_strategy" {
-    for_each = length(var.capacity_provider_strategy) > 0 ? var.capacity_provider_strategy : {}
+    for_each = var.capacity_provider_strategy
 
     content {
       base              = try(capacity_provider_strategy.value.base, null)
