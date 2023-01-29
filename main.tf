@@ -1,3 +1,5 @@
+data "aws_partition" "current" {}
+
 ################################################################################
 # Cluster
 ################################################################################
@@ -119,4 +121,90 @@ resource "aws_ecs_capacity_provider" "this" {
   }
 
   tags = merge(var.tags, try(each.value.tags, {}))
+}
+
+################################################################################
+# Task Execution - IAM Role
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html
+################################################################################
+
+locals {
+  task_exec_iam_role_name         = try(coalesce(var.task_exec_iam_role_name, var.cluster_name), "")
+  create_task_exec_secrets_policy = var.create_task_exec_iam_role && length(concat(var.task_exec_ssm_param_arns, var.task_exec_secret_arns)) > 0
+
+  task_exec_iam_role_policies = merge(
+    var.task_exec_iam_role_policies,
+    {
+      "AmazonECSTaskExecutionRolePolicy" : "arn:${data.aws_partition.current.id}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+    }
+  )
+}
+
+data "aws_iam_policy_document" "task_exec_assume" {
+  count = var.create_task_exec_iam_role ? 1 : 0
+
+  statement {
+    sid     = "ECSTaskExecutionAssumeRole"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.${data.aws_partition.current.dns_suffix}"]
+    }
+  }
+}
+
+resource "aws_iam_role" "task_exec" {
+  count = var.create_task_exec_iam_role ? 1 : 0
+
+  name        = var.task_exec_iam_role_use_name_prefix ? null : local.task_exec_iam_role_name
+  name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
+  path        = var.task_exec_iam_role_path
+  description = coalesce(var.task_exec_iam_role_description, "Task execution role for ${var.cluster_name}")
+
+  assume_role_policy    = data.aws_iam_policy_document.task_exec_assume[0].json
+  permissions_boundary  = var.task_exec_iam_role_permissions_boundary
+  force_detach_policies = true
+
+  tags = merge(var.tags, var.task_exec_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "task_def" {
+  for_each = { for k, v in local.task_exec_iam_role_policies : k => v if var.create_task_exec_iam_role }
+
+  role       = aws_iam_role.task_exec[0].name
+  policy_arn = each.value
+}
+
+data "aws_iam_policy_document" "task_exec_secrets" {
+  count = local.create_task_exec_secrets_policy ? 1 : 0
+
+  dynamic "statement" {
+    for_each = length(var.task_exec_ssm_param_arns) > 0 ? [1] : []
+
+    content {
+      sid       = "GetSSMParams"
+      actions   = ["ssm:GetParameters"]
+      resources = var.task_exec_ssm_param_arns
+    }
+  }
+
+  dynamic "statement" {
+    for_each = length(var.task_exec_secret_arns) > 0 ? [1] : []
+
+    content {
+      sid       = "GetSSMParams"
+      actions   = ["secretsmanager:GetSecretValue"]
+      resources = var.task_exec_secret_arns
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "task_exec_secrets" {
+  count = local.create_task_exec_secrets_policy ? 1 : 0
+
+  name        = var.task_exec_iam_role_use_name_prefix ? null : local.task_exec_iam_role_name
+  name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
+  policy      = data.aws_iam_policy_document.task_exec_secrets[0].json
+  role        = aws_iam_role.task_exec[0].name
 }

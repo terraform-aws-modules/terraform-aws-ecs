@@ -639,7 +639,8 @@ resource "aws_ecs_task_definition" "this" {
 ################################################################################
 
 locals {
-  task_exec_iam_role_name = try(coalesce(var.task_exec_iam_role_name, var.name), "")
+  task_exec_iam_role_name         = try(coalesce(var.task_exec_iam_role_name, var.name), "")
+  create_task_exec_secrets_policy = local.create_task_definition && var.create_task_exec_iam_role && length(concat(var.task_exec_ssm_param_arns, var.task_exec_secret_arns)) > 0
 
   task_exec_iam_role_policies = merge(
     var.task_exec_iam_role_policies,
@@ -669,7 +670,7 @@ resource "aws_iam_role" "task_exec" {
   name        = var.task_exec_iam_role_use_name_prefix ? null : local.task_exec_iam_role_name
   name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
   path        = var.task_exec_iam_role_path
-  description = var.task_exec_iam_role_description
+  description = coalesce(var.task_exec_iam_role_description, "Task execution role for ${local.task_exec_iam_role_name}")
 
   assume_role_policy    = data.aws_iam_policy_document.task_exec_assume[0].json
   permissions_boundary  = var.task_exec_iam_role_permissions_boundary
@@ -683,6 +684,39 @@ resource "aws_iam_role_policy_attachment" "task_def" {
 
   role       = aws_iam_role.task_exec[0].name
   policy_arn = each.value
+}
+
+data "aws_iam_policy_document" "task_exec_secrets" {
+  count = local.create_task_exec_secrets_policy ? 1 : 0
+
+  dynamic "statement" {
+    for_each = length(var.task_exec_ssm_param_arns) > 0 ? [1] : []
+
+    content {
+      sid       = "GetSSMParams"
+      actions   = ["ssm:GetParameters"]
+      resources = var.task_exec_ssm_param_arns
+    }
+  }
+
+  dynamic "statement" {
+    for_each = length(var.task_exec_secret_arns) > 0 ? [1] : []
+
+    content {
+      sid       = "GetSSMParams"
+      actions   = ["secretsmanager:GetSecretValue"]
+      resources = var.task_exec_secret_arns
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "task_exec_secrets" {
+  count = local.create_task_exec_secrets_policy ? 1 : 0
+
+  name        = var.task_exec_iam_role_use_name_prefix ? null : local.task_exec_iam_role_name
+  name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
+  policy      = data.aws_iam_policy_document.task_exec_secrets[0].json
+  role        = aws_iam_role.task_exec[0].name
 }
 
 ################################################################################

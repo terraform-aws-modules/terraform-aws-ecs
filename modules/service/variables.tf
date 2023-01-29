@@ -391,6 +391,18 @@ variable "task_exec_iam_role_policies" {
   default     = {}
 }
 
+variable "task_exec_ssm_param_arns" {
+  description = "List of SSM parameter ARNs the task execution role will be permitted to get/read"
+  type        = list(string)
+  default     = []
+}
+
+variable "task_exec_secret_arns" {
+  description = "List of SecretsManager secret ARNs the task execution role will be permitted to get/read"
+  type        = list(string)
+  default     = []
+}
+
 ################################################################################
 # Tasks - IAM role
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html
