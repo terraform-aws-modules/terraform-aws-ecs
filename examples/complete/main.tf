@@ -35,20 +35,6 @@ module "ecs" {
 
   cluster_name = local.name
 
-  cluster_configuration = {
-    execute_command_configuration = {
-      logging = "OVERRIDE"
-      log_configuration = {
-        # You can set a simple string and ECS will create the CloudWatch log group for you
-        # or you can create the resource yourself as shown here to better manage retetion, tagging, etc.
-        # Embedding it into the module is not trivial and therefore it is externalized
-        cloud_watch_log_group_name = aws_cloudwatch_log_group.this.name
-      }
-    }
-  }
-
-  default_capacity_provider_use_fargate = false
-
   # Capacity provider - Fargate
   fargate_capacity_providers = {
     FARGATE      = {}
@@ -56,6 +42,7 @@ module "ecs" {
   }
 
   # Capacity provider - autoscaling groups
+  default_capacity_provider_use_fargate = false
   autoscaling_capacity_providers = {
     one = {
       auto_scaling_group_arn         = module.autoscaling["one"].autoscaling_group_arn
@@ -234,13 +221,6 @@ module "vpc" {
   single_nat_gateway      = true
   enable_dns_hostnames    = true
   map_public_ip_on_launch = false
-
-  tags = local.tags
-}
-
-resource "aws_cloudwatch_log_group" "this" {
-  name              = "/aws/ecs/${local.name}"
-  retention_in_days = 7
 
   tags = local.tags
 }
