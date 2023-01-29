@@ -45,6 +45,11 @@ output "task_definition_revision" {
   value       = try(aws_ecs_task_definition.this[0].revision, null)
 }
 
+output "task_definition_family" {
+  description = "The unique name of the task definition"
+  value       = try(aws_ecs_task_definition.this[0].family, null)
+}
+
 ################################################################################
 # Task Execution - IAM Role
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html
