@@ -97,16 +97,23 @@ module "service" {
   name    = local.name
   cluster = module.ecs.cluster_id
 
-  # capacity_provider_strategy = {
-  #   default = {
-  #     capacity_provider = "FARGATE"
-  #     weight            = 100
-  #   }
-  # }
-
-  network_configuration = {
-    security_groups = [module.service_sg.security_group_id]
-    subnets         = module.vpc.private_subnets
+  subnet_ids = module.vpc.private_subnets
+  security_group_rules = {
+    vpc_ingress_3000 = {
+      type        = "ingress"
+      from_port   = 3000
+      to_port     = 3000
+      protocol    = "tcp"
+      description = "Service port"
+      cidr_blocks = module.vpc.vpc_cidr_block
+    }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 
   # Task Definition
@@ -221,29 +228,6 @@ module "vpc" {
   single_nat_gateway      = true
   enable_dns_hostnames    = true
   map_public_ip_on_launch = false
-
-  tags = local.tags
-}
-
-module "service_sg" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
-
-  name        = "${local.name}-service"
-  description = "Service security group"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress_with_cidr_blocks = [
-    {
-      from_port   = 3000
-      to_port     = 3000
-      protocol    = "tcp"
-      description = "Service port"
-      cidr_blocks = module.vpc.vpc_cidr_block
-    },
-  ]
-
-  egress_rules = ["all-all"]
 
   tags = local.tags
 }

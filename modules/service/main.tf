@@ -11,6 +11,13 @@ locals {
   is_external_deployment = try(var.deployment_controller.type, null) == "EXTERNAL"
   is_daemon              = var.scheduling_strategy == "DAEMON"
   is_fargate             = var.launch_type == "FARGATE"
+
+  # Flattened `network_configuration`
+  network_configuration = {
+    assign_public_ip = var.assign_public_ip
+    security_groups  = flatten(concat([try(aws_security_group.this[0].id, [])], var.security_group_ids))
+    subnets          = var.subnet_ids
+  }
 }
 
 resource "aws_ecs_service" "this" {
@@ -72,11 +79,11 @@ resource "aws_ecs_service" "this" {
 
   dynamic "network_configuration" {
     # Set by task set if deployment controller is external
-    for_each = var.network_mode == "awsvpc" ? [{ for k, v in var.network_configuration : k => v if !local.is_external_deployment }] : []
+    for_each = var.network_mode == "awsvpc" ? [{ for k, v in local.network_configuration : k => v if !local.is_external_deployment }] : []
 
     content {
-      assign_public_ip = try(network_configuration.value.assign_public_ip, null)
-      security_groups  = try(network_configuration.value.security_groups, null)
+      assign_public_ip = network_configuration.value.assign_public_ip
+      security_groups  = network_configuration.value.security_groups
       subnets          = network_configuration.value.subnets
     }
   }
@@ -247,11 +254,11 @@ resource "aws_ecs_service" "itd" {
 
   dynamic "network_configuration" {
     # Set by task set if deployment controller is external
-    for_each = var.network_mode == "awsvpc" ? [{ for k, v in var.network_configuration : k => v if !local.is_external_deployment }] : []
+    for_each = var.network_mode == "awsvpc" ? [{ for k, v in local.network_configuration : k => v if !local.is_external_deployment }] : []
 
     content {
-      assign_public_ip = try(network_configuration.value.assign_public_ip, null)
-      security_groups  = try(network_configuration.value.security_groups, null)
+      assign_public_ip = network_configuration.value.assign_public_ip
+      security_groups  = network_configuration.value.security_groups
       subnets          = network_configuration.value.subnets
     }
   }
@@ -791,11 +798,11 @@ resource "aws_ecs_task_set" "this" {
   task_definition = aws_ecs_task_definition.this[0].arn
 
   dynamic "network_configuration" {
-    for_each = var.network_mode == "awsvpc" ? [var.network_configuration] : []
+    for_each = var.network_mode == "awsvpc" ? [local.network_configuration] : []
 
     content {
-      assign_public_ip = try(network_configuration.value.assign_public_ip, null)
-      security_groups  = try(network_configuration.value.security_groups, null)
+      assign_public_ip = network_configuration.value.assign_public_ip
+      security_groups  = network_configuration.value.security_groups
       subnets          = network_configuration.value.subnets
     }
   }
@@ -871,11 +878,11 @@ resource "aws_ecs_task_set" "itd" {
   task_definition = aws_ecs_task_definition.this[0].arn
 
   dynamic "network_configuration" {
-    for_each = var.network_mode == "awsvpc" ? [var.network_configuration] : []
+    for_each = var.network_mode == "awsvpc" ? [local.network_configuration] : []
 
     content {
-      assign_public_ip = try(network_configuration.value.assign_public_ip, null)
-      security_groups  = try(network_configuration.value.security_groups, null)
+      assign_public_ip = network_configuration.value.assign_public_ip
+      security_groups  = network_configuration.value.security_groups
       subnets          = network_configuration.value.subnets
     }
   }
@@ -1049,4 +1056,52 @@ resource "aws_appautoscaling_scheduled_action" "this" {
   start_time = try(each.value.start_time, null)
   end_time   = try(each.value.end_time, null)
   timezone   = try(each.value.timezone, null)
+}
+################################################################################
+# Security Group
+################################################################################
+
+locals {
+  create_security_group = var.create && var.create_security_group && var.network_mode == "awsvpc"
+  security_group_name   = try(coalesce(var.security_group_name, var.name), "")
+}
+
+data "aws_subnet" "this" {
+  count = local.create_security_group ? 1 : 0
+
+  id = element(var.subnet_ids, 0)
+}
+
+resource "aws_security_group" "this" {
+  count = local.create_security_group ? 1 : 0
+
+  name        = var.security_group_use_name_prefix ? null : local.security_group_name
+  name_prefix = var.security_group_use_name_prefix ? "${local.security_group_name}-" : null
+  description = var.security_group_description
+  vpc_id      = data.aws_subnet.this[0].vpc_id
+
+  tags = merge(var.tags, var.security_group_tags)
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "this" {
+  for_each = { for k, v in var.security_group_rules : k => v if local.create_security_group }
+
+  # Required
+  security_group_id = aws_security_group.this[0].id
+  protocol          = each.value.protocol
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  type              = each.value.type
+
+  # Optional
+  description              = lookup(each.value, "description", null)
+  cidr_blocks              = lookup(each.value, "cidr_blocks", null)
+  ipv6_cidr_blocks         = lookup(each.value, "ipv6_cidr_blocks", null)
+  prefix_list_ids          = lookup(each.value, "prefix_list_ids", null)
+  self                     = lookup(each.value, "self", null)
+  source_security_group_id = lookup(each.value, "source_security_group_id", null)
 }

@@ -42,7 +42,6 @@ Note that this example may create resources which will incur monetary charges on
 | <a name="module_ecs_disabled"></a> [ecs\_disabled](#module\_ecs\_disabled) | ../.. | n/a |
 | <a name="module_service"></a> [service](#module\_service) | ../../modules/service | n/a |
 | <a name="module_service_disabled"></a> [service\_disabled](#module\_service\_disabled) | ../../modules/service | n/a |
-| <a name="module_service_sg"></a> [service\_sg](#module\_service\_sg) | terraform-aws-modules/security-group/aws | ~> 4.0 |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 3.0 |
 
 ## Resources

@@ -55,39 +55,29 @@ module "ecs_disabled" {
 # Service
 ################################################################################
 
-module "service_sg" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
-
-  name        = "${local.name}-service"
-  description = "Service security group"
-  vpc_id      = module.vpc.vpc_id
-
-  computed_ingress_with_source_security_group_id = [
-    {
-      from_port                = 3000
-      to_port                  = 3000
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb_sg.security_group_id
-    }
-  ]
-  number_of_computed_ingress_with_source_security_group_id = 1
-
-  egress_rules = ["all-all"]
-
-  tags = local.tags
-}
-
 module "service" {
   source = "../../modules/service"
 
   name    = local.name
   cluster = module.ecs.cluster_id
 
-  network_configuration = {
-    security_groups = [module.service_sg.security_group_id]
-    subnets         = module.vpc.private_subnets
+  subnet_ids = module.vpc.private_subnets
+  security_group_rules = {
+    alb_ingress_3000 = {
+      type                     = "ingress"
+      from_port                = 3000
+      to_port                  = 3000
+      protocol                 = "tcp"
+      description              = "Service port"
+      source_security_group_id = module.alb_sg.security_group_id
+    }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 
   # Container definition(s)

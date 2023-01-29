@@ -104,10 +104,22 @@ variable "name" {
   default     = null
 }
 
-variable "network_configuration" {
-  description = "Network configuration for the service. This parameter is required for task definitions that use the `awsvpc` network mode to receive their own Elastic Network Interface, and it is not supported for other network modes"
-  type        = any
-  default     = {}
+variable "assign_public_ip" {
+  description = "Assign a public IP address to the ENI (Fargate launch type only)"
+  type        = bool
+  default     = false
+}
+
+variable "security_group_ids" {
+  description = "List of security groups to associate with the task or service"
+  type        = list(string)
+  default     = []
+}
+
+variable "subnet_ids" {
+  description = "List of subnets to associate with the task or service"
+  type        = list(string)
+  default     = []
 }
 
 variable "ordered_placement_strategy" {
@@ -546,5 +558,45 @@ variable "autoscaling_policies" {
 variable "autoscaling_scheduled_actions" {
   description = "Map of autoscaling scheduled actions to create for the service"
   type        = any
+  default     = {}
+}
+
+################################################################################
+# Security Group
+################################################################################
+
+variable "create_security_group" {
+  description = "Determines if a security group is created"
+  type        = bool
+  default     = true
+}
+
+variable "security_group_name" {
+  description = "Name to use on security group created"
+  type        = string
+  default     = null
+}
+
+variable "security_group_use_name_prefix" {
+  description = "Determines whether the security group name (`security_group_name`) is used as a prefix"
+  type        = bool
+  default     = true
+}
+
+variable "security_group_description" {
+  description = "Description of the security group created"
+  type        = string
+  default     = null
+}
+
+variable "security_group_rules" {
+  description = "Security group rules to add to the security group created"
+  type        = any
+  default     = {}
+}
+
+variable "security_group_tags" {
+  description = "A map of additional tags to add to the security group created"
+  type        = map(string)
   default     = {}
 }
