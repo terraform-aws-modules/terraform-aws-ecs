@@ -703,7 +703,7 @@ data "aws_iam_policy_document" "task_exec_secrets" {
     for_each = length(var.task_exec_secret_arns) > 0 ? [1] : []
 
     content {
-      sid       = "GetSSMParams"
+      sid       = "GetSecrets"
       actions   = ["secretsmanager:GetSecretValue"]
       resources = var.task_exec_secret_arns
     }
