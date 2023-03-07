@@ -41,14 +41,14 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.43 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.55 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.43 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.55 |
 
 ## Modules
 
@@ -92,6 +92,7 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_alarms"></a> [alarms](#input\_alarms) | Information about the CloudWatch alarms | `any` | `{}` | no |
 | <a name="input_assign_public_ip"></a> [assign\_public\_ip](#input\_assign\_public\_ip) | Assign a public IP address to the ENI (Fargate launch type only) | `bool` | `false` | no |
 | <a name="input_autoscaling_max_capacity"></a> [autoscaling\_max\_capacity](#input\_autoscaling\_max\_capacity) | Maximum number of tasks to run in your service | `number` | `10` | no |
 | <a name="input_autoscaling_min_capacity"></a> [autoscaling\_min\_capacity](#input\_autoscaling\_min\_capacity) | Minimum number of tasks to run in your service | `number` | `1` | no |
@@ -158,6 +159,7 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 | <a name="input_skip_destroy"></a> [skip\_destroy](#input\_skip\_destroy) | If true, the task is not deleted when the service is deleted | `bool` | `null` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnets to associate with the task or service | `list(string)` | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | `{}` | no |
+| <a name="input_task_definition_arn"></a> [task\_definition\_arn](#input\_task\_definition\_arn) | Existing task definition ARN. Required when `create_task_definition` is `false` | `string` | `null` | no |
 | <a name="input_task_exec_iam_role_arn"></a> [task\_exec\_iam\_role\_arn](#input\_task\_exec\_iam\_role\_arn) | Existing IAM role ARN | `string` | `null` | no |
 | <a name="input_task_exec_iam_role_description"></a> [task\_exec\_iam\_role\_description](#input\_task\_exec\_iam\_role\_description) | Description of the role | `string` | `null` | no |
 | <a name="input_task_exec_iam_role_name"></a> [task\_exec\_iam\_role\_name](#input\_task\_exec\_iam\_role\_name) | Name to use on IAM role created | `string` | `null` | no |

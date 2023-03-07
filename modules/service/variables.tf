@@ -20,6 +20,12 @@ variable "ignore_task_definition_changes" {
   default     = false
 }
 
+variable "alarms" {
+  description = "Information about the CloudWatch alarms"
+  type        = any
+  default     = {}
+}
+
 variable "capacity_provider_strategy" {
   description = "Capacity provider strategies to use for the service. Can be one or more"
   type        = any
@@ -242,6 +248,12 @@ variable "create_task_definition" {
   description = "Determines whether to create a task definition or use existing/provided"
   type        = bool
   default     = true
+}
+
+variable "task_definition_arn" {
+  description = "Existing task definition ARN. Required when `create_task_definition` is `false`"
+  type        = string
+  default     = null
 }
 
 variable "container_definitions" {

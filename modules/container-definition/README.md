@@ -26,14 +26,14 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.43 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.55 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.43 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.55 |
 
 ## Modules
 
@@ -61,6 +61,7 @@ No modules.
 | <a name="input_dns_servers"></a> [dns\_servers](#input\_dns\_servers) | Container DNS servers. This is a list of strings specifying the IP addresses of the DNS servers | `list(string)` | `[]` | no |
 | <a name="input_docker_labels"></a> [docker\_labels](#input\_docker\_labels) | A key/value map of labels to add to the container | `map(string)` | `{}` | no |
 | <a name="input_docker_security_options"></a> [docker\_security\_options](#input\_docker\_security\_options) | A list of strings to provide custom labels for SELinux and AppArmor multi-level security systems. This field isn't valid for containers in tasks using the Fargate launch type | `list(string)` | `[]` | no |
+| <a name="input_enable_cloudwatch_logging"></a> [enable\_cloudwatch\_logging](#input\_enable\_cloudwatch\_logging) | Determines whether CloudWatch logging is configured for this container definition. Set to `false` to use other logging drivers | `bool` | `true` | no |
 | <a name="input_entrypoint"></a> [entrypoint](#input\_entrypoint) | The entry point that is passed to the container | `list(string)` | `[]` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | The environment variables to pass to the container | <pre>list(object({<br>    name  = string<br>    value = string<br>  }))</pre> | `[]` | no |
 | <a name="input_environment_files"></a> [environment\_files](#input\_environment\_files) | A list of files containing the environment variables to pass to a container | <pre>list(object({<br>    value = string<br>    type  = string<br>  }))</pre> | `[]` | no |

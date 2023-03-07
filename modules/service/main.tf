@@ -1,6 +1,13 @@
-data "aws_caller_identity" "current" {}
-data "aws_partition" "current" {}
 data "aws_region" "current" {}
+data "aws_partition" "current" {}
+data "aws_caller_identity" "current" {}
+
+locals {
+  account_id = data.aws_caller_identity.current.account_id
+  dns_suffix = data.aws_partition.current.dns_suffix
+  partition  = data.aws_partition.current.partition
+  region     = data.aws_region.current.name
+}
 
 ################################################################################
 # Service
@@ -22,6 +29,16 @@ locals {
 
 resource "aws_ecs_service" "this" {
   count = var.create && !var.ignore_task_definition_changes ? 1 : 0
+
+  dynamic "alarms" {
+    for_each = length(var.alarms) > 0 ? [var.alarms] : []
+
+    content {
+      alarm_names = alarms.value.alarm_names
+      enable      = try(alarms.value.enable, true)
+      rollback    = try(alarms.value.rollback, true)
+    }
+  }
 
   dynamic "capacity_provider_strategy" {
     # Set by task set if deployment controller is external
@@ -138,12 +155,12 @@ resource "aws_ecs_service" "this" {
       namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
-        for_each = try([service_connect_configuration.value.service], [])
+        for_each = try(service_connect_configuration.value.service, [])
 
         content {
 
           dynamic "client_alias" {
-            for_each = try(service.value.client_alias, [])
+            for_each = try([service.value.client_alias], [])
 
             content {
               dns_name = try(client_alias.value.dns_name, null)
@@ -172,7 +189,7 @@ resource "aws_ecs_service" "this" {
   }
 
   tags                  = var.tags
-  task_definition       = aws_ecs_task_definition.this[0].arn
+  task_definition       = local.task_definition
   triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state
 
@@ -198,6 +215,16 @@ resource "aws_ecs_service" "this" {
 resource "aws_ecs_service" "itd" {
   count = var.create && var.ignore_task_definition_changes ? 1 : 0
 
+  dynamic "alarms" {
+    for_each = length(var.alarms) > 0 ? [var.alarms] : []
+
+    content {
+      alarm_names = alarms.value.alarm_names
+      enable      = try(alarms.value.enable, true)
+      rollback    = try(alarms.value.rollback, true)
+    }
+  }
+
   dynamic "capacity_provider_strategy" {
     # Set by task set if deployment controller is external
     for_each = { for k, v in var.capacity_provider_strategy : k => v if !local.is_external_deployment }
@@ -313,12 +340,12 @@ resource "aws_ecs_service" "itd" {
       namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
-        for_each = try([service_connect_configuration.value.service], [])
+        for_each = try(service_connect_configuration.value.service, [])
 
         content {
 
           dynamic "client_alias" {
-            for_each = try(service.value.client_alias, [])
+            for_each = try([service.value.client_alias], [])
 
             content {
               dns_name = try(client_alias.value.dns_name, null)
@@ -347,7 +374,7 @@ resource "aws_ecs_service" "itd" {
   }
 
   tags                  = var.tags
-  task_definition       = aws_ecs_task_definition.this[0].arn
+  task_definition       = local.task_definition
   triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state
 
@@ -389,7 +416,7 @@ data "aws_iam_policy_document" "service_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs.${data.aws_partition.current.dns_suffix}"]
+      identifiers = ["ecs.${local.dns_suffix}"]
     }
   }
 }
@@ -451,6 +478,8 @@ resource "aws_iam_role_policy_attachment" "service" {
 
 locals {
   create_task_definition = var.create && var.create_task_definition
+
+  task_definition = local.create_task_definition ? aws_ecs_task_definition.this[0].arn : var.task_definition_arn
 }
 
 module "container_definition" {
@@ -503,6 +532,7 @@ module "container_definition" {
 
   # CloudWatch Log Group
   service                                = var.name
+  enable_cloudwatch_logging              = try(each.value.enable_cloudwatch_logging, var.container_definition_defaults.enable_cloudwatch_logging, true)
   create_cloudwatch_log_group            = try(each.value.create_cloudwatch_log_group, var.container_definition_defaults.create_cloudwatch_log_group, true)
   cloudwatch_log_group_retention_in_days = try(each.value.cloudwatch_log_group_retention_in_days, var.container_definition_defaults.cloudwatch_log_group_retention_in_days, 14)
   cloudwatch_log_group_kms_key_id        = try(each.value.cloudwatch_log_group_kms_key_id, var.container_definition_defaults.cloudwatch_log_group_kms_key_id, null)
@@ -652,7 +682,7 @@ locals {
   task_exec_iam_role_policies = merge(
     var.task_exec_iam_role_policies,
     {
-      "AmazonECSTaskExecutionRolePolicy" : "arn:${data.aws_partition.current.id}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+      "AmazonECSTaskExecutionRolePolicy" : "arn:${local.partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
     }
   )
 }
@@ -666,7 +696,7 @@ data "aws_iam_policy_document" "task_exec_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs-tasks.${data.aws_partition.current.dns_suffix}"]
+      identifiers = ["ecs-tasks.${local.dns_suffix}"]
     }
   }
 }
@@ -744,20 +774,20 @@ data "aws_iam_policy_document" "tasks_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs-tasks.${data.aws_partition.current.dns_suffix}"]
+      identifiers = ["ecs-tasks.${local.dns_suffix}"]
     }
 
     # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html#create_task_iam_policy_and_role
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = ["arn:${data.aws_partition.current.id}:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"]
+      values   = ["arn:${local.partition}:ecs:${local.region}:${local.account_id}:*"]
     }
 
     condition {
       test     = "StringEquals"
       variable = "aws:SourceAccount"
-      values   = [data.aws_caller_identity.current.account_id]
+      values   = [local.account_id]
     }
   }
 }
@@ -795,7 +825,7 @@ resource "aws_ecs_task_set" "this" {
   service         = try(aws_ecs_service.this[0].id, aws_ecs_service.itd[0].id)
   cluster         = var.cluster
   external_id     = var.external_id
-  task_definition = aws_ecs_task_definition.this[0].arn
+  task_definition = local.task_definition
 
   dynamic "network_configuration" {
     for_each = var.network_mode == "awsvpc" ? [local.network_configuration] : []
@@ -875,7 +905,7 @@ resource "aws_ecs_task_set" "itd" {
   service         = try(aws_ecs_service.this[0].id, aws_ecs_service.itd[0].id)
   cluster         = var.cluster
   external_id     = var.external_id
-  task_definition = aws_ecs_task_definition.this[0].arn
+  task_definition = local.task_definition
 
   dynamic "network_configuration" {
     for_each = var.network_mode == "awsvpc" ? [local.network_configuration] : []

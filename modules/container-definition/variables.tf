@@ -275,6 +275,12 @@ variable "service" {
   default     = ""
 }
 
+variable "enable_cloudwatch_logging" {
+  description = "Determines whether CloudWatch logging is configured for this container definition. Set to `false` to use other logging drivers"
+  type        = bool
+  default     = true
+}
+
 variable "create_cloudwatch_log_group" {
   description = "Determines whether a log group is created by this module. If not, AWS will automatically create one if logging is enabled"
   type        = bool

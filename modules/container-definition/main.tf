@@ -3,7 +3,11 @@ data "aws_region" "current" {}
 locals {
   is_not_windows = contains(["LINUX"], var.operating_system_family)
 
-  log_configuration = merge(
+  # By default we want to enable CloudWatch logging for users to make it easy to get started
+  # But we also want to allo them to override some of the defaults so we add the `merge()`
+  # And lastly, we don't want to always enforce CloudWatch logging in cases where FireLens or other
+  # logging drivers are used so we add the `var.enable_cloudwatch_logging` conditional
+  log_configuration = var.enable_cloudwatch_logging ? merge(
     {
       logDriver = "awslogs",
       options = {
@@ -13,7 +17,7 @@ locals {
       },
     },
     var.log_configuration
-  )
+  ) : var.log_configuration
 
   definition = {
     command                = length(var.command) > 0 ? var.command : null
@@ -62,7 +66,7 @@ locals {
 }
 
 resource "aws_cloudwatch_log_group" "this" {
-  count = var.create_cloudwatch_log_group ? 1 : 0
+  count = var.create_cloudwatch_log_group && var.enable_cloudwatch_logging ? 1 : 0
 
   name              = "/aws/ecs/${var.service}/${var.name}"
   retention_in_days = var.cloudwatch_log_group_retention_in_days
