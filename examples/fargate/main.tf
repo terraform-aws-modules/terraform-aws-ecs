@@ -80,10 +80,28 @@ module "service" {
     }
   }
 
+  cpu    = 1024
+  memory = 4096
+
   # Container definition(s)
   container_definitions = {
+
+    fluent-bit = {
+      cpu       = 512
+      memory    = 1024
+      essential = true
+      image     = "public.ecr.aws/aws-observability/aws-for-fluent-bit:amd64-2.31.6"
+      firelens_configuration = {
+        type = "fluentbit"
+      }
+      memory_reservation = 50
+    }
+
     ecsdemo-frontend = {
-      image = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+      cpu       = 512
+      memory    = 1024
+      essential = true
+      image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
       port_mappings = [
         {
           containerPort = 3000
@@ -92,6 +110,23 @@ module "service" {
       ]
       # Example image used requires access to write to root filesystem
       readonly_root_filesystem = false
+
+      dependencies = [{
+        containerName = "fluent-bit"
+        condition     = "START"
+      }]
+
+      enable_cloudwatch_logging = false
+      log_configuration = {
+        logDriver = "awsfirelens"
+        options = {
+          name                    = "firehose"
+          region                  = local.region
+          delivery_stream         = "my-stream"
+          log-driver-buffer-limit = "2097152"
+        }
+      }
+      memory_reservation = 100
     }
   }
 
