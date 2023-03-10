@@ -90,7 +90,7 @@ module "service" {
       cpu       = 512
       memory    = 1024
       essential = true
-      image     = "public.ecr.aws/aws-observability/aws-for-fluent-bit:amd64-2.31.6"
+      image     = data.aws_ssm_parameter.fluentbit.value
       firelens_configuration = {
         type = "fluentbit"
       }
@@ -150,6 +150,10 @@ module "service_disabled" {
 ################################################################################
 # Supporting Resources
 ################################################################################
+
+data "aws_ssm_parameter" "fluentbit" {
+  name = "/aws/service/aws-for-fluent-bit/stable"
+}
 
 module "alb_sg" {
   source  = "terraform-aws-modules/security-group/aws"
