@@ -25,6 +25,9 @@ module "ecs_container_definition" {
     }
   ]
 
+  # Example image used requires access to write to root filesystem
+  readonly_root_filesystem = false
+
   memory_reservation = 100
 
   tags = {
@@ -37,7 +40,26 @@ module "ecs_container_definition" {
 ### W/ Firelens
 
 ```hcl
-module "ecs_container_definition" {
+module "fluentbit_ecs_container_definition" {
+  source = "terraform-aws-modules/ecs/aws//modules/container-definition"
+  name = "fluent-bit"
+
+  cpu       = 512
+  memory    = 1024
+  essential = true
+  image     = "906394416424.dkr.ecr.us-west-2.amazonaws.com/aws-for-fluent-bit:stable"
+  firelens_configuration = {
+    type = "fluentbit"
+  }
+  memory_reservation = 50
+
+  tags = {
+    Environment = "dev"
+    Terraform   = "true"
+  }
+}
+
+module "example_ecs_container_definition" {
   source = "terraform-aws-modules/ecs/aws//modules/container-definition"
 
   name      = "example"
