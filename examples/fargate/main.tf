@@ -11,6 +11,9 @@ locals {
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
+  container_name = "ecsdemo-frontend"
+  container_port = 3000
+
   tags = {
     Name       = local.name
     Example    = local.name
@@ -61,25 +64,6 @@ module "service" {
   name    = local.name
   cluster = module.ecs.cluster_id
 
-  subnet_ids = module.vpc.private_subnets
-  security_group_rules = {
-    alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = 3000
-      to_port                  = 3000
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb_sg.security_group_id
-    }
-    egress_all = {
-      type        = "egress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  }
-
   cpu    = 1024
   memory = 4096
 
@@ -97,14 +81,15 @@ module "service" {
       memory_reservation = 50
     }
 
-    ecsdemo-frontend = {
+    (local.container_name) = {
       cpu       = 512
       memory    = 1024
       essential = true
       image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
       port_mappings = [
         {
-          containerPort = 3000
+          name          = local.container_name
+          containerPort = local.container_port
           protocol      = "tcp"
         }
       ]
@@ -120,7 +105,7 @@ module "service" {
       log_configuration = {
         logDriver = "awsfirelens"
         options = {
-          name                    = "firehose"
+          Name                    = "firehose"
           region                  = local.region
           delivery_stream         = "my-stream"
           log-driver-buffer-limit = "2097152"
@@ -130,11 +115,42 @@ module "service" {
     }
   }
 
+  service_connect_configuration = {
+    namespace = aws_service_discovery_http_namespace.this.arn
+    service = {
+      client_alias = {
+        port     = local.container_port
+        dns_name = local.container_name
+      }
+      port_name      = local.container_name
+      discovery_name = local.container_name
+    }
+  }
+
   load_balancer = {
     service = {
       target_group_arn = element(module.alb.target_group_arns, 0)
-      container_name   = "ecsdemo-frontend"
-      container_port   = 3000
+      container_name   = local.container_name
+      container_port   = local.container_port
+    }
+  }
+
+  subnet_ids = module.vpc.private_subnets
+  security_group_rules = {
+    alb_ingress_3000 = {
+      type                     = "ingress"
+      from_port                = local.container_port
+      to_port                  = local.container_port
+      protocol                 = "tcp"
+      description              = "Service port"
+      source_security_group_id = module.alb_sg.security_group_id
+    }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
     }
   }
 
@@ -150,6 +166,12 @@ module "service_disabled" {
 ################################################################################
 # Supporting Resources
 ################################################################################
+
+resource "aws_service_discovery_http_namespace" "this" {
+  name        = "development"
+  description = "example"
+  tags        = local.tags
+}
 
 data "aws_ssm_parameter" "fluentbit" {
   name = "/aws/service/aws-for-fluent-bit/stable"
@@ -196,7 +218,7 @@ module "alb" {
     {
       name             = "ecsdemo"
       backend_protocol = "HTTP"
-      backend_port     = 3000
+      backend_port     = local.container_port
       target_type      = "ip"
     },
   ]

@@ -132,7 +132,7 @@ resource "aws_ecs_service" "this" {
     for_each = length(var.service_connect_configuration) > 0 ? [var.service_connect_configuration] : []
 
     content {
-      enabled = service_connect_configuration.value.enabled
+      enabled = try(service_connect_configuration.value.enabled, true)
 
       dynamic "log_configuration" {
         for_each = try([service_connect_configuration.value.log_configuration], [])
@@ -155,7 +155,7 @@ resource "aws_ecs_service" "this" {
       namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
-        for_each = try(service_connect_configuration.value.service, [])
+        for_each = try([service_connect_configuration.value.service], [])
 
         content {
 
@@ -317,7 +317,7 @@ resource "aws_ecs_service" "itd" {
     for_each = length(var.service_connect_configuration) > 0 ? [var.service_connect_configuration] : []
 
     content {
-      enabled = service_connect_configuration.value.enabled
+      enabled = try(service_connect_configuration.value.enabled, true)
 
       dynamic "log_configuration" {
         for_each = try([service_connect_configuration.value.log_configuration], [])
@@ -340,7 +340,7 @@ resource "aws_ecs_service" "itd" {
       namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
-        for_each = try(service_connect_configuration.value.service, [])
+        for_each = try([service_connect_configuration.value.service], [])
 
         content {
 
