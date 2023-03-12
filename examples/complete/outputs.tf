@@ -56,6 +56,12 @@ output "service_iam_role_unique_id" {
   value       = module.service.iam_role_unique_id
 }
 
+output "servie_container_definition" {
+  description = "Container definition"
+  value       = module.service.container_definition
+  sensitive   = true
+}
+
 output "service_task_definition_arn" {
   description = "Full ARN of the Task Definition (including both `family` and `revision`)"
   value       = module.service.task_definition_arn

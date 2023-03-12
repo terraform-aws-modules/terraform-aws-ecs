@@ -179,19 +179,14 @@ resource "aws_ecs_capacity_provider" "this" {
 ################################################################################
 
 locals {
-  task_exec_iam_role_name         = try(coalesce(var.task_exec_iam_role_name, var.cluster_name), "")
-  create_task_exec_secrets_policy = var.create_task_exec_iam_role && length(concat(var.task_exec_ssm_param_arns, var.task_exec_secret_arns)) > 0
+  task_exec_iam_role_name = try(coalesce(var.task_exec_iam_role_name, var.cluster_name), "")
 
-  task_exec_iam_role_policies = merge(
-    var.task_exec_iam_role_policies,
-    {
-      "AmazonECSTaskExecutionRolePolicy" : "arn:${data.aws_partition.current.id}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-    }
-  )
+  create_task_exec_iam_role = var.create && var.create_task_exec_iam_role
+  create_task_exec_policy   = local.create_task_exec_iam_role && var.create_task_exec_policy
 }
 
 data "aws_iam_policy_document" "task_exec_assume" {
-  count = var.create_task_exec_iam_role ? 1 : 0
+  count = local.create_task_exec_iam_role ? 1 : 0
 
   statement {
     sid     = "ECSTaskExecutionAssumeRole"
@@ -205,7 +200,7 @@ data "aws_iam_policy_document" "task_exec_assume" {
 }
 
 resource "aws_iam_role" "task_exec" {
-  count = var.create_task_exec_iam_role ? 1 : 0
+  count = local.create_task_exec_iam_role ? 1 : 0
 
   name        = var.task_exec_iam_role_use_name_prefix ? null : local.task_exec_iam_role_name
   name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
@@ -219,15 +214,37 @@ resource "aws_iam_role" "task_exec" {
   tags = merge(var.tags, var.task_exec_iam_role_tags)
 }
 
-resource "aws_iam_role_policy_attachment" "task_def" {
-  for_each = { for k, v in local.task_exec_iam_role_policies : k => v if var.create_task_exec_iam_role }
+resource "aws_iam_role_policy_attachment" "task_exec_additional" {
+  for_each = { for k, v in var.task_exec_iam_role_policies : k => v if local.create_task_exec_iam_role }
 
   role       = aws_iam_role.task_exec[0].name
   policy_arn = each.value
 }
 
-data "aws_iam_policy_document" "task_exec_secrets" {
-  count = local.create_task_exec_secrets_policy ? 1 : 0
+data "aws_iam_policy_document" "task_exec" {
+  count = local.create_task_exec_policy ? 1 : 0
+
+  # Pulled from AmazonECSTaskExecutionRolePolicy
+  statement {
+    sid = "Logs"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+    resources = ["*"]
+  }
+
+  # Pulled from AmazonECSTaskExecutionRolePolicy
+  statement {
+    sid = "ECR"
+    actions = [
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+    ]
+    resources = ["*"]
+  }
 
   dynamic "statement" {
     for_each = length(var.task_exec_ssm_param_arns) > 0 ? [1] : []
@@ -248,13 +265,63 @@ data "aws_iam_policy_document" "task_exec_secrets" {
       resources = var.task_exec_secret_arns
     }
   }
+
+  dynamic "statement" {
+    for_each = var.task_exec_iam_statements
+
+    content {
+      sid           = try(statement.value.sid, null)
+      actions       = try(statement.value.actions, null)
+      not_actions   = try(statement.value.not_actions, null)
+      effect        = try(statement.value.effect, null)
+      resources     = try(statement.value.resources, null)
+      not_resources = try(statement.value.not_resources, null)
+
+      dynamic "principals" {
+        for_each = try(statement.value.principals, [])
+
+        content {
+          type        = principals.value.type
+          identifiers = principals.value.identifiers
+        }
+      }
+
+      dynamic "not_principals" {
+        for_each = try(statement.value.not_principals, [])
+
+        content {
+          type        = not_principals.value.type
+          identifiers = not_principals.value.identifiers
+        }
+      }
+
+      dynamic "condition" {
+        for_each = try(statement.value.conditions, [])
+
+        content {
+          test     = condition.value.test
+          values   = condition.value.values
+          variable = condition.value.variable
+        }
+      }
+    }
+  }
 }
 
-resource "aws_iam_role_policy" "task_exec_secrets" {
-  count = local.create_task_exec_secrets_policy ? 1 : 0
+resource "aws_iam_policy" "task_exec" {
+  count = local.create_task_exec_policy ? 1 : 0
 
   name        = var.task_exec_iam_role_use_name_prefix ? null : local.task_exec_iam_role_name
   name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
-  policy      = data.aws_iam_policy_document.task_exec_secrets[0].json
-  role        = aws_iam_role.task_exec[0].name
+  description = coalesce(var.task_exec_iam_role_description, "Task execution role IAM policy")
+  policy      = data.aws_iam_policy_document.task_exec[0].json
+
+  tags = merge(var.tags, var.task_exec_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "task_exec" {
+  count = local.create_task_exec_policy ? 1 : 0
+
+  role       = aws_iam_role.task_exec[0].name
+  policy_arn = aws_iam_policy.task_exec[0].arn
 }

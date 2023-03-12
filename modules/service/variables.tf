@@ -240,6 +240,12 @@ variable "iam_role_tags" {
   default     = {}
 }
 
+variable "iam_role_statements" {
+  description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
+  type        = any
+  default     = {}
+}
+
 ################################################################################
 # Task Definition
 ################################################################################
@@ -415,6 +421,12 @@ variable "task_exec_iam_role_policies" {
   default     = {}
 }
 
+variable "create_task_exec_policy" {
+  description = "Determines whether the ECS task definition IAM policy should be created. This includes permissions included in AmazonECSTaskExecutionRolePolicy as well as access to secrets and SSM parameters"
+  type        = bool
+  default     = true
+}
+
 variable "task_exec_ssm_param_arns" {
   description = "List of SSM parameter ARNs the task execution role will be permitted to get/read"
   type        = list(string)
@@ -425,6 +437,12 @@ variable "task_exec_secret_arns" {
   description = "List of SecretsManager secret ARNs the task execution role will be permitted to get/read"
   type        = list(string)
   default     = []
+}
+
+variable "task_exec_iam_statements" {
+  description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
+  type        = any
+  default     = {}
 }
 
 ################################################################################
@@ -483,6 +501,12 @@ variable "tasks_iam_role_tags" {
 variable "tasks_iam_role_policies" {
   description = "Map of IAM role policy ARNs to attach to the IAM role"
   type        = map(string)
+  default     = {}
+}
+
+variable "tasks_iam_role_statements" {
+  description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
+  type        = any
   default     = {}
 }
 

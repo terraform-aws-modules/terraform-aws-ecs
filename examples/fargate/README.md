@@ -82,4 +82,5 @@ No inputs.
 | <a name="output_service_tasks_iam_role_arn"></a> [service\_tasks\_iam\_role\_arn](#output\_service\_tasks\_iam\_role\_arn) | Tasks IAM role ARN |
 | <a name="output_service_tasks_iam_role_name"></a> [service\_tasks\_iam\_role\_name](#output\_service\_tasks\_iam\_role\_name) | Tasjs IAM role name |
 | <a name="output_service_tasks_iam_role_unique_id"></a> [service\_tasks\_iam\_role\_unique\_id](#output\_service\_tasks\_iam\_role\_unique\_id) | Stable and unique string identifying the tasks IAM role |
+| <a name="output_servie_container_definition"></a> [servie\_container\_definition](#output\_servie\_container\_definition) | Container definition |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

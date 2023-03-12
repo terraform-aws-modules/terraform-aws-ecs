@@ -93,6 +93,7 @@ module "service" {
           protocol      = "tcp"
         }
       ]
+
       # Example image used requires access to write to root filesystem
       readonly_root_filesystem = false
 
@@ -216,7 +217,7 @@ module "alb" {
 
   target_groups = [
     {
-      name             = "ecsdemo"
+      name             = "${local.name}-${local.container_name}"
       backend_protocol = "HTTP"
       backend_port     = local.container_port
       target_type      = "ip"
