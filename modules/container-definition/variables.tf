@@ -17,7 +17,7 @@ variable "command" {
 variable "cpu" {
   description = "The number of cpu units to reserve for the container. This is optional for tasks using Fargate launch type and the total amount of `cpu` of all containers in a task will need to be lower than the task-level cpu value"
   type        = number
-  default     = 512
+  default     = null
 }
 
 variable "dependencies" {
@@ -149,7 +149,7 @@ variable "log_configuration" {
 variable "memory" {
   description = "The amount (in MiB) of memory to present to the container. If your container attempts to exceed the memory specified here, the container is killed. The total amount of memory reserved for all containers within a task must be lower than the task `memory` value, if one is specified"
   type        = number
-  default     = 1024
+  default     = null
 }
 
 variable "memory_reservation" {
@@ -249,8 +249,7 @@ variable "ulimits" {
 variable "user" {
   description = "The user to run as inside the container. Can be any of these formats: user, user:group, uid, uid:gid, user:gid, uid:group. The default (null) will use the container's configured `USER` directive or root if not set"
   type        = string
-  # default     = "1001:1001"
-  default = null
+  default     = null
 }
 
 variable "volumes_from" {
@@ -288,9 +287,9 @@ variable "create_cloudwatch_log_group" {
 }
 
 variable "cloudwatch_log_group_retention_in_days" {
-  description = "Number of days to retain log events. Default is 14 days"
+  description = "Number of days to retain log events. Default is 30 days"
   type        = number
-  default     = 14
+  default     = 30
 }
 
 variable "cloudwatch_log_group_kms_key_id" {

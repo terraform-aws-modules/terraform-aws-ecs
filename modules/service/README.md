@@ -41,7 +41,7 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.55 |
 
 ## Providers
@@ -106,7 +106,7 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 | <a name="input_cluster"></a> [cluster](#input\_cluster) | ID/ARN of the ECS cluster where the resources will be provisioned | `string` | `""` | no |
 | <a name="input_container_definition_defaults"></a> [container\_definition\_defaults](#input\_container\_definition\_defaults) | A map of default values for [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html) created by `container_definitions` | `any` | `{}` | no |
 | <a name="input_container_definitions"></a> [container\_definitions](#input\_container\_definitions) | A map of valid [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html). Please note that you should only provide values that are part of the container definition document | `any` | `{}` | no |
-| <a name="input_cpu"></a> [cpu](#input\_cpu) | Number of cpu units used by the task. If the `requires_compatibilities` is `FARGATE` this field is required | `number` | `512` | no |
+| <a name="input_cpu"></a> [cpu](#input\_cpu) | Number of cpu units used by the task. If the `requires_compatibilities` is `FARGATE` this field is required | `number` | `1024` | no |
 | <a name="input_create"></a> [create](#input\_create) | Determines whether resources will be created (affects all resources) | `bool` | `true` | no |
 | <a name="input_create_iam_role"></a> [create\_iam\_role](#input\_create\_iam\_role) | Determines whether the ECS service IAM role should be created | `bool` | `true` | no |
 | <a name="input_create_security_group"></a> [create\_security\_group](#input\_create\_security\_group) | Determines if a security group is created | `bool` | `true` | no |
@@ -141,7 +141,7 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 | <a name="input_ipc_mode"></a> [ipc\_mode](#input\_ipc\_mode) | IPC resource namespace to be used for the containers in the task The valid values are `host`, `task`, and `none` | `string` | `null` | no |
 | <a name="input_launch_type"></a> [launch\_type](#input\_launch\_type) | Launch type on which to run your service. The valid values are `EC2`, `FARGATE`, and `EXTERNAL`. Defaults to `FARGATE` | `string` | `"FARGATE"` | no |
 | <a name="input_load_balancer"></a> [load\_balancer](#input\_load\_balancer) | Configuration block for load balancers | `any` | `{}` | no |
-| <a name="input_memory"></a> [memory](#input\_memory) | Amount (in MiB) of memory used by the task. If the `requires_compatibilities` is `FARGATE` this field is required | `number` | `1024` | no |
+| <a name="input_memory"></a> [memory](#input\_memory) | Amount (in MiB) of memory used by the task. If the `requires_compatibilities` is `FARGATE` this field is required | `number` | `2048` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the service (up to 255 letters, numbers, hyphens, and underscores) | `string` | `null` | no |
 | <a name="input_network_mode"></a> [network\_mode](#input\_network\_mode) | Docker networking mode to use for the containers in the task. Valid values are `none`, `bridge`, `awsvpc`, and `host` | `string` | `"awsvpc"` | no |
 | <a name="input_ordered_placement_strategy"></a> [ordered\_placement\_strategy](#input\_ordered\_placement\_strategy) | Service level strategy rules that are taken into consideration during task placement. List from top to bottom in order of precedence | `any` | `{}` | no |
@@ -218,6 +218,6 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 | <a name="output_task_set_stability_status"></a> [task\_set\_stability\_status](#output\_task\_set\_stability\_status) | The stability status. This indicates whether the task set has reached a steady state |
 | <a name="output_task_set_status"></a> [task\_set\_status](#output\_task\_set\_status) | The status of the task set |
 | <a name="output_tasks_iam_role_arn"></a> [tasks\_iam\_role\_arn](#output\_tasks\_iam\_role\_arn) | Tasks IAM role ARN |
-| <a name="output_tasks_iam_role_name"></a> [tasks\_iam\_role\_name](#output\_tasks\_iam\_role\_name) | Tasjs IAM role name |
+| <a name="output_tasks_iam_role_name"></a> [tasks\_iam\_role\_name](#output\_tasks\_iam\_role\_name) | Tasks IAM role name |
 | <a name="output_tasks_iam_role_unique_id"></a> [tasks\_iam\_role\_unique\_id](#output\_tasks\_iam\_role\_unique\_id) | Stable and unique string identifying the tasks IAM role |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

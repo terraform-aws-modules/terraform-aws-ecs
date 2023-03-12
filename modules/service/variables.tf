@@ -277,7 +277,7 @@ variable "container_definition_defaults" {
 variable "cpu" {
   description = "Number of cpu units used by the task. If the `requires_compatibilities` is `FARGATE` this field is required"
   type        = number
-  default     = 512
+  default     = 1024
 }
 
 variable "ephemeral_storage" {
@@ -307,7 +307,7 @@ variable "ipc_mode" {
 variable "memory" {
   description = "Amount (in MiB) of memory used by the task. If the `requires_compatibilities` is `FARGATE` this field is required"
   type        = number
-  default     = 1024
+  default     = 2048
 }
 
 variable "network_mode" {

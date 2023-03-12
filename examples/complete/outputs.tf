@@ -56,7 +56,7 @@ output "service_iam_role_unique_id" {
   value       = module.service.iam_role_unique_id
 }
 
-output "servie_container_definition" {
+output "service_container_definition" {
   description = "Container definition"
   value       = module.service.container_definition
   sensitive   = true
@@ -88,7 +88,7 @@ output "service_task_exec_iam_role_unique_id" {
 }
 
 output "service_tasks_iam_role_name" {
-  description = "Tasjs IAM role name"
+  description = "Tasks IAM role name"
   value       = module.service.tasks_iam_role_name
 }
 

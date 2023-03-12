@@ -1169,7 +1169,7 @@ locals {
 resource "aws_appautoscaling_target" "this" {
   count = local.enable_autoscaling ? 1 : 0
 
-  # Desired needs to be between or equalt to min/max
+  # Desired needs to be between or equal to min/max
   min_capacity = min(var.autoscaling_min_capacity, var.desired_count)
   max_capacity = max(var.autoscaling_max_capacity, var.desired_count)
 

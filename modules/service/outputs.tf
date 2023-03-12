@@ -86,7 +86,7 @@ output "task_exec_iam_role_unique_id" {
 ################################################################################
 
 output "tasks_iam_role_name" {
-  description = "Tasjs IAM role name"
+  description = "Tasks IAM role name"
   value       = try(aws_iam_role.tasks[0].name, null)
 }
 

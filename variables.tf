@@ -80,7 +80,7 @@ variable "fargate_capacity_providers" {
 }
 
 variable "autoscaling_capacity_providers" {
-  description = "Map of autoscaling capacity provider definitons to create for the cluster"
+  description = "Map of autoscaling capacity provider definitions to create for the cluster"
   type        = any
   default     = {}
 }
