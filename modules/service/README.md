@@ -1,18 +1,25 @@
 # ECS Service Module
 
-Configuration in this directory creates an ECS Service EKS Profile
+Configuration in this directory creates an ECS Service complete with:
+- ECS service that ignores `desired_count`; this is intended for use when deploying task definition and container definition changes via Terraform
+- ECS service that ignores `desired_count` and `task_definition`; this is intended for use when your CD process is updating the `image` and therefore the `task_definition` and `container_definition` are set once initially, but then controlled externally there after to avoid conflicts.
+- ECS service IAM role
+- ECS task definition with support for n-number of container definitions
+- ECS task execution IAM role & permissions
+- ECS tasks IAM role & permissions
+- ECS task set that ignores `scale`
+- ECS task set that ignores `scale` and  `task_definition`
+- ECS application autoscaling target, policy, and schedule action to autoscale the number of tasks
+- AWS security group used by the service
 
-⚠️ Module is under active development ⚠️
+Some notable configurations to be aware of when using this module:
+1. `desired_count`/`scale` is always ignored; the module is designed to utilize autoscaling by default
+2. Autoscaling is configured and enabled by default; this aligns to support point 1 above
+3. The default configuration is intended for `FARGATE` use; `EC2` launch type is supported through configuration
 
-## TODO
+### Logging
 
-- [x] `aws_ecs_service` (one default, one with `ignore_changes` for things like `desired_count`)
-- [x] `aws_ecs_task_definition`
-- [x] `aws_ecs_task_set` (one default, one with `ignore_changes` for things like `scale`)
-- [x] `aws_appautoscaling_target` & `aws_appautoscaling_policy`
-- [x] Task role (`aws_iam_role`, `aws_iam_role_policy_attachment`, assume role `aws_iam_policy_document`)
-- [x] Task exectution role (`aws_iam_role`, `aws_iam_role_policy_attachment`, assume role `aws_iam_policy_document`)
-- [ ] ECS CloudWatch events role (`aws_iam_role`, `aws_iam_role_policy_attachment`, assume role `aws_iam_policy_document`)
+Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for logging configuration examples for FireLens on Amazon ECS and AWS Fargate.
 
 ## Usage
 
@@ -20,10 +27,99 @@ Configuration in this directory creates an ECS Service EKS Profile
 module "ecs_service" {
   source = "terraform-aws-modules/ecs/aws//modules/service"
 
-  name       = "MyService"
-  cluster_id = module.ecs.cluster_id
+  name    = "example"
+  cluster = "fargate-cluster"
 
-  # TODO
+  cpu    = 1024
+  memory = 4096
+
+  # Container definition(s)
+  container_definitions = {
+
+    fluent-bit = {
+      cpu       = 512
+      memory    = 1024
+      essential = true
+      image     = "906394416424.dkr.ecr.us-west-2.amazonaws.com/aws-for-fluent-bit:stable"
+      firelens_configuration = {
+        type = "fluentbit"
+      }
+      memory_reservation = 50
+    }
+
+    ecs-sample = {
+      cpu       = 512
+      memory    = 1024
+      essential = true
+      image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+      port_mappings = [
+        {
+          name          = "ecs-sample"
+          containerPort = 80
+          protocol      = "tcp"
+        }
+      ]
+
+      # Example image used requires access to write to root filesystem
+      readonly_root_filesystem = false
+
+      dependencies = [{
+        containerName = "fluent-bit"
+        condition     = "START"
+      }]
+
+      enable_cloudwatch_logging = false
+      log_configuration = {
+        logDriver = "awsfirelens"
+        options = {
+          Name                    = "firehose"
+          region                  = "eu-west-1"
+          delivery_stream         = "my-stream"
+          log-driver-buffer-limit = "2097152"
+        }
+      }
+      memory_reservation = 100
+    }
+  }
+
+  service_connect_configuration = {
+    namespace = "example"
+    service = {
+      client_alias = {
+        port     = 80
+        dns_name = "ecs-sample"
+      }
+      port_name      = "ecs-sample"
+      discovery_name = "ecs-sample"
+    }
+  }
+
+  load_balancer = {
+    service = {
+      target_group_arn = "arn:aws:elasticloadbalancing:eu-west-1:1234567890:targetgroup/bluegreentarget1/209a844cd01825a4"
+      container_name   = "ecs-sample"
+      container_port   = 80
+    }
+  }
+
+  subnet_ids = ["subnet-abcde012", "subnet-bcde012a", "subnet-fghi345a"]
+  security_group_rules = {
+    alb_ingress_3000 = {
+      type                     = "ingress"
+      from_port                = 80
+      to_port                  = 80
+      protocol                 = "tcp"
+      description              = "Service port"
+      source_security_group_id = "sg-12345678"
+    }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
 
   tags = {
     Environment = "dev"
@@ -32,9 +128,43 @@ module "ecs_service" {
 }
 ```
 
-### Logging
+## Conditional Creation
 
-Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for logging architectures for FireLens on Amazon ECS and AWS Fargate.
+The following values are provided to toggle on/off creation of the associated resources as desired:
+
+```hcl
+module "ecs_service" {
+  source = "terraform-aws-modules/ecs/aws//modules/service"
+
+  # Disable creation of service and all resources
+  create = false
+
+  # Disable creation of the service IAM role; `iam_role_arn` should be provided
+  create_iam_role = false
+
+  # Disable creation of the task definition; `task_definition_arn` should be provided
+  create_task_definition = false
+
+  # Disable creation of the task execution IAM role; `task_exec_iam_role_arn` should be provided
+  create_task_exec_iam_role = false
+
+  # Disable creation of the task execution IAM role policy
+  create_task_exec_policy = false
+
+  # Disable creation of the tasks IAM role; `tasks_iam_role_arn` should be provided
+  create_tasks_iam_role = false
+
+  # Disable creation of the service security group
+  create_security_group = false
+
+  # ... omitted
+}
+```
+
+## Examples
+
+- [ECS Cluster w/ EC2 Autoscaling Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete)
+- [ECS Cluster w/ Fargate Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -221,3 +351,7 @@ Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for 
 | <a name="output_tasks_iam_role_name"></a> [tasks\_iam\_role\_name](#output\_tasks\_iam\_role\_name) | Tasks IAM role name |
 | <a name="output_tasks_iam_role_unique_id"></a> [tasks\_iam\_role\_unique\_id](#output\_tasks\_iam\_role\_unique\_id) | Stable and unique string identifying the tasks IAM role |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## License
+
+Apache-2.0 Licensed. See [LICENSE](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/LICENSE).

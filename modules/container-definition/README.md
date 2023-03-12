@@ -2,13 +2,30 @@
 
 Configuration in this directory creates an ECS container definition
 
+By default, the configuration provide creates and uses a CloudWatch log group. To disable creation/use of this behavior you can disable with `enable_cloudwatch_logging` = `false`; for scenarios where using alternate logging methods like FireLens.
+
 ## Usage
 
+### Standard
+
 ```hcl
-module "ecs_service" {
+module "ecs_container_definition" {
   source = "terraform-aws-modules/ecs/aws//modules/container-definition"
 
-  # TODO
+  name      = "example"
+  cpu       = 512
+  memory    = 1024
+  essential = true
+  image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+  port_mappings = [
+    {
+      name          = "ecs-sample"
+      containerPort = 80
+      protocol      = "tcp"
+    }
+  ]
+
+  memory_reservation = 100
 
   tags = {
     Environment = "dev"
@@ -17,9 +34,56 @@ module "ecs_service" {
 }
 ```
 
-### Logging
+### W/ Firelens
 
-Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for logging architectures for FireLens on Amazon ECS and AWS Fargate.
+```hcl
+module "ecs_container_definition" {
+  source = "terraform-aws-modules/ecs/aws//modules/container-definition"
+
+  name      = "example"
+  cpu       = 512
+  memory    = 1024
+  essential = true
+  image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+  port_mappings = [
+    {
+      name          = "ecs-sample"
+      containerPort = 80
+      protocol      = "tcp"
+    }
+  ]
+
+  # Example image used requires access to write to root filesystem
+  readonly_root_filesystem = false
+
+  dependencies = [{
+    containerName = "fluent-bit"
+    condition     = "START"
+  }]
+
+  enable_cloudwatch_logging = false
+  log_configuration = {
+    logDriver = "awsfirelens"
+    options = {
+      Name                    = "firehose"
+      region                  = "eu-west-1"
+      delivery_stream         = "my-stream"
+      log-driver-buffer-limit = "2097152"
+    }
+  }
+  memory_reservation = 100
+
+  tags = {
+    Environment = "dev"
+    Terraform   = "true"
+  }
+}
+```
+
+## Examples
+
+- [ECS Cluster w/ EC2 Autoscaling Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete)
+- [ECS Cluster w/ Fargate Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -105,3 +169,7 @@ No modules.
 | <a name="output_cloudwatch_log_group_name"></a> [cloudwatch\_log\_group\_name](#output\_cloudwatch\_log\_group\_name) | Name of cloudwatch log group created |
 | <a name="output_container_definition"></a> [container\_definition](#output\_container\_definition) | Container definition |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## License
+
+Apache-2.0 Licensed. See [LICENSE](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/LICENSE).

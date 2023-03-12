@@ -2,7 +2,12 @@
 
 Configuration in this directory creates:
 
-- ECS cluster using Fargate (on-demand and spot) capacity provider
+- ECS cluster using Fargate (on-demand and spot) capacity providers
+- Example ECS service that utilizes
+  - AWS Firelens using FluentBit sidecar container definition
+  - Service connect configuration
+  - Load balancer target group attachment
+  - Security group for access to the example service
 
 ## Usage
 
@@ -84,3 +89,7 @@ No inputs.
 | <a name="output_service_tasks_iam_role_name"></a> [service\_tasks\_iam\_role\_name](#output\_service\_tasks\_iam\_role\_name) | Tasks IAM role name |
 | <a name="output_service_tasks_iam_role_unique_id"></a> [service\_tasks\_iam\_role\_unique\_id](#output\_service\_tasks\_iam\_role\_unique\_id) | Stable and unique string identifying the tasks IAM role |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## License
+
+Apache-2.0 Licensed. See [LICENSE](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/LICENSE).

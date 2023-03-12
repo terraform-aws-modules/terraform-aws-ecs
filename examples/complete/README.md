@@ -2,9 +2,12 @@
 
 Configuration in this directory creates:
 
-- ECS cluster using autoscaling group capacity provider
+- ECS cluster using EC2 autoscaling groups and Fargate capacity providers
 - Autoscaling groups with IAM instance profile to be used by ECS cluster
-- Example ECS service
+- Example ECS service that utilizes
+  - Mounts a host volume into the container definition
+  - Load balancer target group attachment
+  - Security group for access to the example service
 
 ## Usage
 
@@ -87,3 +90,7 @@ No inputs.
 | <a name="output_service_tasks_iam_role_name"></a> [service\_tasks\_iam\_role\_name](#output\_service\_tasks\_iam\_role\_name) | Tasks IAM role name |
 | <a name="output_service_tasks_iam_role_unique_id"></a> [service\_tasks\_iam\_role\_unique\_id](#output\_service\_tasks\_iam\_role\_unique\_id) | Stable and unique string identifying the tasks IAM role |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## License
+
+Apache-2.0 Licensed. See [LICENSE](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/LICENSE).
