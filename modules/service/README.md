@@ -19,7 +19,7 @@ Some notable configurations to be aware of when using this module:
 
 ### Logging
 
-Please refer to https://github.com/aws-samples/amazon-ecs-firelens-examples for logging configuration examples for FireLens on Amazon ECS and AWS Fargate.
+Please refer to [FireLens examples repository](https://github.com/aws-samples/amazon-ecs-firelens-examples) for logging configuration examples for FireLens on Amazon ECS and AWS Fargate.
 
 ## Usage
 
