@@ -4,12 +4,12 @@
 
 output "id" {
   description = "ARN that identifies the service"
-  value       = try(aws_ecs_service.this[0].id, aws_ecs_service.itd[0].id, null)
+  value       = try(aws_ecs_service.this[0].id, aws_ecs_service.ignore_task_definition[0].id, null)
 }
 
 output "name" {
   description = "Name of the service"
-  value       = try(aws_ecs_service.this[0].name, aws_ecs_service.itd[0].name, null)
+  value       = try(aws_ecs_service.this[0].name, aws_ecs_service.ignore_task_definition[0].name, null)
 }
 
 ################################################################################
@@ -106,22 +106,22 @@ output "tasks_iam_role_unique_id" {
 
 output "task_set_id" {
   description = "The ID of the task set"
-  value       = try(aws_ecs_task_set.this[0].task_set_id, aws_ecs_task_set.itd[0].task_set_id, null)
+  value       = try(aws_ecs_task_set.this[0].task_set_id, aws_ecs_task_set.ignore_task_definition[0].task_set_id, null)
 }
 
 output "task_set_arn" {
   description = "The Amazon Resource Name (ARN) that identifies the task set"
-  value       = try(aws_ecs_task_set.this[0].arn, aws_ecs_task_set.itd[0].arn, null)
+  value       = try(aws_ecs_task_set.this[0].arn, aws_ecs_task_set.ignore_task_definition[0].arn, null)
 }
 
 output "task_set_stability_status" {
   description = "The stability status. This indicates whether the task set has reached a steady state"
-  value       = try(aws_ecs_task_set.this[0].stability_status, aws_ecs_task_set.itd[0].stability_status, null)
+  value       = try(aws_ecs_task_set.this[0].stability_status, aws_ecs_task_set.ignore_task_definition[0].stability_status, null)
 }
 
 output "task_set_status" {
   description = "The status of the task set"
-  value       = try(aws_ecs_task_set.this[0].status, aws_ecs_task_set.itd[0].status, null)
+  value       = try(aws_ecs_task_set.this[0].status, aws_ecs_task_set.ignore_task_definition[0].status, null)
 }
 
 ################################################################################

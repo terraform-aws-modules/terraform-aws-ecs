@@ -4,6 +4,8 @@ Configuration in this directory creates an ECS container definition
 
 By default, the configuration provide creates and uses a CloudWatch log group. To disable creation/use of this behavior you can disable with `enable_cloudwatch_logging` = `false`; for scenarios where using alternate logging methods like FireLens.
 
+For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/design.md)
+
 ## Usage
 
 ### Standard

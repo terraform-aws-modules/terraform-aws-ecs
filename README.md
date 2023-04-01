@@ -9,18 +9,9 @@ Terraform module which creates ECS (Elastic Container Service) resources on AWS.
 - ECS cluster
 - Fargate capacity providers
 - EC2 AutoScaling Group capacity providers
-- ECS Service sub-module
-  - ECS service that ignores `desired_count`; this is intended for use when deploying task definition and container definition changes via Terraform
-  - ECS service that ignores `desired_count` and `task_definition`; this is intended for use when your CD process is updating the `image` and therefore the `task_definition` and `container_definition` are set once initially, but then controlled externally there after to avoid conflicts.
-  - ECS service IAM role
-  - ECS task definition with support for n-number of container definitions
-  - ECS task execution IAM role & permissions
-  - ECS tasks IAM role & permissions
-  - ECS task set that ignores `scale`
-  - ECS task set that ignores `scale` and  `task_definition`
-  - ECS application autoscaling target, policy, and schedule action to autoscale the number of tasks
-  - AWS security group used by the service
-- ECS container definition sub-module
+- ECS Service w/ task definition, task set, and container definition support
+
+For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/design.md)
 
 ## Usage
 
@@ -251,6 +242,7 @@ No modules.
 | <a name="input_autoscaling_capacity_providers"></a> [autoscaling\_capacity\_providers](#input\_autoscaling\_capacity\_providers) | Map of autoscaling capacity provider definitions to create for the cluster | `any` | `{}` | no |
 | <a name="input_cloudwatch_log_group_kms_key_id"></a> [cloudwatch\_log\_group\_kms\_key\_id](#input\_cloudwatch\_log\_group\_kms\_key\_id) | If a KMS Key ARN is set, this key will be used to encrypt the corresponding log group. Please be sure that the KMS Key has an appropriate key policy (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html) | `string` | `null` | no |
 | <a name="input_cloudwatch_log_group_retention_in_days"></a> [cloudwatch\_log\_group\_retention\_in\_days](#input\_cloudwatch\_log\_group\_retention\_in\_days) | Number of days to retain log events. Default retention - 90 days | `number` | `90` | no |
+| <a name="input_cloudwatch_log_group_tags"></a> [cloudwatch\_log\_group\_tags](#input\_cloudwatch\_log\_group\_tags) | A map of additional tags to add to the log group created | `map(string)` | `{}` | no |
 | <a name="input_cluster_configuration"></a> [cluster\_configuration](#input\_cluster\_configuration) | The execute command configuration for the cluster | `any` | `{}` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Name of the cluster (up to 255 letters, numbers, hyphens, and underscores) | `string` | `""` | no |
 | <a name="input_cluster_service_connect_defaults"></a> [cluster\_service\_connect\_defaults](#input\_cluster\_service\_connect\_defaults) | Configures a default Service Connect namespace | `map(string)` | `{}` | no |

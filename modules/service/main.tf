@@ -51,7 +51,7 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-  cluster = var.cluster
+  cluster = var.cluster_arn
 
   dynamic "deployment_circuit_breaker" {
     for_each = length(var.deployment_circuit_breaker) > 0 ? [var.deployment_circuit_breaker] : []
@@ -125,7 +125,6 @@ resource "aws_ecs_service" "this" {
 
   # Set by task set if deployment controller is external
   platform_version    = local.is_fargate && !local.is_external_deployment ? var.platform_version : null
-  propagate_tags      = var.propagate_tags
   scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
 
   dynamic "service_connect_configuration" {
@@ -188,10 +187,12 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-  tags                  = var.tags
   task_definition       = local.task_definition
   triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state
+
+  propagate_tags = var.propagate_tags
+  tags           = var.tags
 
   timeouts {
     create = try(var.timeouts.create, null)
@@ -199,7 +200,7 @@ resource "aws_ecs_service" "this" {
     delete = try(var.timeouts.delete, null)
   }
 
-  depends_on = [aws_iam_policy.service]
+  depends_on = [aws_iam_role_policy_attachment.service]
 
   lifecycle {
     ignore_changes = [
@@ -212,7 +213,7 @@ resource "aws_ecs_service" "this" {
 # Service - Ignore `task_definition`
 ################################################################################
 
-resource "aws_ecs_service" "itd" {
+resource "aws_ecs_service" "ignore_task_definition" {
   count = var.create && var.ignore_task_definition_changes ? 1 : 0
 
   dynamic "alarms" {
@@ -236,7 +237,7 @@ resource "aws_ecs_service" "itd" {
     }
   }
 
-  cluster = var.cluster
+  cluster = var.cluster_arn
 
   dynamic "deployment_circuit_breaker" {
     for_each = length(var.deployment_circuit_breaker) > 0 ? [var.deployment_circuit_breaker] : []
@@ -310,7 +311,6 @@ resource "aws_ecs_service" "itd" {
 
   # Set by task set if deployment controller is external
   platform_version    = local.is_fargate && !local.is_external_deployment ? var.platform_version : null
-  propagate_tags      = var.propagate_tags
   scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
 
   dynamic "service_connect_configuration" {
@@ -373,10 +373,12 @@ resource "aws_ecs_service" "itd" {
     }
   }
 
-  tags                  = var.tags
   task_definition       = local.task_definition
   triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state
+
+  propagate_tags = var.propagate_tags
+  tags           = var.tags
 
   timeouts {
     create = try(var.timeouts.create, null)
@@ -384,7 +386,7 @@ resource "aws_ecs_service" "itd" {
     delete = try(var.timeouts.delete, null)
   }
 
-  depends_on = [aws_iam_policy.service]
+  depends_on = [aws_iam_role_policy_attachment.service]
 
   lifecycle {
     ignore_changes = [
@@ -402,7 +404,7 @@ locals {
   # Role is not required if task definition uses `awsvpc` network mode or if a load balancer is not used
   needs_iam_role  = var.network_mode != "awsvpc" && length(var.load_balancer) > 0
   create_iam_role = var.create && var.create_iam_role && local.needs_iam_role
-  iam_role_arn    = local.needs_iam_role ? coalesce(var.iam_role_arn, aws_iam_role.service[0].arn) : null
+  iam_role_arn    = local.needs_iam_role ? try(coalesce(var.iam_role_arn, aws_iam_role.service[0].arn), null) : null
 
   iam_role_name = try(coalesce(var.iam_role_name, var.name), "")
 }
@@ -536,7 +538,7 @@ module "container_definition" {
 
   # Container Definition
   command                  = try(each.value.command, var.container_definition_defaults.command, [])
-  cpu                      = try(each.value.cpu, var.container_definition_defaults.cpu, var.cpu)
+  cpu                      = try(each.value.cpu, var.container_definition_defaults.cpu, null)
   dependencies             = try(each.value.dependencies, var.container_definition_defaults.dependencies, []) # depends_on is a reserved word
   disable_networking       = try(each.value.disable_networking, var.container_definition_defaults.disable_networking, null)
   dns_search_domains       = try(each.value.dns_search_domains, var.container_definition_defaults.dns_search_domains, [])
@@ -556,7 +558,7 @@ module "container_definition" {
   links                    = try(each.value.links, var.container_definition_defaults.links, [])
   linux_parameters         = try(each.value.linux_parameters, var.container_definition_defaults.linux_parameters, {})
   log_configuration        = try(each.value.log_configuration, var.container_definition_defaults.log_configuration, {})
-  memory                   = try(each.value.memory, var.container_definition_defaults.memory, var.memory)
+  memory                   = try(each.value.memory, var.container_definition_defaults.memory, null)
   memory_reservation       = try(each.value.memory_reservation, var.container_definition_defaults.memory_reservation, null)
   mount_points             = try(each.value.mount_points, var.container_definition_defaults.mount_points, [])
   name                     = try(each.value.name, each.key)
@@ -614,7 +616,7 @@ resource "aws_ecs_task_definition" "this" {
     }
   }
 
-  execution_role_arn = var.create_task_exec_iam_role ? aws_iam_role.task_exec[0].arn : var.task_exec_iam_role_arn
+  execution_role_arn = try(aws_iam_role.task_exec[0].arn, var.task_exec_iam_role_arn)
   family             = coalesce(var.family, var.name)
 
   dynamic "inference_accelerator" {
@@ -662,8 +664,7 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   skip_destroy  = var.skip_destroy
-  tags          = var.tags
-  task_role_arn = var.create_tasks_iam_role ? aws_iam_role.tasks[0].arn : var.tasks_iam_role_arn
+  task_role_arn = try(aws_iam_role.tasks[0].arn, var.tasks_iam_role_arn)
 
   dynamic "volume" {
     for_each = var.volume
@@ -723,6 +724,8 @@ resource "aws_ecs_task_definition" "this" {
       name      = try(volume.value.name, volume.key)
     }
   }
+
+  tags = merge(var.tags, var.task_tags)
 
   lifecycle {
     create_before_destroy = true
@@ -1003,8 +1006,8 @@ resource "aws_ecs_task_set" "this" {
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskset.html
   count = local.create_task_definition && local.is_external_deployment && !var.ignore_task_definition_changes ? 1 : 0
 
-  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.itd[0].id)
-  cluster         = var.cluster
+  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.ignore_task_definition[0].id)
+  cluster         = var.cluster_arn
   external_id     = var.external_id
   task_definition = local.task_definition
 
@@ -1064,9 +1067,10 @@ resource "aws_ecs_task_set" "this" {
   }
 
   force_delete              = var.force_delete
-  tags                      = var.tags
   wait_until_stable         = var.wait_until_stable
   wait_until_stable_timeout = var.wait_until_stable_timeout
+
+  tags = merge(var.tags, var.task_tags)
 
   lifecycle {
     ignore_changes = [
@@ -1079,12 +1083,12 @@ resource "aws_ecs_task_set" "this" {
 # Task Set - Ignore `task_definition`
 ################################################################################
 
-resource "aws_ecs_task_set" "itd" {
+resource "aws_ecs_task_set" "ignore_task_definition" {
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskset.html
   count = local.create_task_definition && local.is_external_deployment && var.ignore_task_definition_changes ? 1 : 0
 
-  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.itd[0].id)
-  cluster         = var.cluster
+  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.ignore_task_definition[0].id)
+  cluster         = var.cluster_arn
   external_id     = var.external_id
   task_definition = local.task_definition
 
@@ -1144,9 +1148,10 @@ resource "aws_ecs_task_set" "itd" {
   }
 
   force_delete              = var.force_delete
-  tags                      = var.tags
   wait_until_stable         = var.wait_until_stable
   wait_until_stable_timeout = var.wait_until_stable_timeout
+
+  tags = merge(var.tags, var.task_tags)
 
   lifecycle {
     ignore_changes = [
@@ -1161,9 +1166,9 @@ resource "aws_ecs_task_set" "itd" {
 ################################################################################
 
 locals {
-  enable_autoscaling = var.create && var.enable_autoscaling
+  enable_autoscaling = var.create && var.enable_autoscaling && !local.is_daemon
 
-  cluster_name = element(split("/", var.cluster), 1)
+  cluster_name = element(split("/", var.cluster_arn), 1)
 }
 
 resource "aws_appautoscaling_target" "this" {
@@ -1173,7 +1178,7 @@ resource "aws_appautoscaling_target" "this" {
   min_capacity = min(var.autoscaling_min_capacity, var.desired_count)
   max_capacity = max(var.autoscaling_max_capacity, var.desired_count)
 
-  resource_id        = "service/${local.cluster_name}/${try(aws_ecs_service.this[0].name, aws_ecs_service.itd[0].name)}"
+  resource_id        = "service/${local.cluster_name}/${try(aws_ecs_service.this[0].name, aws_ecs_service.ignore_task_definition[0].name)}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
@@ -1268,6 +1273,7 @@ resource "aws_appautoscaling_scheduled_action" "this" {
   end_time   = try(each.value.end_time, null)
   timezone   = try(each.value.timezone, null)
 }
+
 ################################################################################
 # Security Group
 ################################################################################

@@ -32,8 +32,8 @@ variable "capacity_provider_strategy" {
   default     = {}
 }
 
-variable "cluster" {
-  description = "ID/ARN of the ECS cluster where the resources will be provisioned"
+variable "cluster_arn" {
+  description = "ARN of the ECS cluster where the resources will be provisioned"
   type        = string
   default     = ""
 }
@@ -148,7 +148,7 @@ variable "platform_version" {
 
 variable "propagate_tags" {
   description = "Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are `SERVICE` and `TASK_DEFINITION`"
-  type        = bool
+  type        = string
   default     = null
 }
 
@@ -359,6 +359,12 @@ variable "skip_destroy" {
 variable "volume" {
   description = "Configuration block for volumes that containers in your task may use"
   type        = any
+  default     = {}
+}
+
+variable "task_tags" {
+  description = "A map of additional tags to add to the task definition/set created"
+  type        = map(string)
   default     = {}
 }
 

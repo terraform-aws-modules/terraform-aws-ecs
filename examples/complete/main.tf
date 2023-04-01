@@ -97,8 +97,8 @@ module "service" {
   source = "../../modules/service"
 
   # Service
-  name    = local.name
-  cluster = module.ecs.cluster_id
+  name        = local.name
+  cluster_arn = module.ecs.cluster_arn
 
   # Task Definition
   requires_compatibilities = ["EC2", "FARGATE"]

@@ -61,8 +61,8 @@ module "ecs_disabled" {
 module "service" {
   source = "../../modules/service"
 
-  name    = local.name
-  cluster = module.ecs.cluster_id
+  name        = local.name
+  cluster_arn = module.ecs.cluster_arn
 
   cpu    = 1024
   memory = 4096
