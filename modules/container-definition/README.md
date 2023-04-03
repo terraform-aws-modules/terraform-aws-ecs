@@ -1,8 +1,8 @@
 # ECS Container Definition Module
 
-Configuration in this directory creates an ECS container definition
+Configuration in this directory creates an ECS container definition.
 
-By default, the configuration provide creates and uses a CloudWatch log group. To disable creation/use of this behavior you can disable with `enable_cloudwatch_logging` = `false`; for scenarios where using alternate logging methods like FireLens.
+The module defaults to creating and utilizing a CloudWatch log group. You can disable this behavior by setting `enable_cloudwatch_logging` = `false` - useful for scenarios where Firelens is used for log forwarding.
 
 For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/design.md)
 

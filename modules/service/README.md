@@ -1,21 +1,10 @@
 # ECS Service Module
 
-Configuration in this directory creates an ECS Service complete with:
-- ECS service that ignores `desired_count`; this is intended for use when deploying task definition and container definition changes via Terraform
-- ECS service that ignores `desired_count` and `task_definition`; this is intended for use when your CD process is updating the `image` and therefore the `task_definition` and `container_definition` are set once initially, but then controlled externally there after to avoid conflicts.
-- ECS service IAM role
-- ECS task definition with support for n-number of container definitions
-- ECS task execution IAM role & permissions
-- ECS tasks IAM role & permissions
-- ECS task set that ignores `scale`
-- ECS task set that ignores `scale` and  `task_definition`
-- ECS application autoscaling target, policy, and schedule action to autoscale the number of tasks
-- AWS security group used by the service
+Configuration in this directory creates an ECS Service and associated resources.
 
 Some notable configurations to be aware of when using this module:
-1. `desired_count`/`scale` is always ignored; the module is designed to utilize autoscaling by default
-2. Autoscaling is configured and enabled by default; this aligns to support point 1 above
-3. The default configuration is intended for `FARGATE` use
+1. `desired_count`/`scale` is always ignored; the module is designed to utilize autoscaling by default (though it can be disabled)
+2. The default configuration is intended for `FARGATE` use
 
 For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/design.md)
 
