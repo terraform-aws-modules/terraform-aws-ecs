@@ -18,7 +18,7 @@ Multiple task definition/sets per service is not a common pattern used today. Th
 
 ### Cluster
 
-An Amazon ECS cluster is a logical grouping of compute resources which are consumed by tasks. Compute resources are provided via capacity providers - users can elect to choose an EC2 capacity provider, Fargate capacity providers (spot or on-demand), or a combination of EC2 and Fargate capacity providers.
+An Amazon ECS cluster is a logical grouping of compute resources which are consumed by tasks. Compute resources are provided via capacity providers - users can elect to choose an EC2 capacity provider or Fargate capacity providers (spot or on-demand). A capacity provider strategy determines how the tasks will be distributed among capacity providers. A default capacity provider strategy can be defined at cluster level. Note you **can not** mix EC2 based capacity provider with Fargate. 
 
 ### Service
 
