@@ -44,7 +44,6 @@ module "ecs_container_definition" {
 ```hcl
 module "fluentbit_ecs_container_definition" {
   source = "terraform-aws-modules/ecs/aws//modules/container-definition"
-
   name = "fluent-bit"
 
   cpu       = 512

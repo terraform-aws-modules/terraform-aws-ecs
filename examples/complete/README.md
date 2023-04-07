@@ -47,7 +47,7 @@ Note that this example may create resources which will incur monetary charges on
 | <a name="module_ecs_disabled"></a> [ecs\_disabled](#module\_ecs\_disabled) | ../.. | n/a |
 | <a name="module_service"></a> [service](#module\_service) | ../../modules/service | n/a |
 | <a name="module_service_disabled"></a> [service\_disabled](#module\_service\_disabled) | ../../modules/service | n/a |
-| <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 3.0 |
+| <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 4.0 |
 
 ## Resources
 
@@ -71,7 +71,7 @@ No inputs.
 | <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | Name that identifies the cluster |
 | <a name="output_service_autoscaling_policies"></a> [service\_autoscaling\_policies](#output\_service\_autoscaling\_policies) | Map of autoscaling policies and their attributes |
 | <a name="output_service_autoscaling_scheduled_actions"></a> [service\_autoscaling\_scheduled\_actions](#output\_service\_autoscaling\_scheduled\_actions) | Map of autoscaling scheduled actions and their attributes |
-| <a name="output_service_container_definition"></a> [service\_container\_definition](#output\_service\_container\_definition) | Container definition |
+| <a name="output_service_container_definitions"></a> [service\_container\_definitions](#output\_service\_container\_definitions) | Container definitions |
 | <a name="output_service_iam_role_arn"></a> [service\_iam\_role\_arn](#output\_service\_iam\_role\_arn) | Service IAM role ARN |
 | <a name="output_service_iam_role_name"></a> [service\_iam\_role\_name](#output\_service\_iam\_role\_name) | Service IAM role name |
 | <a name="output_service_iam_role_unique_id"></a> [service\_iam\_role\_unique\_id](#output\_service\_iam\_role\_unique\_id) | Stable and unique string identifying the service IAM role |

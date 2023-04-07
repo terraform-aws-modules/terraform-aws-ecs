@@ -56,9 +56,9 @@ output "service_iam_role_unique_id" {
   value       = module.service.iam_role_unique_id
 }
 
-output "service_container_definition" {
-  description = "Container definition"
-  value       = module.service.container_definition
+output "service_container_definitions" {
+  description = "Container definitions"
+  value       = module.service.container_definitions
   sensitive   = true
 }
 

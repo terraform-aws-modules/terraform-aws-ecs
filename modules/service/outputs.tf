@@ -35,8 +35,8 @@ output "iam_role_unique_id" {
 # Container Definition
 ################################################################################
 
-output "container_definition" {
-  description = "Container definition"
+output "container_definitions" {
+  description = "Container definitions"
   value       = module.container_definition
   sensitive   = true
 }

@@ -321,7 +321,7 @@ module "ecs_service" {
 |------|-------------|
 | <a name="output_autoscaling_policies"></a> [autoscaling\_policies](#output\_autoscaling\_policies) | Map of autoscaling policies and their attributes |
 | <a name="output_autoscaling_scheduled_actions"></a> [autoscaling\_scheduled\_actions](#output\_autoscaling\_scheduled\_actions) | Map of autoscaling scheduled actions and their attributes |
-| <a name="output_container_definition"></a> [container\_definition](#output\_container\_definition) | Container definition |
+| <a name="output_container_definitions"></a> [container\_definitions](#output\_container\_definitions) | Container definitions |
 | <a name="output_iam_role_arn"></a> [iam\_role\_arn](#output\_iam\_role\_arn) | Service IAM role ARN |
 | <a name="output_iam_role_name"></a> [iam\_role\_name](#output\_iam\_role\_name) | Service IAM role name |
 | <a name="output_iam_role_unique_id"></a> [iam\_role\_unique\_id](#output\_iam\_role\_unique\_id) | Stable and unique string identifying the service IAM role |
