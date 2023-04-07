@@ -52,7 +52,7 @@ variable "create_cloudwatch_log_group" {
 }
 
 variable "cloudwatch_log_group_retention_in_days" {
-  description = "Number of days to retain log events. Default retention - 90 days"
+  description = "Number of days to retain log events"
   type        = number
   default     = 90
 }

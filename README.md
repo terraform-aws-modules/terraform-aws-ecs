@@ -11,7 +11,7 @@ Terraform module which creates ECS (Elastic Container Service) resources on AWS.
 - EC2 AutoScaling Group capacity providers
 - ECS Service w/ task definition, task set, and container definition support
 
-For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/design.md)
+For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/DESIGN.md)
 
 ## Usage
 

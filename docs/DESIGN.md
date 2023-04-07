@@ -24,7 +24,7 @@ An Amazon ECS cluster is a logical grouping of compute resources which are consu
 
 An Amazon ECS service is responsible for managing its associated tasks (via task definition/task set) - the lifecycle of its tasks, the manner in which they are provisioned, their deployment model, network connectivity, etc. As stated previously, Amazon ECS services support one or more task definitions/sets per service. However, this module assumes a service will contain only one task definition/set. Some Amazon ECS service concepts to note:
 
-- When using an external deployment controller, most of the configurations that are normally specified in the service definition are instead specified in the task set. (For users of this project, this is abstractted away and handled by the module).
+- When using an external deployment controller, most configurations normally specified in the service definition are instead specified in the task set. (For users of this project, this is abstracted away and handled by the module).
 - The service IAM role is used to manage the lifecycle of load balancer targets (register/deregister) for the service. If the service does not utilize a load balancer, this role is not required.
 
 ### Task
@@ -118,7 +118,7 @@ Since Terraform does not support variables within `lifecycle {}` blocks, its not
   }
 
   module "ecs_service" {
-    source = "github.com/terraform-aws-modules/terraform-aws-ecs//modules/service"
+    source = "terraform-aws-modules/ecs/aws//modules/service"
 
     # ... omitted for brevity
 
@@ -201,7 +201,7 @@ The default behavior of the container definition module is to create the CloudWa
 
    ```hcl
    module "ecs_service" {
-     source = "github.com/terraform-aws-modules/terraform-aws-ecs//modules/service"
+     source = "terraform-aws-modules/ecs/aws//modules/service"
 
      # ... omitted for brevity
 
@@ -218,7 +218,7 @@ The default behavior of the container definition module is to create the CloudWa
 
    ```hcl
    module "ecs_service" {
-     source = "github.com/terraform-aws-modules/terraform-aws-ecs//modules/service"
+     source = "terraform-aws-modules/ecs/aws//modules/service"
 
      # ... omitted for brevity
 
@@ -235,7 +235,7 @@ The default behavior of the container definition module is to create the CloudWa
 
    ```hcl
    module "ecs_service" {
-     source = "github.com/terraform-aws-modules/terraform-aws-ecs//modules/service"
+     source = "terraform-aws-modules/ecs/aws//modules/service"
 
      # ... omitted for brevity
 
@@ -255,7 +255,7 @@ The default behavior of the container definition module is to create the CloudWa
    }
 
    module "ecs_service" {
-     source = "github.com/terraform-aws-modules/terraform-aws-ecs//modules/service"
+     source = "terraform-aws-modules/ecs/aws//modules/service"
 
      # ... omitted for brevity
 
