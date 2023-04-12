@@ -1,5 +1,5 @@
 module "wrapper" {
-  source = "../"
+  source = "../../modules/cluster"
 
   for_each = var.items
 
@@ -12,7 +12,6 @@ module "wrapper" {
     value = "enabled"
   })
   cluster_service_connect_defaults        = try(each.value.cluster_service_connect_defaults, var.defaults.cluster_service_connect_defaults, {})
-  cluster_tags                            = try(each.value.cluster_tags, var.defaults.cluster_tags, {})
   create_cloudwatch_log_group             = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)
   cloudwatch_log_group_retention_in_days  = try(each.value.cloudwatch_log_group_retention_in_days, var.defaults.cloudwatch_log_group_retention_in_days, 90)
   cloudwatch_log_group_kms_key_id         = try(each.value.cloudwatch_log_group_kms_key_id, var.defaults.cloudwatch_log_group_kms_key_id, null)
@@ -32,5 +31,4 @@ module "wrapper" {
   task_exec_ssm_param_arns                = try(each.value.task_exec_ssm_param_arns, var.defaults.task_exec_ssm_param_arns, ["arn:aws:ssm:*:*:parameter/*"])
   task_exec_secret_arns                   = try(each.value.task_exec_secret_arns, var.defaults.task_exec_secret_arns, ["arn:aws:secretsmanager:*:*:secret:*"])
   task_exec_iam_statements                = try(each.value.task_exec_iam_statements, var.defaults.task_exec_iam_statements, {})
-  services                                = try(each.value.services, var.defaults.services, {})
 }

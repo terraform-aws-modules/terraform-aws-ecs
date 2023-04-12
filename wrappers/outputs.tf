@@ -1,5 +1,5 @@
 output "wrapper" {
   description = "Map of outputs of a wrapper."
   value       = module.wrapper
-  # sensitive = false # No sensitive module output found
+  sensitive   = true # At least one sensitive module output (services) found (requires Terraform 0.14+)
 }

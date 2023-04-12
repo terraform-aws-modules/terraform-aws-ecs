@@ -25,8 +25,8 @@ locals {
 # Cluster
 ################################################################################
 
-module "ecs" {
-  source = "../.."
+module "ecs_cluster" {
+  source = "../../modules/cluster"
 
   cluster_name = local.name
 
@@ -48,21 +48,15 @@ module "ecs" {
   tags = local.tags
 }
 
-module "ecs_disabled" {
-  source = "../.."
-
-  create = false
-}
-
 ################################################################################
 # Service
 ################################################################################
 
-module "service" {
+module "ecs_service" {
   source = "../../modules/service"
 
   name        = local.name
-  cluster_arn = module.ecs.cluster_arn
+  cluster_arn = module.ecs_cluster.arn
 
   cpu    = 1024
   memory = 4096
@@ -157,12 +151,6 @@ module "service" {
   }
 
   tags = local.tags
-}
-
-module "service_disabled" {
-  source = "../../modules/service"
-
-  create = false
 }
 
 ################################################################################

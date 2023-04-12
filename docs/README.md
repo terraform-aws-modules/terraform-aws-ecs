@@ -18,13 +18,13 @@ Multiple task definition/sets per service is not a common pattern used today. Th
 
 ### Cluster
 
-An Amazon ECS cluster is a logical grouping of compute resources which are consumed by tasks. Compute resources are provided via capacity providers - users can elect to choose an EC2 capacity provider or Fargate capacity providers (spot or on-demand). A capacity provider strategy determines how the tasks will be distributed among capacity providers. A default capacity provider strategy can be defined at cluster level. Note you **can not** mix EC2 based capacity provider with Fargate. 
+An Amazon ECS cluster is a logical grouping of compute resources which are consumed by tasks. Compute resources are provided via capacity providers - users can elect to choose an EC2 capacity provider or Fargate capacity providers (spot or on-demand). A capacity provider strategy determines how the tasks will be distributed among capacity providers. A default capacity provider strategy can be defined at cluster level. Note you **can not** mix EC2 based capacity provider with Fargate.
 
 ### Service
 
 An Amazon ECS service is responsible for managing its associated tasks (via task definition/task set) - the lifecycle of its tasks, the manner in which they are provisioned, their deployment model, network connectivity, etc. As stated previously, Amazon ECS services support one or more task definitions/sets per service. However, this module assumes a service will contain only one task definition/set. Some Amazon ECS service concepts to note:
 
-- When using an external deployment controller, most of the configurations that are normally specified in the service definition are instead specified in the task set. (For users of this project, this is abstractted away and handled by the module).
+- When using an external deployment controller, most of the configurations that are normally specified in the service definition are instead specified in the task set. (For users of this project, this is abstracted away and handled by the module).
 - The service IAM role is used to manage the lifecycle of load balancer targets (register/deregister) for the service. If the service does not utilize a load balancer, this role is not required.
 
 ### Task
@@ -50,14 +50,14 @@ The following constructs are supported by this project. Please see their respect
 
 ### Cluster
 
-The root of the project contains the module definition used to create an Amazon ECS cluster. With it, users are able to:
+The cluster sub-module creates an Amazon ECS cluster. With it, users are able to:
 
 - Create an Amazon ECS cluster
 - Enable EC2, Fargate on-demand, and/or Fargate spot capacity providers for the cluster
 - Create and manage a CloudWatch log group for the cluster
 - Create a task execution IAM role with the ability to extend/add permissions as necessary
 
-When opting for EC2 capacity provider(s), users can utilize the [`terraform-aws-autoscaling` module](https://github.com/terraform-aws-modules/terraform-aws-autoscaling) to create the necessary autoscaling groups and associate them with the cluster. See the [`complete` example](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete) which demonstrates this configuration.
+When opting for EC2 capacity provider(s), users can utilize the [`terraform-aws-autoscaling` module](https://github.com/terraform-aws-modules/terraform-aws-autoscaling) to create the necessary autoscaling groups and associate them with the cluster. See the [`ec2-autoscaling` example](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2-autoscaling) which demonstrates this configuration.
 
 This module supports creating a task execution IAM role in two different ways to support two common patterns used by Amazon ECS users:
 
@@ -70,11 +70,11 @@ This module supports creating a task execution IAM role in two different ways to
 
 ### Service
 
-The service sub-module is separate from the root module that creats the cluster since one or more services can be deployed onto a cluster. The service sub-module allows users to:
+The service sub-module creates one service that can be deployed onto a cluster. The service sub-module allows users to:
 
 - Create an Amazon ECS service that ignores `desired_count`. This is intended for use when deploying task definition and container definition changes via Terraform
 - Create an Amazon ECS service that ignores `desired_count` and `task_definition`. This is intended to support a continuous deployment process that is responsible for updating the `image` and therefore the `task_definition` and `container_definition` while avoiding conflicts with Terraform.
-- Amazon ECS task resources with the various configurations detailed below under [ECS Task](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/DESIGN.md#ecs-task)
+- Amazon ECS task resources with the various configurations detailed below under [ECS Task](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/README.md#ecs-task)
 
 Since Terraform does not support variables within `lifecycle {}` blocks, its not possible to allow users to dynamically select which arguments they wish to ignore within the resources defined in the modules. Therefore, any arguments that should be ignored are statically set within the module definition. To somewhat mimic the behavior of allowing users to opt in/out of ignoring certain arguments, the module supports two different service definitions; one that ignores the `desired_count`, and one that ignores the `desired_count` and `task_definition`. The motivation and reasoning for these ignored argument configurations is detailed below:
 
@@ -118,26 +118,26 @@ Since Terraform does not support variables within `lifecycle {}` blocks, its not
   }
 
   module "ecs_service" {
-    source = "github.com/terraform-aws-modules/terraform-aws-ecs//modules/service"
+    source = "terraform-aws-modules/ecs//modules/service"
 
     # ... omitted for brevity
 
     container_definitions = {
       default = {
         name  = data.aws_ecr_repository.app.name
-        image = "${data.aws_ecr_repository.app.repsoitory_url}@${data.aws_ecr_image.app.id}"
+        image = "${data.aws_ecr_repository.app.repository_url}@${data.aws_ecr_image.app.id}"
         # ...
       }
     }
 
-    # This is the defualt, but just to clarify on this example that we are NOT ignoring
+    # This is the default, but just to clarify on this example that we are NOT ignoring
     # task definition changes, and still allowing an external party to modify the image/tag
     # without conflicting with Terraform
     ignore_task_definition_changes = false
   }
   ```
 
-This could be expanded further to include the entire container definitions argument, provided that external party making changes to the container definitions provides a copy that Terraform can retrieve and use when making updates to task definitions. This is possible due to the use of the `aws_ecs_task_definition` data source in the module - the data source retrieves the task definition currently defined in AWS. Using the `max()` function in Terraform, we can get the latest version via `max(aws_ecs_task_definition.this[0].revision, data.aws_ecs_task_definition.this[0].revision)` and use that as the `task_definition` value through reconstructing the `family:revsion` format such as `"${aws_ecs_task_definition.this[0].family}:${local.max_task_def_revision}"`. With this work around, any changes made by Terraform would result in a new task definition revision resulting in Terraform updating the revision and deploying that change into the cluster. Likewise, any external party making changes to the task definition will increment the revision and deploy that into the cluster. Provided that Terraform can refer to the same values of the arguments changed by the external party, Terraform will be able to have a complete view of the current status and only make changes when necessary, without conflicting with the external party.
+This could be expanded further to include the entire container definitions argument, provided that external party making changes to the container definitions provides a copy that Terraform can retrieve and use when making updates to task definitions. This is possible due to the use of the `aws_ecs_task_definition` data source in the module - the data source retrieves the task definition currently defined in AWS. Using the `max()` function in Terraform, we can get the latest version via `max(aws_ecs_task_definition.this[0].revision, data.aws_ecs_task_definition.this[0].revision)` and use that as the `task_definition` value through reconstructing the `family:revision` format such as `"${aws_ecs_task_definition.this[0].family}:${local.max_task_def_revision}"`. With this work around, any changes made by Terraform would result in a new task definition revision resulting in Terraform updating the revision and deploying that change into the cluster. Likewise, any external party making changes to the task definition will increment the revision and deploy that into the cluster. Provided that Terraform can refer to the same values of the arguments changed by the external party, Terraform will be able to have a complete view of the current status and only make changes when necessary, without conflicting with the external party.
 
 <p align="center">
   <img src="./images/service.png" alt="ECS Service" width="40%">
@@ -191,7 +191,7 @@ The container definition sub-module provided by the project is intended to be us
 Within a container definition, there are primarily 2 ways in which logs are created/managed:
 
 1. Via Cloudwatch logs: When users provide a name to `awslogs-group`, if the CloudWatch log group does not exists, ECS will create it. This means it is created outside of IaC and therefore will not be deleted when the task/container definition is deleted, nor tagged, etc.
-2. Via Firelens: Firelens allows users to provide a configuration that will forward logs to various locations, including 3rd party locations. When using Firelens though, users will need to add a FluentBit sidecar to forward logs to the Firelens service which will send logs to the final destiation based on the `firelensConfiguration`
+2. Via Firelens: Firelens allows users to provide a configuration that will forward logs to various locations, including 3rd party locations. When using Firelens though, users will need to add a FluentBit sidecar to forward logs to the Firelens service which will send logs to the final destination based on the `firelensConfiguration`
 
 In this module we aim to provide support for both, but with the addition of affording users the ability to manage the Cloudwatch log group through Terraform. This is the similar scenario we face with other modules as well - RDS, Lambda, EKS - that will automatically create log groups when logging is enabled. This sub-module provides support for creating the Cloudwatch log groups so that users can tag the log groups, set the retention period, , encrypt the log groups with KMS, ensure logs are destroyed when the resources are, etc. This is the reason why the Cloudwatch log resource is provided in this sub-module; to allow users to control the log group through Terraform/IaC
 
@@ -201,7 +201,7 @@ The default behavior of the container definition module is to create the CloudWa
 
    ```hcl
    module "ecs_service" {
-     source = "github.com/terraform-aws-modules/terraform-aws-ecs//modules/service"
+     source = "terraform-aws-modules/ecs//modules/service"
 
      # ... omitted for brevity
 
@@ -218,7 +218,7 @@ The default behavior of the container definition module is to create the CloudWa
 
    ```hcl
    module "ecs_service" {
-     source = "github.com/terraform-aws-modules/terraform-aws-ecs//modules/service"
+     source = "terraform-aws-modules/ecs//modules/service"
 
      # ... omitted for brevity
 
@@ -235,7 +235,7 @@ The default behavior of the container definition module is to create the CloudWa
 
    ```hcl
    module "ecs_service" {
-     source = "github.com/terraform-aws-modules/terraform-aws-ecs//modules/service"
+     source = "terraform-aws-modules/ecs//modules/service"
 
      # ... omitted for brevity
 
@@ -255,7 +255,7 @@ The default behavior of the container definition module is to create the CloudWa
    }
 
    module "ecs_service" {
-     source = "github.com/terraform-aws-modules/terraform-aws-ecs//modules/service"
+     source = "terraform-aws-modules/ecs//modules/service"
 
      # ... omitted for brevity
 
