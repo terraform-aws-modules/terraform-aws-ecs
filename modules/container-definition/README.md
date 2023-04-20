@@ -1,6 +1,6 @@
-# ECS Container Definition Module
+# Amazon ECS Container Definition Module
 
-Configuration in this directory creates an ECS container definition.
+Configuration in this directory creates an Amazon ECS container definition.
 
 The module defaults to creating and utilizing a CloudWatch log group. You can disable this behavior by setting `enable_cloudwatch_logging` = `false` - useful for scenarios where Firelens is used for log forwarding.
 

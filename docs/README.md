@@ -118,7 +118,7 @@ Since Terraform does not support variables within `lifecycle {}` blocks, its not
   }
 
   module "ecs_service" {
-    source = "terraform-aws-modules/ecs//modules/service"
+    source = "terraform-aws-modules/ecs/aws//modules/service"
 
     # ... omitted for brevity
 
@@ -201,7 +201,7 @@ The default behavior of the container definition module is to create the CloudWa
 
    ```hcl
    module "ecs_service" {
-     source = "terraform-aws-modules/ecs//modules/service"
+     source = "terraform-aws-modules/ecs/aws//modules/service"
 
      # ... omitted for brevity
 
@@ -218,7 +218,7 @@ The default behavior of the container definition module is to create the CloudWa
 
    ```hcl
    module "ecs_service" {
-     source = "terraform-aws-modules/ecs//modules/service"
+     source = "terraform-aws-modules/ecs/aws//modules/service"
 
      # ... omitted for brevity
 
@@ -235,7 +235,7 @@ The default behavior of the container definition module is to create the CloudWa
 
    ```hcl
    module "ecs_service" {
-     source = "terraform-aws-modules/ecs//modules/service"
+     source = "terraform-aws-modules/ecs/aws//modules/service"
 
      # ... omitted for brevity
 
@@ -255,7 +255,7 @@ The default behavior of the container definition module is to create the CloudWa
    }
 
    module "ecs_service" {
-     source = "terraform-aws-modules/ecs//modules/service"
+     source = "terraform-aws-modules/ecs/aws//modules/service"
 
      # ... omitted for brevity
 

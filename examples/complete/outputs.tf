@@ -34,5 +34,4 @@ output "cluster_autoscaling_capacity_providers" {
 output "services" {
   description = "Map of services created and their attributes"
   value       = module.ecs.services
-  sensitive   = true
 }

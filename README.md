@@ -20,7 +20,7 @@ This project supports creating resources through individual sub-modules, or thro
 
 ```hcl
 module "ecs" {
-  source = "terraform-aws-modules/ecs"
+  source = "terraform-aws-modules/ecs/aws"
 
   cluster_name = "ecs-integrated"
 

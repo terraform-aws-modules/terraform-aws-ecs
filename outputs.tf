@@ -59,5 +59,4 @@ output "task_exec_iam_role_unique_id" {
 output "services" {
   description = "Map of services created and their attributes"
   value       = module.service
-  sensitive   = true
 }

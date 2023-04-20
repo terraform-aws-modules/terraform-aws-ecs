@@ -59,7 +59,6 @@ output "service_iam_role_unique_id" {
 output "service_container_definitions" {
   description = "Container definitions"
   value       = module.ecs_service.container_definitions
-  sensitive   = true
 }
 
 output "service_task_definition_arn" {

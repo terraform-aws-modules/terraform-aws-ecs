@@ -68,7 +68,7 @@ module "ecs_service" {
       cpu       = 512
       memory    = 1024
       essential = true
-      image     = data.aws_ssm_parameter.fluentbit.value
+      image     = "public.ecr.aws/aws-observability/aws-for-fluent-bit:2.31.9"
       firelens_configuration = {
         type = "fluentbit"
       }
@@ -158,13 +158,9 @@ module "ecs_service" {
 ################################################################################
 
 resource "aws_service_discovery_http_namespace" "this" {
-  name        = "development"
-  description = "example"
+  name        = local.name
+  description = "CloudMap namespace for ${local.name}"
   tags        = local.tags
-}
-
-data "aws_ssm_parameter" "fluentbit" {
-  name = "/aws/service/aws-for-fluent-bit/stable"
 }
 
 module "alb_sg" {

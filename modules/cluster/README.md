@@ -1,6 +1,6 @@
-# AWS ECS Terraform module
+# Amazon ECS Cluster Terraform Module
 
-Terraform module which creates ECS (Elastic Container Service) resources on AWS.
+Terraform module which creates Amazon ECS (Elastic Container Service) cluster resources on AWS.
 
 ## Available Features
 
@@ -17,7 +17,7 @@ For more details see the [design doc](https://github.com/terraform-aws-modules/t
 
 ```hcl
 module "ecs_cluster" {
-  source = "terraform-aws-modules/ecs//modules/cluster"
+  source = "terraform-aws-modules/ecs/aws//modules/cluster"
 
   cluster_name = "ecs-fargate"
 
@@ -54,7 +54,7 @@ module "ecs_cluster" {
 
 ```hcl
 module "ecs_cluster" {
-  source = "terraform-aws-modules/ecs//modules/cluster"
+  source = "terraform-aws-modules/ecs/aws//modules/cluster"
 
   cluster_name = "ecs-ec2"
 
@@ -114,7 +114,7 @@ The following values are provided to toggle on/off creation of the associated re
 
 ```hcl
 module "ecs_cluster" {
-  source = "terraform-aws-modules/ecs//modules/cluster"
+  source = "terraform-aws-modules/ecs/aws//modules/cluster"
 
   # Disable creation of cluster and all resources
   create = false

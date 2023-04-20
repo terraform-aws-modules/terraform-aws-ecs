@@ -1,6 +1,6 @@
-# ECS Service Module
+# Amazon ECS Service Module
 
-Configuration in this directory creates an ECS Service and associated resources.
+Configuration in this directory creates an Amazon ECS Service and associated resources.
 
 Some notable configurations to be aware of when using this module:
 1. `desired_count`/`scale` is always ignored; the module is designed to utilize autoscaling by default (though it can be disabled)

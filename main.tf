@@ -7,20 +7,24 @@ module "cluster" {
 
   create = var.create
 
+  # Cluster
   cluster_name                     = var.cluster_name
   cluster_configuration            = var.cluster_configuration
   cluster_settings                 = var.cluster_settings
   cluster_service_connect_defaults = var.cluster_service_connect_defaults
 
+  # Cluster Cloudwatch log group
   create_cloudwatch_log_group            = var.create_cloudwatch_log_group
   cloudwatch_log_group_retention_in_days = var.cloudwatch_log_group_retention_in_days
   cloudwatch_log_group_kms_key_id        = var.cloudwatch_log_group_kms_key_id
   cloudwatch_log_group_tags              = var.cloudwatch_log_group_tags
 
+  # Cluster capacity providers
   default_capacity_provider_use_fargate = var.default_capacity_provider_use_fargate
   fargate_capacity_providers            = var.fargate_capacity_providers
   autoscaling_capacity_providers        = var.autoscaling_capacity_providers
 
+  # Task execution IAM role
   create_task_exec_iam_role               = var.create_task_exec_iam_role
   task_exec_iam_role_name                 = var.task_exec_iam_role_name
   task_exec_iam_role_use_name_prefix      = var.task_exec_iam_role_use_name_prefix
@@ -29,10 +33,12 @@ module "cluster" {
   task_exec_iam_role_permissions_boundary = var.task_exec_iam_role_permissions_boundary
   task_exec_iam_role_tags                 = var.task_exec_iam_role_tags
   task_exec_iam_role_policies             = var.task_exec_iam_role_policies
-  create_task_exec_policy                 = var.create_task_exec_policy
-  task_exec_ssm_param_arns                = var.task_exec_ssm_param_arns
-  task_exec_secret_arns                   = var.task_exec_secret_arns
-  task_exec_iam_statements                = var.task_exec_iam_statements
+
+  # Task execution IAM role policy
+  create_task_exec_policy  = var.create_task_exec_policy
+  task_exec_ssm_param_arns = var.task_exec_ssm_param_arns
+  task_exec_secret_arns    = var.task_exec_secret_arns
+  task_exec_iam_statements = var.task_exec_iam_statements
 
   tags = merge(var.tags, var.cluster_tags)
 }
@@ -79,7 +85,7 @@ module "service" {
   triggers                           = try(each.value.triggers, {})
   wait_for_steady_state              = try(each.value.wait_for_steady_state, null)
 
-  # Service - IAM Role
+  # Service IAM role
   create_iam_role               = try(each.value.create_iam_role, true)
   iam_role_arn                  = lookup(each.value, "iam_role_arn", null)
   iam_role_name                 = try(each.value.iam_role_name, null)
@@ -90,7 +96,7 @@ module "service" {
   iam_role_tags                 = try(each.value.iam_role_tags, {})
   iam_role_statements           = lookup(each.value, "iam_role_statements", {})
 
-  # Task Definition
+  # Task definition
   create_task_definition        = try(each.value.create_task_definition, true)
   task_definition_arn           = lookup(each.value, "task_definition_arn", null)
   container_definitions         = try(each.value.container_definitions, {})
@@ -112,7 +118,7 @@ module "service" {
   volume       = try(each.value.volume, {})
   task_tags    = try(each.value.task_tags, {})
 
-  # Task Execution - IAM Role
+  # Task execution IAM role
   create_task_exec_iam_role               = try(each.value.create_task_exec_iam_role, true)
   task_exec_iam_role_arn                  = lookup(each.value, "task_exec_iam_role_arn", null)
   task_exec_iam_role_name                 = try(each.value.task_exec_iam_role_name, null)
@@ -122,10 +128,12 @@ module "service" {
   task_exec_iam_role_permissions_boundary = try(each.value.task_exec_iam_role_permissions_boundary, null)
   task_exec_iam_role_tags                 = try(each.value.task_exec_iam_role_tags, {})
   task_exec_iam_role_policies             = try(each.value.task_exec_iam_role_policies, {})
-  create_task_exec_policy                 = try(each.value.create_task_exec_policy, true)
-  task_exec_ssm_param_arns                = lookup(each.value, "task_exec_ssm_param_arns", ["arn:aws:ssm:*:*:parameter/*"])
-  task_exec_secret_arns                   = lookup(each.value, "task_exec_secret_arns", ["arn:aws:secretsmanager:*:*:secret:*"])
-  task_exec_iam_statements                = lookup(each.value, "task_exec_iam_statements", {})
+
+  # Task execution IAM role policy
+  create_task_exec_policy  = try(each.value.create_task_exec_policy, true)
+  task_exec_ssm_param_arns = lookup(each.value, "task_exec_ssm_param_arns", ["arn:aws:ssm:*:*:parameter/*"])
+  task_exec_secret_arns    = lookup(each.value, "task_exec_secret_arns", ["arn:aws:secretsmanager:*:*:secret:*"])
+  task_exec_iam_statements = lookup(each.value, "task_exec_iam_statements", {})
 
   # Tasks - IAM role
   create_tasks_iam_role               = try(each.value.create_tasks_iam_role, true)
