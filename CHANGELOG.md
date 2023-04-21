@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.0.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.1.3...v5.0.0) (2023-04-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* Add support for creating ECS service and container definition (#76)
+
+### Features
+
+* Add support for creating ECS service and container definition ([#76](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/76)) ([57244e6](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/57244e69abea685f7d45352abc994779b5f6d352))
+
 ### [4.1.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.1.2...v4.1.3) (2023-01-24)
 
 
