@@ -2,17 +2,17 @@ provider "aws" {
   region = local.region
 }
 
+data "aws_availability_zones" "available" {}
+
 locals {
   region = "eu-west-1"
-  name   = "ecs-ex-${replace(basename(path.cwd), "_", "-")}"
+  name   = "ex-${basename(path.cwd)}"
 
-  user_data = <<-EOT
-    #!/bin/bash
-    cat <<'EOF' >> /etc/ecs/ecs.config
-    ECS_CLUSTER=${local.name}
-    ECS_LOGLEVEL=debug
-    EOF
-  EOT
+  vpc_cidr = "10.0.0.0/16"
+  azs      = slice(data.aws_availability_zones.available.names, 0, 3)
+
+  container_name = "ecsdemo-frontend"
+  container_port = 3000
 
   tags = {
     Name       = local.name
@@ -22,65 +22,121 @@ locals {
 }
 
 ################################################################################
-# ECS Module
+# Cluster
 ################################################################################
 
 module "ecs" {
-  source = "../.."
+  source = "../../"
 
   cluster_name = local.name
 
-  cluster_configuration = {
-    execute_command_configuration = {
-      logging = "OVERRIDE"
-      log_configuration = {
-        # You can set a simple string and ECS will create the CloudWatch log group for you
-        # or you can create the resource yourself as shown here to better manage retetion, tagging, etc.
-        # Embedding it into the module is not trivial and therefore it is externalized
-        cloud_watch_log_group_name = aws_cloudwatch_log_group.this.name
-      }
-    }
-  }
-
-  default_capacity_provider_use_fargate = false
-
-  # Capacity provider - Fargate
+  # Capacity provider
   fargate_capacity_providers = {
-    FARGATE      = {}
-    FARGATE_SPOT = {}
-  }
-
-  # Capacity provider - autoscaling groups
-  autoscaling_capacity_providers = {
-    one = {
-      auto_scaling_group_arn         = module.autoscaling["one"].autoscaling_group_arn
-      managed_termination_protection = "ENABLED"
-
-      managed_scaling = {
-        maximum_scaling_step_size = 5
-        minimum_scaling_step_size = 1
-        status                    = "ENABLED"
-        target_capacity           = 60
-      }
-
+    FARGATE = {
       default_capacity_provider_strategy = {
-        weight = 60
+        weight = 50
         base   = 20
       }
     }
-    two = {
-      auto_scaling_group_arn         = module.autoscaling["two"].autoscaling_group_arn
-      managed_termination_protection = "ENABLED"
+    FARGATE_SPOT = {
+      default_capacity_provider_strategy = {
+        weight = 50
+      }
+    }
+  }
 
-      managed_scaling = {
-        maximum_scaling_step_size = 15
-        minimum_scaling_step_size = 5
-        status                    = "ENABLED"
-        target_capacity           = 90
+  services = {
+    ecsdemo-frontend = {
+      cpu    = 1024
+      memory = 4096
+
+      # Container definition(s)
+      container_definitions = {
+
+        fluent-bit = {
+          cpu       = 512
+          memory    = 1024
+          essential = true
+          image     = "public.ecr.aws/aws-observability/aws-for-fluent-bit:2.31.9"
+          firelens_configuration = {
+            type = "fluentbit"
+          }
+          memory_reservation = 50
+        }
+
+        (local.container_name) = {
+          cpu       = 512
+          memory    = 1024
+          essential = true
+          image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+          port_mappings = [
+            {
+              name          = local.container_name
+              containerPort = local.container_port
+              hostPort      = local.container_port
+              protocol      = "tcp"
+            }
+          ]
+
+          # Example image used requires access to write to root filesystem
+          readonly_root_filesystem = false
+
+          dependencies = [{
+            containerName = "fluent-bit"
+            condition     = "START"
+          }]
+
+          enable_cloudwatch_logging = false
+          log_configuration = {
+            logDriver = "awsfirelens"
+            options = {
+              Name                    = "firehose"
+              region                  = local.region
+              delivery_stream         = "my-stream"
+              log-driver-buffer-limit = "2097152"
+            }
+          }
+          memory_reservation = 100
+        }
       }
 
-      default_capacity_provider_strategy = {
-        weight = 40
+      service_connect_configuration = {
+        namespace = aws_service_discovery_http_namespace.this.arn
+        service = {
+          client_alias = {
+            port     = local.container_port
+            dns_name = local.container_name
+          }
+          port_name      = local.container_name
+          discovery_name = local.container_name
+        }
+      }
+
+      load_balancer = {
+        service = {
+          target_group_arn = element(module.alb.target_group_arns, 0)
+          container_name   = local.container_name
+          container_port   = local.container_port
+        }
+      }
+
+      subnet_ids = module.vpc.private_subnets
+      security_group_rules = {
+        alb_ingress_3000 = {
+          type                     = "ingress"
+          from_port                = local.container_port
+          to_port                  = local.container_port
+          protocol                 = "tcp"
+          description              = "Service port"
+          source_security_group_id = module.alb_sg.security_group_id
+        }
+        egress_all = {
+          type        = "egress"
+          from_port   = 0
+          to_port     = 0
+          protocol    = "-1"
+          cidr_blocks = ["0.0.0.0/0"]
+        }
       }
     }
   }
@@ -88,14 +144,20 @@ module "ecs" {
   tags = local.tags
 }
 
-module "hello_world" {
-  source = "./service-hello-world"
+module "ecs_disabled" {
+  source = "../../"
 
-  cluster_id = module.ecs.cluster_id
+  create = false
 }
 
-module "ecs_disabled" {
-  source = "../.."
+module "ecs_cluster_disabled" {
+  source = "../../modules/cluster"
+
+  create = false
+}
+
+module "service_disabled" {
+  source = "../../modules/service"
 
   create = false
 }
@@ -104,96 +166,74 @@ module "ecs_disabled" {
 # Supporting Resources
 ################################################################################
 
-# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html#ecs-optimized-ami-linux
-data "aws_ssm_parameter" "ecs_optimized_ami" {
-  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
+resource "aws_service_discovery_http_namespace" "this" {
+  name        = local.name
+  description = "CloudMap namespace for ${local.name}"
+  tags        = local.tags
 }
 
-module "autoscaling" {
-  source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 6.5"
+module "alb_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "~> 4.0"
 
-  for_each = {
-    one = {
-      instance_type = "t3.micro"
-    }
-    two = {
-      instance_type = "t3.small"
-    }
-  }
+  name        = "${local.name}-service"
+  description = "Service security group"
+  vpc_id      = module.vpc.vpc_id
 
-  name = "${local.name}-${each.key}"
+  ingress_rules       = ["http-80-tcp"]
+  ingress_cidr_blocks = ["0.0.0.0/0"]
 
-  image_id      = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
-  instance_type = each.value.instance_type
-
-  security_groups                 = [module.autoscaling_sg.security_group_id]
-  user_data                       = base64encode(local.user_data)
-  ignore_desired_capacity_changes = true
-
-  create_iam_instance_profile = true
-  iam_role_name               = local.name
-  iam_role_description        = "ECS role for ${local.name}"
-  iam_role_policies = {
-    AmazonEC2ContainerServiceforEC2Role = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
-    AmazonSSMManagedInstanceCore        = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  }
-
-  vpc_zone_identifier = module.vpc.private_subnets
-  health_check_type   = "EC2"
-  min_size            = 0
-  max_size            = 2
-  desired_capacity    = 1
-
-  # https://github.com/hashicorp/terraform-provider-aws/issues/12582
-  autoscaling_group_tags = {
-    AmazonECSManaged = true
-  }
-
-  # Required for  managed_termination_protection = "ENABLED"
-  protect_from_scale_in = true
+  egress_rules       = ["all-all"]
+  egress_cidr_blocks = module.vpc.private_subnets_cidr_blocks
 
   tags = local.tags
 }
 
-module "autoscaling_sg" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
+module "alb" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "~> 8.0"
 
-  name        = local.name
-  description = "Autoscaling group security group"
-  vpc_id      = module.vpc.vpc_id
+  name = local.name
 
-  ingress_cidr_blocks = ["0.0.0.0/0"]
-  ingress_rules       = ["https-443-tcp"]
+  load_balancer_type = "application"
 
-  egress_rules = ["all-all"]
+  vpc_id          = module.vpc.vpc_id
+  subnets         = module.vpc.public_subnets
+  security_groups = [module.alb_sg.security_group_id]
+
+  http_tcp_listeners = [
+    {
+      port               = 80
+      protocol           = "HTTP"
+      target_group_index = 0
+    },
+  ]
+
+  target_groups = [
+    {
+      name             = "${local.name}-${local.container_name}"
+      backend_protocol = "HTTP"
+      backend_port     = local.container_port
+      target_type      = "ip"
+    },
+  ]
 
   tags = local.tags
 }
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   name = local.name
-  cidr = "10.99.0.0/18"
+  cidr = local.vpc_cidr
 
-  azs             = ["${local.region}a", "${local.region}b", "${local.region}c"]
-  public_subnets  = ["10.99.0.0/24", "10.99.1.0/24", "10.99.2.0/24"]
-  private_subnets = ["10.99.3.0/24", "10.99.4.0/24", "10.99.5.0/24"]
+  azs             = local.azs
+  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 4, k)]
+  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 48)]
 
-  enable_nat_gateway      = true
-  single_nat_gateway      = true
-  enable_dns_hostnames    = true
-  map_public_ip_on_launch = false
-
-  tags = local.tags
-}
-
-resource "aws_cloudwatch_log_group" "this" {
-  name              = "/aws/ecs/${local.name}"
-  retention_in_days = 7
+  enable_nat_gateway = true
+  single_nat_gateway = true
 
   tags = local.tags
 }

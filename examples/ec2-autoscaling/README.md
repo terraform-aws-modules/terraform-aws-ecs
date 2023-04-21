@@ -1,11 +1,11 @@
-# ECS Clusters w/ Fargate
+# ECS Cluster w/ EC2 Autoscaling
 
 Configuration in this directory creates:
 
-- ECS cluster using Fargate (on-demand and spot) capacity providers
+- ECS cluster using EC2 autoscaling groups
+- Autoscaling groups with IAM instance profile to be used by ECS cluster
 - Example ECS service that utilizes
-  - AWS Firelens using FluentBit sidecar container definition
-  - Service connect configuration
+  - Mounts a host volume into the container definition
   - Load balancer target group attachment
   - Security group for access to the example service
 
@@ -41,6 +41,8 @@ Note that this example may create resources which will incur monetary charges on
 |------|--------|---------|
 | <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | ~> 8.0 |
 | <a name="module_alb_sg"></a> [alb\_sg](#module\_alb\_sg) | terraform-aws-modules/security-group/aws | ~> 4.0 |
+| <a name="module_autoscaling"></a> [autoscaling](#module\_autoscaling) | terraform-aws-modules/autoscaling/aws | ~> 6.5 |
+| <a name="module_autoscaling_sg"></a> [autoscaling\_sg](#module\_autoscaling\_sg) | terraform-aws-modules/security-group/aws | ~> 4.0 |
 | <a name="module_ecs_cluster"></a> [ecs\_cluster](#module\_ecs\_cluster) | ../../modules/cluster | n/a |
 | <a name="module_ecs_service"></a> [ecs\_service](#module\_ecs\_service) | ../../modules/service | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 4.0 |
@@ -49,8 +51,8 @@ Note that this example may create resources which will incur monetary charges on
 
 | Name | Type |
 |------|------|
-| [aws_service_discovery_http_namespace.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/service_discovery_http_namespace) | resource |
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
+| [aws_ssm_parameter.ecs_optimized_ami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
 
