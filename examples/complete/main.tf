@@ -57,7 +57,7 @@ module "ecs" {
           cpu       = 512
           memory    = 1024
           essential = true
-          image     = "public.ecr.aws/aws-observability/aws-for-fluent-bit:2.31.9"
+          image     = nonsensitive(data.aws_ssm_parameter.fluentbit.value)
           firelens_configuration = {
             type = "fluentbit"
           }
@@ -165,6 +165,10 @@ module "service_disabled" {
 ################################################################################
 # Supporting Resources
 ################################################################################
+
+data "aws_ssm_parameter" "fluentbit" {
+  name = "/aws/service/aws-for-fluent-bit/stable"
+}
 
 resource "aws_service_discovery_http_namespace" "this" {
   name        = local.name
