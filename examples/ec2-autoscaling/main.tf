@@ -14,14 +14,6 @@ locals {
   container_name = "ecs-sample"
   container_port = 80
 
-  user_data = <<-EOT
-    #!/bin/bash
-    cat <<'EOF' >> /etc/ecs/ecs.config
-    ECS_CLUSTER=${local.name}
-    ECS_LOGLEVEL=debug
-    EOF
-  EOT
-
   tags = {
     Name       = local.name
     Example    = local.name
@@ -207,11 +199,47 @@ module "autoscaling" {
   version = "~> 6.5"
 
   for_each = {
-    one = {
-      instance_type = "t3.small"
+    on-demand = {
+      instance_type              = "t3.small"
+      use_mixed_instances_policy = false
+      mixed_instances_policy     = {}
+      user_data                  = <<-EOT
+        #!/bin/bash
+        cat <<'EOF' >> /etc/ecs/ecs.config
+        ECS_CLUSTER=${local.name}
+        ECS_LOGLEVEL=debug
+        EOF
+      EOT
     }
-    two = {
-      instance_type = "t3.medium"
+    spot = {
+      instance_type              = "t3.medium"
+      use_mixed_instances_policy = true
+      mixed_instances_policy = {
+        instances_distribution = {
+          on_demand_base_capacity                  = 0
+          on_demand_percentage_above_base_capacity = 0
+          spot_allocation_strategy                 = "price-capacity-optimized"
+        }
+
+        override = [
+          {
+            instance_type     = "m4.large"
+            weighted_capacity = "2"
+          },
+          {
+            instance_type     = "t3.medium"
+            weighted_capacity = "1"
+          },
+        ]
+      }
+      user_data = <<-EOT
+        #!/bin/bash
+        cat <<'EOF' >> /etc/ecs/ecs.config
+        ECS_CLUSTER=${local.name}
+        ECS_LOGLEVEL=debug
+        ECS_ENABLE_SPOT_INSTANCE_DRAINING=true
+        EOF
+      EOT
     }
   }
 
@@ -221,7 +249,7 @@ module "autoscaling" {
   instance_type = each.value.instance_type
 
   security_groups                 = [module.autoscaling_sg.security_group_id]
-  user_data                       = base64encode(local.user_data)
+  user_data                       = base64encode(each.value.user_data)
   ignore_desired_capacity_changes = true
 
   create_iam_instance_profile = true
@@ -245,6 +273,10 @@ module "autoscaling" {
 
   # Required for  managed_termination_protection = "ENABLED"
   protect_from_scale_in = true
+
+  # Spot instances
+  use_mixed_instances_policy = each.value.use_mixed_instances_policy
+  mixed_instances_policy     = each.value.mixed_instances_policy
 
   tags = local.tags
 }
