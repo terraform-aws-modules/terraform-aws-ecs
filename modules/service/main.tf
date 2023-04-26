@@ -78,7 +78,7 @@ resource "aws_ecs_service" "this" {
   force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
-  launch_type                        = local.is_external_deployment ? null : var.launch_type
+  launch_type                        = local.is_external_deployment || length(var.capacity_provider_strategy) > 0 ? null : var.launch_type
 
   dynamic "load_balancer" {
     # Set by task set if deployment controller is external
@@ -264,7 +264,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
   force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
-  launch_type                        = local.is_external_deployment ? null : var.launch_type
+  launch_type                        = local.is_external_deployment || length(var.capacity_provider_strategy) > 0 ? null : var.launch_type
 
   dynamic "load_balancer" {
     # Set by task set if deployment controller is external
@@ -1047,7 +1047,7 @@ resource "aws_ecs_task_set" "this" {
     }
   }
 
-  launch_type = var.launch_type
+  launch_type = length(var.capacity_provider_strategy) > 0 ? null : var.launch_type
 
   dynamic "capacity_provider_strategy" {
     for_each = var.capacity_provider_strategy
@@ -1128,7 +1128,7 @@ resource "aws_ecs_task_set" "ignore_task_definition" {
     }
   }
 
-  launch_type = var.launch_type
+  launch_type = length(var.capacity_provider_strategy) > 0 ? null : var.launch_type
 
   dynamic "capacity_provider_strategy" {
     for_each = var.capacity_provider_strategy

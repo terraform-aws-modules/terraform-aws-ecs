@@ -33,8 +33,9 @@ module "ecs_cluster" {
   # Capacity provider - autoscaling groups
   default_capacity_provider_use_fargate = false
   autoscaling_capacity_providers = {
-    one = {
-      auto_scaling_group_arn         = module.autoscaling["one"].autoscaling_group_arn
+    # On-demand instances
+    ex-1 = {
+      auto_scaling_group_arn         = module.autoscaling["ex-1"].autoscaling_group_arn
       managed_termination_protection = "ENABLED"
 
       managed_scaling = {
@@ -49,8 +50,9 @@ module "ecs_cluster" {
         base   = 20
       }
     }
-    two = {
-      auto_scaling_group_arn         = module.autoscaling["two"].autoscaling_group_arn
+    # Spot instances
+    ex-2 = {
+      auto_scaling_group_arn         = module.autoscaling["ex-2"].autoscaling_group_arn
       managed_termination_protection = "ENABLED"
 
       managed_scaling = {
@@ -82,7 +84,15 @@ module "ecs_service" {
 
   # Task Definition
   requires_compatibilities = ["EC2"]
-  launch_type              = "EC2"
+  capacity_provider_strategy = {
+    # On-demand instances
+    ex-1 = {
+      capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["ex-1"].name
+      weight            = 1
+      base              = 1
+    }
+  }
+
   volume = {
     my-vol = {}
   }
@@ -199,8 +209,9 @@ module "autoscaling" {
   version = "~> 6.5"
 
   for_each = {
-    on-demand = {
-      instance_type              = "t3.small"
+    # On-demand instances
+    ex-1 = {
+      instance_type              = "t3.large"
       use_mixed_instances_policy = false
       mixed_instances_policy     = {}
       user_data                  = <<-EOT
@@ -208,10 +219,13 @@ module "autoscaling" {
         cat <<'EOF' >> /etc/ecs/ecs.config
         ECS_CLUSTER=${local.name}
         ECS_LOGLEVEL=debug
+        ECS_CONTAINER_INSTANCE_TAGS=${jsonencode(local.tags)}
+        ECS_ENABLE_TASK_IAM_ROLE=true
         EOF
       EOT
     }
-    spot = {
+    # Spot instances
+    ex-2 = {
       instance_type              = "t3.medium"
       use_mixed_instances_policy = true
       mixed_instances_policy = {
@@ -227,7 +241,7 @@ module "autoscaling" {
             weighted_capacity = "2"
           },
           {
-            instance_type     = "t3.medium"
+            instance_type     = "t3.large"
             weighted_capacity = "1"
           },
         ]
@@ -237,6 +251,8 @@ module "autoscaling" {
         cat <<'EOF' >> /etc/ecs/ecs.config
         ECS_CLUSTER=${local.name}
         ECS_LOGLEVEL=debug
+        ECS_CONTAINER_INSTANCE_TAGS=${jsonencode(local.tags)}
+        ECS_ENABLE_TASK_IAM_ROLE=true
         ECS_ENABLE_SPOT_INSTANCE_DRAINING=true
         EOF
       EOT
