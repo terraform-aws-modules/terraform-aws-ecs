@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.0.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.0.0...v5.0.1) (2023-04-26)
+
+
+### Bug Fixes
+
+* Ensure that launch type is not specified when a capacity provider strategy is set on a service ([#80](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/80)) ([873cccf](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/873cccf1ea23b87fec8bffe0a4825178f0b1cacf))
+
 ## [5.0.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v4.1.3...v5.0.0) (2023-04-21)
 
 
