@@ -9,7 +9,7 @@ output "id" {
 
 output "name" {
   description = "Name of the service"
-  value       = try(aws_ecs_service.this[0].name, aws_ecs_service.ignore_task_definition[0].name, null)
+  value       = try(aws_ecs_service.this[0].name, aws_ecs_service.ignore_task_definition[0].name, aws_ecs_service.ignore_task_definition_load_balancer[0].name, null)
 }
 
 ################################################################################
