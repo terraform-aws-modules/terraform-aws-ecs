@@ -6,6 +6,7 @@ module "wrapper" {
   create                             = try(each.value.create, var.defaults.create, true)
   tags                               = try(each.value.tags, var.defaults.tags, {})
   ignore_task_definition_changes     = try(each.value.ignore_task_definition_changes, var.defaults.ignore_task_definition_changes, false)
+  ignore_load_balancer_changes       = try(each.value.ignore_load_balancer_changes, var.defaults.ignore_load_balancer_changes, false)
   alarms                             = try(each.value.alarms, var.defaults.alarms, {})
   capacity_provider_strategy         = try(each.value.capacity_provider_strategy, var.defaults.capacity_provider_strategy, {})
   cluster_arn                        = try(each.value.cluster_arn, var.defaults.cluster_arn, "")

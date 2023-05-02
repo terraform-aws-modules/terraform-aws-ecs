@@ -186,6 +186,7 @@ module "ecs_service" {
 | [aws_appautoscaling_scheduled_action.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_scheduled_action) | resource |
 | [aws_appautoscaling_target.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_target) | resource |
 | [aws_ecs_service.ignore_task_definition](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
+| [aws_ecs_service.ignore_task_definition_load_balancer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_ecs_service.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_ecs_task_definition.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition) | resource |
 | [aws_ecs_task_set.ignore_task_definition](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_set) | resource |
@@ -258,6 +259,7 @@ module "ecs_service" {
 | <a name="input_iam_role_statements"></a> [iam\_role\_statements](#input\_iam\_role\_statements) | A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage | `any` | `{}` | no |
 | <a name="input_iam_role_tags"></a> [iam\_role\_tags](#input\_iam\_role\_tags) | A map of additional tags to add to the IAM role created | `map(string)` | `{}` | no |
 | <a name="input_iam_role_use_name_prefix"></a> [iam\_role\_use\_name\_prefix](#input\_iam\_role\_use\_name\_prefix) | Determines whether the IAM role name (`iam_role_name`) is used as a prefix | `bool` | `true` | no |
+| <a name="input_ignore_load_balancer_changes"></a> [ignore\_load\_balancer\_changes](#input\_ignore\_load\_balancer\_changes) | Whether changes to service `load_balancer` changes should be ignored | `bool` | `false` | no |
 | <a name="input_ignore_task_definition_changes"></a> [ignore\_task\_definition\_changes](#input\_ignore\_task\_definition\_changes) | Whether changes to service `task_definition` changes should be ignored | `bool` | `false` | no |
 | <a name="input_inference_accelerator"></a> [inference\_accelerator](#input\_inference\_accelerator) | Configuration block(s) with Inference Accelerators settings | `any` | `{}` | no |
 | <a name="input_ipc_mode"></a> [ipc\_mode](#input\_ipc\_mode) | IPC resource namespace to be used for the containers in the task The valid values are `host`, `task`, and `none` | `string` | `null` | no |
