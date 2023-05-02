@@ -20,6 +20,12 @@ variable "ignore_task_definition_changes" {
   default     = false
 }
 
+variable "ignore_load_balancer_changes" {
+  description = "Whether changes to service `load_balancer` changes should be ignored"
+  type        = bool
+  default     = false
+}
+
 variable "alarms" {
   description = "Information about the CloudWatch alarms"
   type        = any
