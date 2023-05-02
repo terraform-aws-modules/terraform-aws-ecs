@@ -579,7 +579,7 @@ resource "aws_ecs_service" "ignore_task_definition_load_balancer" {
     ignore_changes = [
       desired_count, # Always ignored
       task_definition,
-      load_balancer["target_group_arn"]
+      load_balancer
     ]
   }
 }
