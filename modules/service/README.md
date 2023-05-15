@@ -6,7 +6,7 @@ Some notable configurations to be aware of when using this module:
 1. `desired_count`/`scale` is always ignored; the module is designed to utilize autoscaling by default (though it can be disabled)
 2. The default configuration is intended for `FARGATE` use
 
-For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/design.md)
+For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/README.md)
 
 ### Logging
 
