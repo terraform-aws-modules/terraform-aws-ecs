@@ -36,7 +36,7 @@ locals {
     interactive            = var.interactive
     links                  = local.is_not_windows && length(var.links) > 0 ? var.links : null
     linuxParameters        = local.is_not_windows && length(var.linux_parameters) > 0 ? var.linux_parameters : null
-    logConfiguration       = local.log_configuration
+    logConfiguration       = length(local.log_configuration) > 0 ? local.log_configuration : null
     memory                 = var.memory
     memoryReservation      = var.memory_reservation
     mountPoints            = length(var.mount_points) > 0 ? var.mount_points : null
