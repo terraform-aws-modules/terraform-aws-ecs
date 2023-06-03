@@ -135,7 +135,7 @@ variable "ordered_placement_strategy" {
 }
 
 variable "placement_constraints" {
-  description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10)"
+  description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10). This is set at the service, see `task_definition_placement_constraints` for setting at the task definition"
   type        = any
   default     = {}
 }
@@ -322,12 +322,11 @@ variable "pid_mode" {
   default     = null
 }
 
-# Shared between service and task definition
-# variable "placement_constraints" {
-#   description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10)"
-#   type        = any
-#   default     = {}
-# }
+variable "task_definition_placement_constraints" {
+  description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10). This is set at the task definition, see `placement_constraints` for setting at the service"
+  type        = any
+  default     = {}
+}
 
 variable "proxy_configuration" {
   description = "Configuration block for the App Mesh proxy"

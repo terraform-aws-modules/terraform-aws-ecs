@@ -638,7 +638,7 @@ resource "aws_ecs_task_definition" "this" {
   pid_mode     = var.pid_mode
 
   dynamic "placement_constraints" {
-    for_each = var.placement_constraints
+    for_each = var.task_definition_placement_constraints
 
     content {
       expression = try(placement_constraints.value.expression, null)
