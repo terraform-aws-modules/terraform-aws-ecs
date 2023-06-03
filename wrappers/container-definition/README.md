@@ -12,9 +12,9 @@ This wrapper does not implement any extra functionality.
 
 ```hcl
 terraform {
-  source = "tfr:///terraform-aws-modules/ecs/aws//wrappers/container-definition"
+  source = "tfr:///terraform-aws-modules/pr/aws//wrappers/container-definition"
   # Alternative source:
-  # source = "git::git@github.com:terraform-aws-modules/terraform-aws-ecs.git//wrappers/container-definition?ref=master"
+  # source = "git::git@github.com:terraform-aws-modules/terraform-aws-pr.git//wrappers/container-definition?ref=master"
 }
 
 inputs = {
@@ -42,7 +42,7 @@ inputs = {
 
 ```hcl
 module "wrapper" {
-  source = "terraform-aws-modules/ecs/aws//wrappers/container-definition"
+  source = "terraform-aws-modules/pr/aws//wrappers/container-definition"
 
   defaults = { # Default values
     create = true

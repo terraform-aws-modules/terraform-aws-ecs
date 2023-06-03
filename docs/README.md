@@ -144,21 +144,23 @@ This could be expanded further to include the entire container definitions argum
   <img src="./images/service.png" alt="ECS Service" width="40%">
 </p>
 
-- When using the above `ignore_task_definition_changes` setting, users can also elect to ignore changes to load balancers by setting `ignore_load_balancer_changes` to `true`. (Note: because of the aforementioned manner in which this psuedo-dynamic ignore change is being managed, changing this value after service creation will cause the entire service to be re-created. Change with caution!) This is intended to support the use of [Blue/Green deployment with CodeDeploy](https://docs.aws.amazon.com/AmazonECS/latest/userguide/deployment-type-bluegreen.html) which changes the the service's load balancer configuration.
+- When using the above `ignore_task_definition_changes` setting, changes to the `load_balancer` argument are also ignored. This is intended to support the use of [Blue/Green deployment with CodeDeploy](https://docs.aws.amazon.com/AmazonECS/latest/userguide/deployment-type-bluegreen.html) which changes the the service's load balancer configuration. (Note: the ignored changes to the `load_balancer` were added after the fact which is why the variable name does not reflect this behavior. In a future major release, this variable will be updated to better reflect its behavior)
 
 ```hcl
-
   module "ecs_service" {
     source = "terraform-aws-modules/ecs/aws//modules/service"
 
     # ... omitted for brevity
 
     ignore_task_definition_changes = true
-    ignore_load_balancer_changes = true
   }
 
   resource "aws_lb_target_group" "this" {
-    for_each = { blue = {}, green = {} }
+    for_each = {
+      blue = {},
+      green = {}
+    }
+
     name     = each.key
 
     # ... omitted for brevity
