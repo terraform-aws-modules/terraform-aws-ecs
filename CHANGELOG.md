@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.0.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.0.1...v5.0.2) (2023-06-03)
+
+
+### Bug Fixes
+
+* Missing field LogConfiguration.LogDriver error when enable_cloudwatch_logging is false ([#91](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/91)) ([8ca6fd4](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/8ca6fd4320441ed1f20d2c1c526ad034ab8dc0ac))
+
 ### [5.0.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.0.0...v5.0.1) (2023-04-26)
 
 
