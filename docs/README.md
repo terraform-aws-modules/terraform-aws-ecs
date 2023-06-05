@@ -160,7 +160,7 @@ This could be expanded further to include the entire container definitions argum
       green = {}
     }
 
-    name     = each.key
+    name = each.key
 
     # ... omitted for brevity
   }
