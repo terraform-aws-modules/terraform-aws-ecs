@@ -73,10 +73,10 @@ This module supports creating a task execution IAM role in two different ways to
 The service sub-module creates one service that can be deployed onto a cluster. The service sub-module allows users to:
 
 - Create an Amazon ECS service that ignores `desired_count`. This is intended for use when deploying task definition and container definition changes via Terraform
-- Create an Amazon ECS service that ignores `desired_count` and `task_definition`. This is intended to support a continuous deployment process that is responsible for updating the `image` and therefore the `task_definition` and `container_definition` while avoiding conflicts with Terraform.
+- Create an Amazon ECS service that ignores `desired_count` and `task_definition`, and `load_balancer`. This is intended to support a continuous deployment process that is responsible for updating the `image` and therefore the `task_definition` and `container_definition` while avoiding conflicts with Terraform.
 - Amazon ECS task resources with the various configurations detailed below under [ECS Task](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/README.md#ecs-task)
 
-Since Terraform does not support variables within `lifecycle {}` blocks, its not possible to allow users to dynamically select which arguments they wish to ignore within the resources defined in the modules. Therefore, any arguments that should be ignored are statically set within the module definition. To somewhat mimic the behavior of allowing users to opt in/out of ignoring certain arguments, the module supports two different service definitions; one that ignores the `desired_count`, and one that ignores the `desired_count` and `task_definition`. The motivation and reasoning for these ignored argument configurations is detailed below:
+Since Terraform does not support variables within `lifecycle {}` blocks, its not possible to allow users to dynamically select which arguments they wish to ignore within the resources defined in the modules. Therefore, any arguments that should be ignored are statically set within the module definition. To somewhat mimic the behavior of allowing users to opt in/out of ignoring certain arguments, the module supports two different service definitions; one that ignores the `desired_count`, and one that ignores `desired_count`, `task_definition` and `load_balancer`. The motivation and reasoning for these ignored argument configurations is detailed below:
 
 - `desired_count` is always ignored by the service module. It is very common to have autoscaling enabled for Amazon ECS services, allowing the number of tasks to scale based on the workload requirements. The scaling is managed via the `desired_count` that is managed by application auto scaling. This would directly conflict with Terraform if it was allowed to manage the `desired_count` as well. In addition, users have the ability to disable auto scaling if it does not suit their workload. In this case, the `desired_count` would be initially set by Terraform, and any further changes would need to be managed separately (outside of the service module). Users can make changes to the desired count of the service through the AWS console, AWS CLI, or AWS SDKs. One example workaround using Terraform is provided below, similar to the [EKS equivalent](https://github.com/bryantbiggs/eks-desired-size-hack):
 
@@ -142,6 +142,64 @@ This could be expanded further to include the entire container definitions argum
 <p align="center">
   <img src="./images/service.png" alt="ECS Service" width="40%">
 </p>
+
+- When using the above `ignore_task_definition_changes` setting, changes to the `load_balancer` argument are also ignored. This is intended to support the use of [Blue/Green deployment with CodeDeploy](https://docs.aws.amazon.com/AmazonECS/latest/userguide/deployment-type-bluegreen.html) which changes the the service's load balancer configuration. (Note: the ignored changes to the `load_balancer` were added after the fact which is why the variable name does not reflect this behavior. In a future major release, this variable will be updated to better reflect its behavior)
+
+```hcl
+  module "ecs_service" {
+    source = "terraform-aws-modules/ecs/aws//modules/service"
+
+    # ... omitted for brevity
+
+    ignore_task_definition_changes = true
+  }
+
+  resource "aws_lb_target_group" "this" {
+    for_each = {
+      blue = {},
+      green = {}
+    }
+
+    name = each.key
+
+    # ... omitted for brevity
+  }
+
+  resource "aws_codedeploy_app" "this" {
+    name             = "my-app"
+    compute_platform = "ECS"
+  }
+
+  resource "aws_codedeploy_deployment_group" "this" {
+    deployment_group_name = "my-deployment-group"
+    app_name              = aws_codedeploy_app.this.name
+
+    deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
+
+    deployment_style {
+      deployment_option = "WITH_TRAFFIC_CONTROL"
+      deployment_type   = "BLUE_GREEN"
+    }
+
+    # ... omitted for brevity
+
+    load_balancer_info {
+      target_group_pair_info {
+        prod_traffic_route {
+          listener_arns = ["my-listener-arn"]
+        }
+
+        target_group {
+          name = aws_lb_target_group.this["blue"].name
+        }
+
+        target_group {
+          name = aws_lb_target_group.this["green"].name
+        }
+      }
+    }
+  }
+```
 
 ### Task
 
