@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.2.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.1.0...v5.2.0) (2023-06-05)
+
+
+### Features
+
+* Add support for setting placement constraints separately between service and task definition ([#93](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/93)) ([a111e5d](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/a111e5d38dca8b8743f8844e8aaa68568e1d737e))
+
 ## [5.1.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.0.2...v5.1.0) (2023-06-05)
 
 
