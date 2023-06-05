@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.1.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.0.2...v5.1.0) (2023-06-05)
+
+
+### Features
+
+* Add option to ignore `load_balancer` changes to ECS service ([#81](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/81)) ([24bd1d8](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/24bd1d8d48596743a7cc5e74b1943b76e7916a5c))
+
 ### [5.0.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.0.1...v5.0.2) (2023-06-03)
 
 
