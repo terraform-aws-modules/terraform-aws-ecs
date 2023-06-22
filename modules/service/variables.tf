@@ -274,6 +274,12 @@ variable "container_definition_defaults" {
   default     = {}
 }
 
+variable "ignore_container_definitions_changes" {
+  description = "Whether changes to container_definitions should be ignored, beyond initially created. This is useful when an external service is used to update image revision."
+  type        = bool
+  default     = false
+}
+
 variable "cpu" {
   description = "Number of cpu units used by the task. If the `requires_compatibilities` is `FARGATE` this field is required"
   type        = number

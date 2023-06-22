@@ -588,8 +588,9 @@ locals {
   # This allows us to query both the existing as well as Terraform's state and get
   # and get the max version of either source, useful for when external resources
   # update the container definition
-  max_task_def_revision = local.create_task_definition ? max(aws_ecs_task_definition.this[0].revision, data.aws_ecs_task_definition.this[0].revision) : 0
-  task_definition       = local.create_task_definition ? "${aws_ecs_task_definition.this[0].family}:${local.max_task_def_revision}" : var.task_definition_arn
+  aws_ecs_task_definition = local.create_task_definition ? (var.ignore_container_definitions_changes ? aws_ecs_task_definition.ignore_container_definitions_changes[0] : aws_ecs_task_definition.this[0]) : null
+  max_task_def_revision   = local.create_task_definition ? max(local.aws_ecs_task_definition.revision, data.aws_ecs_task_definition.this[0].revision) : 0
+  task_definition         = local.create_task_definition ? "${local.aws_ecs_task_definition.family}:${local.max_task_def_revision}" : var.task_definition_arn
 }
 
 # This allows us to query both the existing as well as Terraform's state and get
@@ -598,16 +599,151 @@ locals {
 data "aws_ecs_task_definition" "this" {
   count = local.create_task_definition ? 1 : 0
 
-  task_definition = aws_ecs_task_definition.this[0].family
+  task_definition = local.aws_ecs_task_definition.family
 
   depends_on = [
     # Needs to exist first on first deployment
-    aws_ecs_task_definition.this
+    aws_ecs_task_definition.this,
+    aws_ecs_task_definition.ignore_container_definitions_changes,
   ]
 }
 
 resource "aws_ecs_task_definition" "this" {
-  count = local.create_task_definition ? 1 : 0
+  count = local.create_task_definition && !var.ignore_container_definitions_changes ? 1 : 0
+
+  # Convert map of maps to array of maps before JSON encoding
+  container_definitions = jsonencode([for k, v in module.container_definition : v.container_definition])
+  cpu                   = var.cpu
+
+  dynamic "ephemeral_storage" {
+    for_each = length(var.ephemeral_storage) > 0 ? [var.ephemeral_storage] : []
+
+    content {
+      size_in_gib = ephemeral_storage.value.size_in_gib
+    }
+  }
+
+  execution_role_arn = try(aws_iam_role.task_exec[0].arn, var.task_exec_iam_role_arn)
+  family             = coalesce(var.family, var.name)
+
+  dynamic "inference_accelerator" {
+    for_each = var.inference_accelerator
+
+    content {
+      device_name = inference_accelerator.value.device_name
+      device_type = inference_accelerator.value.device_type
+    }
+  }
+
+  ipc_mode     = var.ipc_mode
+  memory       = var.memory
+  network_mode = var.network_mode
+  pid_mode     = var.pid_mode
+
+  dynamic "placement_constraints" {
+    for_each = var.task_definition_placement_constraints
+
+    content {
+      expression = try(placement_constraints.value.expression, null)
+      type       = placement_constraints.value.type
+    }
+  }
+
+  dynamic "proxy_configuration" {
+    for_each = length(var.proxy_configuration) > 0 ? [var.proxy_configuration] : []
+
+    content {
+      container_name = proxy_configuration.value.container_name
+      properties     = try(proxy_configuration.value.properties, null)
+      type           = try(proxy_configuration.value.type, null)
+    }
+  }
+
+  requires_compatibilities = var.requires_compatibilities
+
+  dynamic "runtime_platform" {
+    for_each = length(var.runtime_platform) > 0 ? [var.runtime_platform] : []
+
+    content {
+      cpu_architecture        = try(runtime_platform.value.cpu_architecture, null)
+      operating_system_family = try(runtime_platform.value.operating_system_family, null)
+    }
+  }
+
+  skip_destroy  = var.skip_destroy
+  task_role_arn = try(aws_iam_role.tasks[0].arn, var.tasks_iam_role_arn)
+
+  dynamic "volume" {
+    for_each = var.volume
+
+    content {
+      dynamic "docker_volume_configuration" {
+        for_each = try([volume.value.docker_volume_configuration], [])
+
+        content {
+          autoprovision = try(docker_volume_configuration.value.autoprovision, null)
+          driver        = try(docker_volume_configuration.value.driver, null)
+          driver_opts   = try(docker_volume_configuration.value.driver_opts, null)
+          labels        = try(docker_volume_configuration.value.labels, null)
+          scope         = try(docker_volume_configuration.value.scope, null)
+        }
+      }
+
+      dynamic "efs_volume_configuration" {
+        for_each = try([volume.value.efs_volume_configuration], [])
+
+        content {
+          dynamic "authorization_config" {
+            for_each = try([efs_volume_configuration.value.authorization_config], [])
+
+            content {
+              access_point_id = try(authorization_config.value.access_point_id, null)
+              iam             = try(authorization_config.value.iam, null)
+            }
+          }
+
+          file_system_id          = efs_volume_configuration.value.file_system_id
+          root_directory          = try(efs_volume_configuration.value.root_directory, null)
+          transit_encryption      = try(efs_volume_configuration.value.transit_encryption, null)
+          transit_encryption_port = try(efs_volume_configuration.value.transit_encryption_port, null)
+        }
+      }
+
+      dynamic "fsx_windows_file_server_volume_configuration" {
+        for_each = try([volume.value.fsx_windows_file_server_volume_configuration], [])
+
+        content {
+          dynamic "authorization_config" {
+            for_each = try([fsx_windows_file_server_volume_configuration.value.authorization_config], [])
+
+            content {
+              credentials_parameter = authorization_config.value.credentials_parameter
+              domain                = authorization_config.value.domain
+            }
+          }
+
+          file_system_id = fsx_windows_file_server_volume_configuration.value.file_system_id
+          root_directory = fsx_windows_file_server_volume_configuration.value.root_directory
+        }
+      }
+
+      host_path = try(volume.value.host_path, null)
+      name      = try(volume.value.name, volume.key)
+    }
+  }
+
+  tags = merge(var.tags, var.task_tags)
+
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes = [
+      container_definitions,
+    ]
+  }
+}
+
+resource "aws_ecs_task_definition" "ignore_container_definitions_changes" {
+  count = local.create_task_definition && var.ignore_container_definitions_changes ? 1 : 0
 
   # Convert map of maps to array of maps before JSON encoding
   container_definitions = jsonencode([for k, v in module.container_definition : v.container_definition])
