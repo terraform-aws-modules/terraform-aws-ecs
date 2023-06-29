@@ -93,6 +93,13 @@ module "ecs_service" {
     }
   }
 
+  # hard task memory limit
+  # memory = 4096
+
+  # when cpu is specified, it is used for scheduling and also becomes a hard limit on the task.
+  # when missing, the task can consume any available CPU resources on the instance.
+  # cpu = 1024
+
   volume = {
     my-vol = {}
   }
@@ -101,6 +108,15 @@ module "ecs_service" {
   container_definitions = {
     (local.container_name) = {
       image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
+
+
+      # cpu                = 256
+
+      # hard limit on the running tasks, may be omitted if memory_reservation is specified
+      # memory = 4096
+
+      # (optional) soft limit used for scheduling, if omitted the hard memory limit will also be used for scheduling
+      memory_reservation = 1024
       port_mappings = [
         {
           name          = local.container_name

@@ -277,7 +277,7 @@ variable "container_definition_defaults" {
 variable "cpu" {
   description = "Number of cpu units used by the task. If the `requires_compatibilities` is `FARGATE` this field is required"
   type        = number
-  default     = 1024
+  default     = null
 }
 
 variable "ephemeral_storage" {
