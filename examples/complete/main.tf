@@ -178,7 +178,7 @@ resource "aws_service_discovery_http_namespace" "this" {
 
 module "alb_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   name        = "${local.name}-service"
   description = "Service security group"
