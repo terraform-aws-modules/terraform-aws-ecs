@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.2.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.2.0...v5.2.1) (2023-07-27)
+
+
+### Bug Fixes
+
+* Add default values for attributes that are showing up in plans and causing unnecessary diffs ([#101](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/101)) ([6be5cc1](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/6be5cc1e01c55ebe44c9330e1e075aa013953f3d))
+
 ## [5.2.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.1.0...v5.2.0) (2023-06-05)
 
 
