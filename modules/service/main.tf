@@ -564,7 +564,7 @@ module "container_definition" {
   stop_timeout             = try(each.value.stop_timeout, var.container_definition_defaults.stop_timeout, 120)
   system_controls          = try(each.value.system_controls, var.container_definition_defaults.system_controls, [])
   ulimits                  = try(each.value.ulimits, var.container_definition_defaults.ulimits, [])
-  user                     = try(each.value.user, var.container_definition_defaults.user, null)
+  user                     = try(each.value.user, var.container_definition_defaults.user, 0)
   volumes_from             = try(each.value.volumes_from, var.container_definition_defaults.volumes_from, [])
   working_directory        = try(each.value.working_directory, var.container_definition_defaults.working_directory, null)
 

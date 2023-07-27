@@ -157,7 +157,7 @@ data "aws_ssm_parameter" "ecs_optimized_ami" {
 
 module "alb_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   name        = "${local.name}-service"
   description = "Service security group"
@@ -299,7 +299,7 @@ module "autoscaling" {
 
 module "autoscaling_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   name        = local.name
   description = "Autoscaling group security group"

@@ -25,7 +25,7 @@ locals {
     dockerLabels           = length(var.docker_labels) > 0 ? var.docker_labels : null
     dockerSecurityOptions  = length(var.docker_security_options) > 0 ? var.docker_security_options : null
     entrypoint             = length(var.entrypoint) > 0 ? var.entrypoint : null
-    environment            = length(var.environment) > 0 ? var.environment : null
+    environment            = var.environment
     environmentFiles       = length(var.environment_files) > 0 ? var.environment_files : null
     essential              = var.essential
     extraHosts             = local.is_not_windows && length(var.extra_hosts) > 0 ? var.extra_hosts : null
@@ -39,9 +39,9 @@ locals {
     logConfiguration       = length(local.log_configuration) > 0 ? local.log_configuration : null
     memory                 = var.memory
     memoryReservation      = var.memory_reservation
-    mountPoints            = length(var.mount_points) > 0 ? var.mount_points : null
+    mountPoints            = var.mount_points
     name                   = var.name
-    portMappings           = length(var.port_mappings) > 0 ? var.port_mappings : null
+    portMappings           = var.port_mappings
     privileged             = local.is_not_windows ? var.privileged : null
     pseudoTerminal         = var.pseudo_terminal
     readonlyRootFilesystem = local.is_not_windows ? var.readonly_root_filesystem : null
@@ -53,7 +53,7 @@ locals {
     systemControls         = length(var.system_controls) > 0 ? var.system_controls : null
     ulimits                = local.is_not_windows && length(var.ulimits) > 0 ? var.ulimits : null
     user                   = local.is_not_windows ? var.user : null
-    volumesFrom            = length(var.volumes_from) > 0 ? var.volumes_from : null
+    volumesFrom            = var.volumes_from
     workingDirectory       = var.working_directory
   }
 
