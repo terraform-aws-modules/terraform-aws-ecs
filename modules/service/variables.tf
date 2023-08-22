@@ -545,7 +545,7 @@ variable "wait_until_stable" {
 
 variable "wait_until_stable_timeout" {
   description = "Wait timeout for task set to reach `STEADY_STATE`. Valid time units include `ns`, `us` (or µs), `ms`, `s`, `m`, and `h`. Default `10m`"
-  type        = number
+  type        = string
   default     = null
 }
 
