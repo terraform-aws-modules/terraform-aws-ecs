@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.2.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.2.1...v5.2.2) (2023-08-22)
+
+
+### Bug Fixes
+
+* Correct `wait_until_stable_timeout` variable type ([#110](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/110)) ([daa2c0e](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/daa2c0e8baf0c451c5dd0f614e53e3495ac54a64))
+
 ### [5.2.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.2.0...v5.2.1) (2023-07-27)
 
 
