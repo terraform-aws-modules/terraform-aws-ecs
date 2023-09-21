@@ -127,7 +127,7 @@ module "ecs" {
       }
       tasks_iam_role_statements = [
         {
-          actions   = ["s3:List"]
+          actions   = ["s3:List*"]
           resources = ["arn:aws:s3:::*"]
         }
       ]
