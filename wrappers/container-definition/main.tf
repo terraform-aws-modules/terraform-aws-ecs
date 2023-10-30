@@ -5,6 +5,7 @@ module "wrapper" {
 
   cloudwatch_log_group_kms_key_id        = try(each.value.cloudwatch_log_group_kms_key_id, var.defaults.cloudwatch_log_group_kms_key_id, null)
   cloudwatch_log_group_retention_in_days = try(each.value.cloudwatch_log_group_retention_in_days, var.defaults.cloudwatch_log_group_retention_in_days, 30)
+  cloudwatch_log_group_use_name_prefix   = try(each.value.cloudwatch_log_group_use_name_prefix, var.defaults.cloudwatch_log_group_use_name_prefix, false)
   command                                = try(each.value.command, var.defaults.command, [])
   cpu                                    = try(each.value.cpu, var.defaults.cpu, null)
   create_cloudwatch_log_group            = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)

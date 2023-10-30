@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.3.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.2.2...v5.3.0) (2023-10-30)
+
+
+### Features
+
+* Add support for using container definition CloudWatch log group name as prefix ([#126](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/126)) ([cf4101e](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/cf4101ea7c4ca315f8f9958156b6dfe48c0c4f51))
+
 ### [5.2.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.2.1...v5.2.2) (2023-08-22)
 
 
