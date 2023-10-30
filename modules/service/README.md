@@ -130,6 +130,9 @@ module "ecs_service" {
   # Disable creation of service and all resources
   create = false
 
+  # Enable ECS Exec
+  enable_execute_command = true
+
   # Disable creation of the service IAM role; `iam_role_arn` should be provided
   create_iam_role = false
 

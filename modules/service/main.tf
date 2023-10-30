@@ -536,6 +536,7 @@ module "container_definition" {
   dns_servers              = try(each.value.dns_servers, var.container_definition_defaults.dns_servers, [])
   docker_labels            = try(each.value.docker_labels, var.container_definition_defaults.docker_labels, {})
   docker_security_options  = try(each.value.docker_security_options, var.container_definition_defaults.docker_security_options, [])
+  enable_execute_command   = try(each.value.enable_execute_command, var.container_definition_defaults.enable_execute_command, var.enable_execute_command)
   entrypoint               = try(each.value.entrypoint, var.container_definition_defaults.entrypoint, [])
   environment              = try(each.value.environment, var.container_definition_defaults.environment, [])
   environment_files        = try(each.value.environment_files, var.container_definition_defaults.environment_files, [])
@@ -951,7 +952,22 @@ resource "aws_iam_role_policy_attachment" "tasks" {
 }
 
 data "aws_iam_policy_document" "tasks" {
-  count = local.create_tasks_iam_role && length(var.tasks_iam_role_statements) > 0 ? 1 : 0
+  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
+
+  dynamic "statement" {
+    for_each = var.enable_execute_command ? [1] : []
+
+    content {
+      sid = "ECSExec"
+      actions = [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+      ]
+      resources = ["*"]
+    }
+  }
 
   dynamic "statement" {
     for_each = var.tasks_iam_role_statements
@@ -996,7 +1012,7 @@ data "aws_iam_policy_document" "tasks" {
 }
 
 resource "aws_iam_role_policy" "tasks" {
-  count = local.create_tasks_iam_role && length(var.tasks_iam_role_statements) > 0 ? 1 : 0
+  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
 
   name        = var.tasks_iam_role_use_name_prefix ? null : local.tasks_iam_role_name
   name_prefix = var.tasks_iam_role_use_name_prefix ? "${local.tasks_iam_role_name}-" : null
