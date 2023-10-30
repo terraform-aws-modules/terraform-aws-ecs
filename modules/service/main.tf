@@ -4,7 +4,6 @@ data "aws_caller_identity" "current" {}
 
 locals {
   account_id = data.aws_caller_identity.current.account_id
-  dns_suffix = data.aws_partition.current.dns_suffix
   partition  = data.aws_partition.current.partition
   region     = data.aws_region.current.name
 }
@@ -419,7 +418,7 @@ data "aws_iam_policy_document" "service_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs.${local.dns_suffix}"]
+      identifiers = ["ecs.amazonaws.com"]
     }
   }
 }
@@ -758,7 +757,7 @@ data "aws_iam_policy_document" "task_exec_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs-tasks.${local.dns_suffix}"]
+      identifiers = ["ecs-tasks.amazonaws.com"]
     }
   }
 }
@@ -909,7 +908,7 @@ data "aws_iam_policy_document" "tasks_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs-tasks.${local.dns_suffix}"]
+      identifiers = ["ecs-tasks.amazonaws.com"]
     }
 
     # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html#create_task_iam_policy_and_role
