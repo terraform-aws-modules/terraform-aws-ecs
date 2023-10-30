@@ -286,6 +286,12 @@ variable "create_cloudwatch_log_group" {
   default     = true
 }
 
+variable "cloudwatch_log_group_use_name_prefix" {
+  description = "Determines whether the log group name should be used as a prefix"
+  type        = bool
+  default     = false
+}
+
 variable "cloudwatch_log_group_retention_in_days" {
   description = "Number of days to retain log events. Default is 30 days"
   type        = number
