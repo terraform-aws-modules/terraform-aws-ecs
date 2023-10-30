@@ -17,6 +17,8 @@ locals {
     var.log_configuration
   )
 
+  linux_parameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, var.linux_parameters) : var.linux_parameters
+
   definition = {
     command                = length(var.command) > 0 ? var.command : null
     cpu                    = var.cpu
@@ -37,7 +39,7 @@ locals {
     image                  = var.image
     interactive            = var.interactive
     links                  = local.is_not_windows && length(var.links) > 0 ? var.links : null
-    linuxParameters        = local.is_not_windows && length(var.linux_parameters) > 0 ? var.linux_parameters : null
+    linuxParameters        = local.is_not_windows && length(local.linux_parameters) > 0 ? local.linux_parameters : null
     logConfiguration       = length(local.log_configuration) > 0 ? local.log_configuration : null
     memory                 = var.memory
     memoryReservation      = var.memory_reservation

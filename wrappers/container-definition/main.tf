@@ -16,6 +16,7 @@ module "wrapper" {
   docker_labels                          = try(each.value.docker_labels, var.defaults.docker_labels, {})
   docker_security_options                = try(each.value.docker_security_options, var.defaults.docker_security_options, [])
   enable_cloudwatch_logging              = try(each.value.enable_cloudwatch_logging, var.defaults.enable_cloudwatch_logging, true)
+  enable_execute_command                 = try(each.value.enable_execute_command, var.defaults.enable_execute_command, false)
   entrypoint                             = try(each.value.entrypoint, var.defaults.entrypoint, [])
   environment                            = try(each.value.environment, var.defaults.environment, [])
   environment_files                      = try(each.value.environment_files, var.defaults.environment_files, [])

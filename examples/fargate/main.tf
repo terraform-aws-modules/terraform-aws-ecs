@@ -61,6 +61,9 @@ module "ecs_service" {
   cpu    = 1024
   memory = 4096
 
+  # Enables ECS Exec
+  enable_execute_command = true
+
   # Container definition(s)
   container_definitions = {
 

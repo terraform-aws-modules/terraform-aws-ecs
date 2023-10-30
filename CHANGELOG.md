@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.4.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.3.0...v5.4.0) (2023-10-30)
+
+
+### Features
+
+* Add support for easily enabling ECS Exec support ([#127](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/127)) ([76acddb](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/76acddb0cc1649fa4b7a8338f0b6253b68bdeb8e))
+
 ## [5.3.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.2.2...v5.3.0) (2023-10-30)
 
 
