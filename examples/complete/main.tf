@@ -120,6 +120,18 @@ module "ecs" {
         }
       }
 
+      tasks_iam_role_name        = "${local.name}-tasks"
+      tasks_iam_role_description = "Example tasks IAM role for ${local.name}"
+      tasks_iam_role_policies = {
+        ReadOnlyAccess = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+      }
+      tasks_iam_role_statements = [
+        {
+          actions   = ["s3:List*"]
+          resources = ["arn:aws:s3:::*"]
+        }
+      ]
+
       subnet_ids = module.vpc.private_subnets
       security_group_rules = {
         alb_ingress_3000 = {
