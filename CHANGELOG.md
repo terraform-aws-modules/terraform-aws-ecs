@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.4.0...v5.5.0) (2023-10-31)
+
+
+### Features
+
+* Replace dynamic DNS suffix resolution for trusted service endpoints with static `*.amazonaws.com` ([#125](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/125)) ([f84dc7d](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/f84dc7d29247a6e2a1012f30bc5e47deeb1df925))
+
 ## [5.4.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.3.0...v5.4.0) (2023-10-30)
 
 
