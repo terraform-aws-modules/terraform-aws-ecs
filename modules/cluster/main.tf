@@ -1,5 +1,3 @@
-data "aws_partition" "current" {}
-
 ################################################################################
 # Cluster
 ################################################################################
@@ -194,7 +192,7 @@ data "aws_iam_policy_document" "task_exec_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs-tasks.${data.aws_partition.current.dns_suffix}"]
+      identifiers = ["ecs-tasks.amazonaws.com"]
     }
   }
 }
