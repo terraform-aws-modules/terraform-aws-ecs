@@ -23,7 +23,7 @@ output "iam_role_name" {
 
 output "iam_role_arn" {
   description = "Service IAM role ARN"
-  value       = try(aws_iam_role.service[0].arn, null)
+  value       = try(aws_iam_role.service[0].arn, var.iam_role_arn)
 }
 
 output "iam_role_unique_id" {
@@ -46,7 +46,7 @@ output "container_definitions" {
 
 output "task_definition_arn" {
   description = "Full ARN of the Task Definition (including both `family` and `revision`)"
-  value       = try(aws_ecs_task_definition.this[0].arn, null)
+  value       = try(aws_ecs_task_definition.this[0].arn, var.task_definition_arn)
 }
 
 output "task_definition_revision" {
@@ -71,7 +71,7 @@ output "task_exec_iam_role_name" {
 
 output "task_exec_iam_role_arn" {
   description = "Task execution IAM role ARN"
-  value       = try(aws_iam_role.task_exec[0].arn, null)
+  value       = try(aws_iam_role.task_exec[0].arn, var.task_exec_iam_role_arn)
 }
 
 output "task_exec_iam_role_unique_id" {
@@ -91,7 +91,7 @@ output "tasks_iam_role_name" {
 
 output "tasks_iam_role_arn" {
   description = "Tasks IAM role ARN"
-  value       = try(aws_iam_role.tasks[0].arn, null)
+  value       = try(aws_iam_role.tasks[0].arn, var.tasks_iam_role_arn)
 }
 
 output "tasks_iam_role_unique_id" {
