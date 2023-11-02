@@ -39,8 +39,7 @@ Note that this example may create resources which will incur monetary charges on
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | ~> 8.0 |
-| <a name="module_alb_sg"></a> [alb\_sg](#module\_alb\_sg) | terraform-aws-modules/security-group/aws | ~> 5.0 |
+| <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | ~> 9.0 |
 | <a name="module_ecs"></a> [ecs](#module\_ecs) | ../../ | n/a |
 | <a name="module_ecs_cluster_disabled"></a> [ecs\_cluster\_disabled](#module\_ecs\_cluster\_disabled) | ../../modules/cluster | n/a |
 | <a name="module_ecs_disabled"></a> [ecs\_disabled](#module\_ecs\_disabled) | ../../ | n/a |
