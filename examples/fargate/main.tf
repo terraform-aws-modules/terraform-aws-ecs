@@ -129,7 +129,7 @@ module "ecs_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = element(module.alb.target_group_arns, 0)
+      target_group_arn = module.alb.target_groups["ex_ecs"].arn
       container_name   = local.container_name
       container_port   = local.container_port
     }
@@ -143,7 +143,7 @@ module "ecs_service" {
       to_port                  = local.container_port
       protocol                 = "tcp"
       description              = "Service port"
-      source_security_group_id = module.alb_sg.security_group_id
+      source_security_group_id = module.alb.security_group_id
     }
     egress_all = {
       type        = "egress"
@@ -171,51 +171,72 @@ resource "aws_service_discovery_http_namespace" "this" {
   tags        = local.tags
 }
 
-module "alb_sg" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 5.0"
-
-  name        = "${local.name}-service"
-  description = "Service security group"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress_rules       = ["http-80-tcp"]
-  ingress_cidr_blocks = ["0.0.0.0/0"]
-
-  egress_rules       = ["all-all"]
-  egress_cidr_blocks = module.vpc.private_subnets_cidr_blocks
-
-  tags = local.tags
-}
-
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "~> 8.0"
+  version = "~> 9.0"
 
   name = local.name
 
   load_balancer_type = "application"
 
-  vpc_id          = module.vpc.vpc_id
-  subnets         = module.vpc.public_subnets
-  security_groups = [module.alb_sg.security_group_id]
+  vpc_id  = module.vpc.vpc_id
+  subnets = module.vpc.public_subnets
 
-  http_tcp_listeners = [
-    {
-      port               = 80
-      protocol           = "HTTP"
-      target_group_index = 0
-    },
-  ]
+  # For example only
+  enable_deletion_protection = false
 
-  target_groups = [
-    {
-      name             = "${local.name}-${local.container_name}"
-      backend_protocol = "HTTP"
-      backend_port     = local.container_port
-      target_type      = "ip"
-    },
-  ]
+  # Security Group
+  security_group_ingress_rules = {
+    all_http = {
+      from_port   = 80
+      to_port     = 80
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = module.vpc.vpc_cidr_block
+    }
+  }
+
+  listeners = {
+    ex_http = {
+      port     = 80
+      protocol = "HTTP"
+
+      forward = {
+        target_group_key = "ex_ecs"
+      }
+    }
+  }
+
+  target_groups = {
+    ex_ecs = {
+      backend_protocol                  = "HTTP"
+      backend_port                      = local.container_port
+      target_type                       = "ip"
+      deregistration_delay              = 5
+      load_balancing_cross_zone_enabled = true
+
+      health_check = {
+        enabled             = true
+        healthy_threshold   = 5
+        interval            = 30
+        matcher             = "200"
+        path                = "/"
+        port                = "traffic-port"
+        protocol            = "HTTP"
+        timeout             = 5
+        unhealthy_threshold = 2
+      }
+
+      # There's nothing to attach here in this definition. Instead,
+      # ECS will attach the IPs of the tasks to this target group
+      create_attachment = false
+    }
+  }
 
   tags = local.tags
 }

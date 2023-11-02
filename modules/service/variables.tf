@@ -63,7 +63,7 @@ variable "deployment_minimum_healthy_percent" {
 }
 
 variable "desired_count" {
-  description = "Number of instances of the task definition to place and keep running. Defaults to `0`"
+  description = "Number of instances of the task definition to place and keep running"
   type        = number
   default     = 1
 }
