@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.6.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.5.0...v5.6.0) (2023-11-03)
+
+
+### Features
+
+* Add the external resource equivalents to the outputs as the fallback value ([#131](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/131)) ([e9d920b](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/e9d920b62779a4ea237cd560f66134b320df88c4))
+
 ## [5.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.4.0...v5.5.0) (2023-10-31)
 
 
