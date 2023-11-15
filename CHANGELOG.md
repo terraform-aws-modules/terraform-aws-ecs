@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.7.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.6.0...v5.7.0) (2023-11-15)
+
+
+### Features
+
+* Add create option for container definition ([#133](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/133)) ([66642c8](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/66642c898988bf04b414c681d1ae4e5ecac08ba1))
+
 ## [5.6.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.5.0...v5.6.0) (2023-11-03)
 
 
