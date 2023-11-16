@@ -111,6 +111,15 @@ module "ecs_service" {
           log-driver-buffer-limit = "2097152"
         }
       }
+
+      linux_parameters = {
+        capabilities = {
+          drop = [
+            "NET_RAW"
+          ]
+        }
+      }
+
       memory_reservation = 100
     }
   }
