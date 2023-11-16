@@ -3,7 +3,7 @@
 Configuration in this directory creates an Amazon ECS Service and associated resources.
 
 Some notable configurations to be aware of when using this module:
-1. `desired_count`/`scale` is always ignored; the module is designed to utilize autoscaling by default (though it can be disabled)
+1. `desired_count`/`scale` are not the intended way of setting the number of tasks to run. Instead, use `autoscaling_min_capacity`/`autoscaling_max_capacity` to set the number of tasks to run. Note that the autoscaling definition will select the minimum of `autoscaling_min_capacity` and `desired_count` as the minimum number of tasks to run, so you need to ensure that `desired_count` is greater than or equal to `autoscaling_min_capacity` if you intend to use autoscaling.
 2. The default configuration is intended for `FARGATE` use
 
 For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/README.md)
