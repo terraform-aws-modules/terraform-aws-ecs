@@ -522,7 +522,7 @@ resource "aws_iam_role_policy_attachment" "service" {
 module "container_definition" {
   source = "../container-definition"
 
-  for_each = { for k, v in var.container_definitions : k => v if local.create_task_definition && try(v.create, true)}
+  for_each = { for k, v in var.container_definitions : k => v if local.create_task_definition && try(v.create, true) }
 
   operating_system_family = try(var.runtime_platform.operating_system_family, "LINUX")
 
@@ -1202,6 +1202,7 @@ resource "aws_appautoscaling_target" "this" {
   resource_id        = "service/${local.cluster_name}/${try(aws_ecs_service.this[0].name, aws_ecs_service.ignore_task_definition[0].name)}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
+  tags               = var.tags
 }
 
 resource "aws_appautoscaling_policy" "this" {
