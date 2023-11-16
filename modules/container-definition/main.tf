@@ -17,7 +17,7 @@ locals {
     var.log_configuration
   )
 
-  linux_parameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, var.linux_parameters) : var.linux_parameters
+  linux_parameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, var.linux_parameters) : merge({ "initProcessEnabled" : false }, var.linux_parameters)
 
   definition = {
     command                = length(var.command) > 0 ? var.command : null
