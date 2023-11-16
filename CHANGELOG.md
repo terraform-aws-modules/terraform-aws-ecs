@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.7.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.1...v5.7.2) (2023-11-16)
+
+
+### Bug Fixes
+
+* Allow setting `linux_parameters` without inconsistent left/right error ([#136](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/136)) ([45a37ac](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/45a37aca96651bf541aedc9778c063e12e4c317a))
+
 ### [5.7.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.0...v5.7.1) (2023-11-16)
 
 
