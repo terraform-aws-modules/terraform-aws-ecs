@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.7.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.0...v5.7.1) (2023-11-16)
+
+
+### Bug Fixes
+
+* Add missing tag variable in autoscaling target resource ([#135](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/135)) ([5872445](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/58724455b3738f060de860f298ebc79f3b5d04e6))
+
 ## [5.7.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.6.0...v5.7.0) (2023-11-15)
 
 
