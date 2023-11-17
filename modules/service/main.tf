@@ -403,7 +403,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
 locals {
   # Role is not required if task definition uses `awsvpc` network mode or if a load balancer is not used
   needs_iam_role  = var.network_mode != "awsvpc" && length(var.load_balancer) > 0
-  create_iam_role = var.create && var.create_iam_role && local.needs_iam_role
+  create_iam_role = var.create && ( var.create_iam_role && var.iam_role_statements != {} || local.needs_iam_role )
   iam_role_arn    = local.needs_iam_role ? try(aws_iam_role.service[0].arn, var.iam_role_arn) : null
 
   iam_role_name = try(coalesce(var.iam_role_name, var.name), "")
@@ -441,18 +441,21 @@ resource "aws_iam_role" "service" {
 data "aws_iam_policy_document" "service" {
   count = local.create_iam_role ? 1 : 0
 
-  statement {
-    sid       = "ECSService"
-    resources = ["*"]
+  dynamic "statement" {
+    for_each = length(var.load_balancer) > 0 ? [{}] : []
+    content {
+      sid       = "ECSService"
+      resources = ["*"]
 
-    actions = [
-      "ec2:Describe*",
-      "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-      "elasticloadbalancing:DeregisterTargets",
-      "elasticloadbalancing:Describe*",
-      "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
-      "elasticloadbalancing:RegisterTargets"
-    ]
+      actions = [
+        "ec2:Describe*",
+        "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+        "elasticloadbalancing:DeregisterTargets",
+        "elasticloadbalancing:Describe*",
+        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+        "elasticloadbalancing:RegisterTargets"
+      ]
+    }
   }
 
   dynamic "statement" {
