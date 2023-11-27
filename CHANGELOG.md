@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.7.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.2...v5.7.3) (2023-11-27)
+
+
+### Bug Fixes
+
+* Bump MSV of AWS provider to support AppAutoscaling target tags ([#141](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/141)) ([eb7538a](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/eb7538ab30af1a3f10836f96e413385b8f8e2138))
+
 ### [5.7.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.1...v5.7.2) (2023-11-16)
 
 
