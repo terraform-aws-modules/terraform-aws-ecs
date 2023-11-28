@@ -435,13 +435,13 @@ variable "create_task_exec_policy" {
 variable "task_exec_ssm_param_arns" {
   description = "List of SSM parameter ARNs the task execution role will be permitted to get/read"
   type        = list(string)
-  default     = ["arn:aws:ssm:*:*:parameter/*"]
+  default     = ["arn:${data.aws_partition.current.partition}:ssm:*:*:parameter/*"]
 }
 
 variable "task_exec_secret_arns" {
   description = "List of SecretsManager secret ARNs the task execution role will be permitted to get/read"
   type        = list(string)
-  default     = ["arn:aws:secretsmanager:*:*:secret:*"]
+  default     = ["arn:${data.aws_partition.current.partition}:secretsmanager:*:*:secret:*"]
 }
 
 variable "task_exec_iam_statements" {
