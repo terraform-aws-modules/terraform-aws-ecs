@@ -2,6 +2,62 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.7.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.2...v5.7.3) (2023-11-27)
+
+
+### Bug Fixes
+
+* Bump MSV of AWS provider to support AppAutoscaling target tags ([#141](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/141)) ([eb7538a](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/eb7538ab30af1a3f10836f96e413385b8f8e2138))
+
+### [5.7.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.1...v5.7.2) (2023-11-16)
+
+
+### Bug Fixes
+
+* Allow setting `linux_parameters` without inconsistent left/right error ([#136](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/136)) ([45a37ac](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/45a37aca96651bf541aedc9778c063e12e4c317a))
+
+### [5.7.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.0...v5.7.1) (2023-11-16)
+
+
+### Bug Fixes
+
+* Add missing tag variable in autoscaling target resource ([#135](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/135)) ([5872445](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/58724455b3738f060de860f298ebc79f3b5d04e6))
+
+## [5.7.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.6.0...v5.7.0) (2023-11-15)
+
+
+### Features
+
+* Add create option for container definition ([#133](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/133)) ([66642c8](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/66642c898988bf04b414c681d1ae4e5ecac08ba1))
+
+## [5.6.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.5.0...v5.6.0) (2023-11-03)
+
+
+### Features
+
+* Add the external resource equivalents to the outputs as the fallback value ([#131](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/131)) ([e9d920b](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/e9d920b62779a4ea237cd560f66134b320df88c4))
+
+## [5.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.4.0...v5.5.0) (2023-10-31)
+
+
+### Features
+
+* Replace dynamic DNS suffix resolution for trusted service endpoints with static `*.amazonaws.com` ([#125](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/125)) ([f84dc7d](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/f84dc7d29247a6e2a1012f30bc5e47deeb1df925))
+
+## [5.4.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.3.0...v5.4.0) (2023-10-30)
+
+
+### Features
+
+* Add support for easily enabling ECS Exec support ([#127](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/127)) ([76acddb](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/76acddb0cc1649fa4b7a8338f0b6253b68bdeb8e))
+
+## [5.3.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.2.2...v5.3.0) (2023-10-30)
+
+
+### Features
+
+* Add support for using container definition CloudWatch log group name as prefix ([#126](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/126)) ([cf4101e](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/cf4101ea7c4ca315f8f9958156b6dfe48c0c4f51))
+
 ### [5.2.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.2.1...v5.2.2) (2023-08-22)
 
 

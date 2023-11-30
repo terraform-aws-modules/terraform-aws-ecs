@@ -3,6 +3,8 @@ data "aws_region" "current" {}
 locals {
   is_not_windows = contains(["LINUX"], var.operating_system_family)
 
+  log_group_name = "/aws/ecs/${var.service}/${var.name}"
+
   log_configuration = merge(
     { for k, v in {
       logDriver = "awslogs",
@@ -14,6 +16,8 @@ locals {
     } : k => v if var.enable_cloudwatch_logging },
     var.log_configuration
   )
+
+  linux_parameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, var.linux_parameters) : merge({ "initProcessEnabled" : false }, var.linux_parameters)
 
   definition = {
     command                = length(var.command) > 0 ? var.command : null
@@ -35,7 +39,7 @@ locals {
     image                  = var.image
     interactive            = var.interactive
     links                  = local.is_not_windows && length(var.links) > 0 ? var.links : null
-    linuxParameters        = local.is_not_windows && length(var.linux_parameters) > 0 ? var.linux_parameters : null
+    linuxParameters        = local.is_not_windows && length(local.linux_parameters) > 0 ? local.linux_parameters : null
     logConfiguration       = length(local.log_configuration) > 0 ? local.log_configuration : null
     memory                 = var.memory
     memoryReservation      = var.memory_reservation
@@ -64,7 +68,8 @@ locals {
 resource "aws_cloudwatch_log_group" "this" {
   count = var.create_cloudwatch_log_group && var.enable_cloudwatch_logging ? 1 : 0
 
-  name              = "/aws/ecs/${var.service}/${var.name}"
+  name              = var.cloudwatch_log_group_use_name_prefix ? null : local.log_group_name
+  name_prefix       = var.cloudwatch_log_group_use_name_prefix ? "${local.log_group_name}-" : null
   retention_in_days = var.cloudwatch_log_group_retention_in_days
   kms_key_id        = var.cloudwatch_log_group_kms_key_id
 

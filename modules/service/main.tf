@@ -4,7 +4,6 @@ data "aws_caller_identity" "current" {}
 
 locals {
   account_id = data.aws_caller_identity.current.account_id
-  dns_suffix = data.aws_partition.current.dns_suffix
   partition  = data.aws_partition.current.partition
   region     = data.aws_region.current.name
 }
@@ -419,7 +418,7 @@ data "aws_iam_policy_document" "service_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs.${local.dns_suffix}"]
+      identifiers = ["ecs.amazonaws.com"]
     }
   }
 }
@@ -523,7 +522,7 @@ resource "aws_iam_role_policy_attachment" "service" {
 module "container_definition" {
   source = "../container-definition"
 
-  for_each = { for k, v in var.container_definitions : k => v if local.create_task_definition }
+  for_each = { for k, v in var.container_definitions : k => v if local.create_task_definition && try(v.create, true) }
 
   operating_system_family = try(var.runtime_platform.operating_system_family, "LINUX")
 
@@ -536,6 +535,7 @@ module "container_definition" {
   dns_servers              = try(each.value.dns_servers, var.container_definition_defaults.dns_servers, [])
   docker_labels            = try(each.value.docker_labels, var.container_definition_defaults.docker_labels, {})
   docker_security_options  = try(each.value.docker_security_options, var.container_definition_defaults.docker_security_options, [])
+  enable_execute_command   = try(each.value.enable_execute_command, var.container_definition_defaults.enable_execute_command, var.enable_execute_command)
   entrypoint               = try(each.value.entrypoint, var.container_definition_defaults.entrypoint, [])
   environment              = try(each.value.environment, var.container_definition_defaults.environment, [])
   environment_files        = try(each.value.environment_files, var.container_definition_defaults.environment_files, [])
@@ -572,6 +572,7 @@ module "container_definition" {
   service                                = var.name
   enable_cloudwatch_logging              = try(each.value.enable_cloudwatch_logging, var.container_definition_defaults.enable_cloudwatch_logging, true)
   create_cloudwatch_log_group            = try(each.value.create_cloudwatch_log_group, var.container_definition_defaults.create_cloudwatch_log_group, true)
+  cloudwatch_log_group_use_name_prefix   = try(each.value.cloudwatch_log_group_use_name_prefix, var.container_definition_defaults.cloudwatch_log_group_use_name_prefix, false)
   cloudwatch_log_group_retention_in_days = try(each.value.cloudwatch_log_group_retention_in_days, var.container_definition_defaults.cloudwatch_log_group_retention_in_days, 14)
   cloudwatch_log_group_kms_key_id        = try(each.value.cloudwatch_log_group_kms_key_id, var.container_definition_defaults.cloudwatch_log_group_kms_key_id, null)
 
@@ -758,7 +759,7 @@ data "aws_iam_policy_document" "task_exec_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs-tasks.${local.dns_suffix}"]
+      identifiers = ["ecs-tasks.amazonaws.com"]
     }
   }
 }
@@ -909,7 +910,7 @@ data "aws_iam_policy_document" "tasks_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs-tasks.${local.dns_suffix}"]
+      identifiers = ["ecs-tasks.amazonaws.com"]
     }
 
     # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html#create_task_iam_policy_and_role
@@ -950,7 +951,22 @@ resource "aws_iam_role_policy_attachment" "tasks" {
 }
 
 data "aws_iam_policy_document" "tasks" {
-  count = local.create_tasks_iam_role && length(var.tasks_iam_role_statements) > 0 ? 1 : 0
+  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
+
+  dynamic "statement" {
+    for_each = var.enable_execute_command ? [1] : []
+
+    content {
+      sid = "ECSExec"
+      actions = [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+      ]
+      resources = ["*"]
+    }
+  }
 
   dynamic "statement" {
     for_each = var.tasks_iam_role_statements
@@ -995,7 +1011,7 @@ data "aws_iam_policy_document" "tasks" {
 }
 
 resource "aws_iam_role_policy" "tasks" {
-  count = local.create_tasks_iam_role && length(var.tasks_iam_role_statements) > 0 ? 1 : 0
+  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
 
   name        = var.tasks_iam_role_use_name_prefix ? null : local.tasks_iam_role_name
   name_prefix = var.tasks_iam_role_use_name_prefix ? "${local.tasks_iam_role_name}-" : null
@@ -1186,6 +1202,7 @@ resource "aws_appautoscaling_target" "this" {
   resource_id        = "service/${local.cluster_name}/${try(aws_ecs_service.this[0].name, aws_ecs_service.ignore_task_definition[0].name)}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
+  tags               = var.tags
 }
 
 resource "aws_appautoscaling_policy" "this" {
