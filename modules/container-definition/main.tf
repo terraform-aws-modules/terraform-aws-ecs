@@ -21,8 +21,8 @@ locals {
 
   health_check = length(var.health_check) > 0 ? merge({
     interval = 30,
-    retries = 3,
-    timeout = 5
+    retries  = 3,
+    timeout  = 5
   }, var.health_check) : null
 
   definition = {
