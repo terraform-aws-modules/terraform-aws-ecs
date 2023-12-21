@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.7.4](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.3...v5.7.4) (2023-12-21)
+
+
+### Bug Fixes
+
+* Adding a `health_check` generates a new task definition revision on every `terraform apply` ([#149](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/149)) ([492e323](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/492e323c82447fcaecaa818dc9c258daa923f254))
+
 ### [5.7.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.2...v5.7.3) (2023-11-27)
 
 
