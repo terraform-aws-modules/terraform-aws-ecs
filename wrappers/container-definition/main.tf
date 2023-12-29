@@ -23,7 +23,7 @@ module "wrapper" {
   essential                              = try(each.value.essential, var.defaults.essential, null)
   extra_hosts                            = try(each.value.extra_hosts, var.defaults.extra_hosts, [])
   firelens_configuration                 = try(each.value.firelens_configuration, var.defaults.firelens_configuration, {})
-  health_check                           = try(each.value.health_check, var.defaults.health_check, {})
+  health_check                           = try(each.value.health_check, var.defaults.health_check, null)
   hostname                               = try(each.value.hostname, var.defaults.hostname, null)
   image                                  = try(each.value.image, var.defaults.image, null)
   interactive                            = try(each.value.interactive, var.defaults.interactive, false)
