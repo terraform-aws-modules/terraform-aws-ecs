@@ -542,7 +542,7 @@ module "container_definition" {
   essential                = try(each.value.essential, var.container_definition_defaults.essential, null)
   extra_hosts              = try(each.value.extra_hosts, var.container_definition_defaults.extra_hosts, [])
   firelens_configuration   = try(each.value.firelens_configuration, var.container_definition_defaults.firelens_configuration, {})
-  health_check             = try(each.value.health_check, var.container_definition_defaults.health_check, {})
+  health_check             = try(each.value.health_check, var.container_definition_defaults.health_check, null)
   hostname                 = try(each.value.hostname, var.container_definition_defaults.hostname, null)
   image                    = try(each.value.image, var.container_definition_defaults.image, null)
   interactive              = try(each.value.interactive, var.container_definition_defaults.interactive, false)

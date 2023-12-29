@@ -34,7 +34,7 @@ locals {
     essential              = var.essential
     extraHosts             = local.is_not_windows && length(var.extra_hosts) > 0 ? var.extra_hosts : null
     firelensConfiguration  = length(var.firelens_configuration) > 0 ? var.firelens_configuration : null
-    healthCheck            = length(var.health_check) > 0 ? var.health_check : null
+    healthCheck            = var.health_check
     hostname               = var.hostname
     image                  = var.image
     interactive            = var.interactive

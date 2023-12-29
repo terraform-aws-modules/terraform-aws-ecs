@@ -119,7 +119,7 @@ variable "health_check" {
     startPeriod = optional(number)
     timeout     = optional(number, 5)
   })
-  default = {}
+  default = null
 }
 
 variable "hostname" {
