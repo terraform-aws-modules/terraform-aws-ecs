@@ -19,11 +19,11 @@ locals {
 
   linux_parameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, var.linux_parameters) : merge({ "initProcessEnabled" : false }, var.linux_parameters)
 
-  health_check = var.health_check ? merge({
+  health_check = var.health_check != null ? merge({
     interval = 30
     retries  = 3
     timeout  = 5
-  }, var.health_check) : var.health_check
+  }, var.health_check) : null
 
   definition = {
     command                = length(var.command) > 0 ? var.command : null
