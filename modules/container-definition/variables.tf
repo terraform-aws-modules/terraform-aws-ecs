@@ -112,8 +112,14 @@ variable "firelens_configuration" {
 
 variable "health_check" {
   description = "The container health check command and associated configuration parameters for the container. See [HealthCheck](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_HealthCheck.html)"
-  type        = any
-  default     = {}
+  type = object({
+    command     = list(string)
+    interval    = optional(number, 30)
+    retries     = optional(number, 3)
+    startPeriod = optional(number)
+    timeout     = optional(number, 5)
+  })
+  default = {}
 }
 
 variable "hostname" {
