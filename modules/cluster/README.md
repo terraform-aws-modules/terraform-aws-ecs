@@ -70,6 +70,7 @@ module "ecs_cluster" {
   autoscaling_capacity_providers = {
     one = {
       auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-one-20220603194933774300000011"
+      managed_draining               = "DISABLED"
       managed_termination_protection = "ENABLED"
 
       managed_scaling = {
@@ -86,6 +87,7 @@ module "ecs_cluster" {
     }
     two = {
       auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-two-20220603194933774300000022"
+      managed_draining               = "ENABLED"
       managed_termination_protection = "ENABLED"
 
       managed_scaling = {
