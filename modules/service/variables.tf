@@ -188,6 +188,12 @@ variable "wait_for_steady_state" {
   default     = null
 }
 
+variable "service_tags" {
+  description = "A map of additional tags to add to the service"
+  type        = map(string)
+  default     = {}
+}
+
 ################################################################################
 # Service - IAM Role
 ################################################################################
