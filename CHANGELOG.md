@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.8.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.4...v5.8.0) (2024-01-29)
+
+
+### Features
+
+* Add var service_tags ([#159](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/159)) ([1290240](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/1290240980647d391b49d417cb6d201d5620544c))
+
 ### [5.7.4](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.3...v5.7.4) (2023-12-21)
 
 
