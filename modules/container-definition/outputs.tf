@@ -12,11 +12,11 @@ output "container_definition" {
 ################################################################################
 
 output "cloudwatch_log_group_name" {
-  description = "Name of cloudwatch log group created"
+  description = "Name of CloudWatch log group created"
   value       = try(aws_cloudwatch_log_group.this[0].name, null)
 }
 
 output "cloudwatch_log_group_arn" {
-  description = "Arn of cloudwatch log group created"
+  description = "ARN of CloudWatch log group created"
   value       = try(aws_cloudwatch_log_group.this[0].arn, null)
 }
