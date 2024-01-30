@@ -59,16 +59,22 @@ variable "create_cloudwatch_log_group" {
   default     = true
 }
 
-variable "cloudwatch_log_group_retention_in_days" {
-  description = "Number of days to retain log events"
-  type        = number
-  default     = 90
-}
-
 variable "cloudwatch_log_group_kms_key_id" {
   description = "If a KMS Key ARN is set, this key will be used to encrypt the corresponding log group. Please be sure that the KMS Key has an appropriate key policy (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html)"
   type        = string
   default     = null
+}
+
+variable "cloudwatch_log_group_name" {
+  description = "Custom name of CloudWatch Log Group for ECS cluster"
+  type        = string
+  default     = null
+}
+
+variable "cloudwatch_log_group_retention_in_days" {
+  description = "Number of days to retain log events"
+  type        = number
+  default     = 90
 }
 
 variable "cloudwatch_log_group_tags" {

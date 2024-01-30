@@ -18,12 +18,12 @@ output "cluster_name" {
 }
 
 output "cloudwatch_log_group_name" {
-  description = "Name of cloudwatch log group created"
+  description = "Name of CloudWatch log group created"
   value       = module.cluster.cloudwatch_log_group_name
 }
 
 output "cloudwatch_log_group_arn" {
-  description = "Arn of cloudwatch log group created"
+  description = "ARN of CloudWatch log group created"
   value       = module.cluster.cloudwatch_log_group_arn
 }
 
