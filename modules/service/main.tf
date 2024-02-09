@@ -153,7 +153,7 @@ resource "aws_ecs_service" "this" {
       namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
-        for_each = try(service_connect_configuration.value.service, [])
+        for_each = try(lookup(service_connect_configuration.value.service, "port_name") != null ? [service_connect_configuration.value.service] : [], try(service_connect_configuration.value.service, []))
 
         content {
 
@@ -339,7 +339,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
       namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
-        for_each = try(service_connect_configuration.value.service, [])
+        for_each = try(lookup(service_connect_configuration.value.service, "port_name") != null ? [service_connect_configuration.value.service] : [], try(service_connect_configuration.value.service, []))
 
         content {
 
