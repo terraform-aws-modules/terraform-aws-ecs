@@ -19,6 +19,12 @@ locals {
 
   linux_parameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, var.linux_parameters) : merge({ "initProcessEnabled" : false }, var.linux_parameters)
 
+  health_check = length(var.health_check) > 0 ? merge({
+    interval = 30,
+    retries  = 3,
+    timeout  = 5
+  }, var.health_check) : null
+
   definition = {
     command                = length(var.command) > 0 ? var.command : null
     cpu                    = var.cpu
@@ -34,7 +40,7 @@ locals {
     essential              = var.essential
     extraHosts             = local.is_not_windows && length(var.extra_hosts) > 0 ? var.extra_hosts : null
     firelensConfiguration  = length(var.firelens_configuration) > 0 ? var.firelens_configuration : null
-    healthCheck            = length(var.health_check) > 0 ? var.health_check : null
+    healthCheck            = local.health_check
     hostname               = var.hostname
     image                  = var.image
     interactive            = var.interactive

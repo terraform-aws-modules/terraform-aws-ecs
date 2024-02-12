@@ -69,6 +69,11 @@ module "ecs" {
           memory    = 1024
           essential = true
           image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+
+          health_check = {
+            command = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/health || exit 1"]
+          }
+
           port_mappings = [
             {
               name          = local.container_name

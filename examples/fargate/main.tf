@@ -165,6 +165,10 @@ module "ecs_service" {
     }
   }
 
+  service_tags = {
+    "ServiceTag" = "Tag on service level"
+  }
+
   tags = local.tags
 }
 

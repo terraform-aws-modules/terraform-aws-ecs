@@ -287,6 +287,7 @@ module "ecs_service" {
 | <a name="input_security_group_use_name_prefix"></a> [security\_group\_use\_name\_prefix](#input\_security\_group\_use\_name\_prefix) | Determines whether the security group name (`security_group_name`) is used as a prefix | `bool` | `true` | no |
 | <a name="input_service_connect_configuration"></a> [service\_connect\_configuration](#input\_service\_connect\_configuration) | The ECS Service Connect configuration for this service to discover and connect to services, and be discovered by, and connected from, other services within a namespace | `any` | `{}` | no |
 | <a name="input_service_registries"></a> [service\_registries](#input\_service\_registries) | Service discovery registries for the service | `any` | `{}` | no |
+| <a name="input_service_tags"></a> [service\_tags](#input\_service\_tags) | A map of additional tags to add to the service | `map(string)` | `{}` | no |
 | <a name="input_skip_destroy"></a> [skip\_destroy](#input\_skip\_destroy) | If true, the task is not deleted when the service is deleted | `bool` | `null` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnets to associate with the task or service | `list(string)` | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | `{}` | no |

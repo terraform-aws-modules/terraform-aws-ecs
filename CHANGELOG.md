@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.8.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.8.0...v5.8.1) (2024-02-12)
+
+
+### Bug Fixes
+
+* Allow `cluster_settings` to be list of maps instead of single map ([#157](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/157)) ([c32a657](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/c32a65786dbfb28bac8fbc9f60ff3a4ac06830d9))
+
+## [5.8.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.4...v5.8.0) (2024-01-29)
+
+
+### Features
+
+* Add var service_tags ([#159](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/159)) ([1290240](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/1290240980647d391b49d417cb6d201d5620544c))
+
+### [5.7.4](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.3...v5.7.4) (2023-12-21)
+
+
+### Bug Fixes
+
+* Adding a `health_check` generates a new task definition revision on every `terraform apply` ([#149](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/149)) ([492e323](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/492e323c82447fcaecaa818dc9c258daa923f254))
+
 ### [5.7.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.2...v5.7.3) (2023-11-27)
 
 

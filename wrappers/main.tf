@@ -10,10 +10,12 @@ module "wrapper" {
   cluster_configuration                  = try(each.value.cluster_configuration, var.defaults.cluster_configuration, {})
   cluster_name                           = try(each.value.cluster_name, var.defaults.cluster_name, "")
   cluster_service_connect_defaults       = try(each.value.cluster_service_connect_defaults, var.defaults.cluster_service_connect_defaults, {})
-  cluster_settings = try(each.value.cluster_settings, var.defaults.cluster_settings, {
-    name  = "containerInsights"
-    value = "enabled"
-  })
+  cluster_settings = try(each.value.cluster_settings, var.defaults.cluster_settings, [
+    {
+      name  = "containerInsights"
+      value = "enabled"
+    }
+  ])
   cluster_tags                            = try(each.value.cluster_tags, var.defaults.cluster_tags, {})
   create                                  = try(each.value.create, var.defaults.create, true)
   create_cloudwatch_log_group             = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)
