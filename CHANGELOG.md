@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.8.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.8.0...v5.8.1) (2024-02-12)
+
+
+### Bug Fixes
+
+* Allow `cluster_settings` to be list of maps instead of single map ([#157](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/157)) ([c32a657](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/c32a65786dbfb28bac8fbc9f60ff3a4ac06830d9))
+
 ## [5.8.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.7.4...v5.8.0) (2024-01-29)
 
 
