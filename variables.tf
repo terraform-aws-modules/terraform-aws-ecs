@@ -59,6 +59,12 @@ variable "create_cloudwatch_log_group" {
   default     = true
 }
 
+variable "cloudwatch_log_group_name" {
+  description = "Custom name of CloudWatch Log Group for ECS cluster"
+  type        = string
+  default     = null
+}
+
 variable "cloudwatch_log_group_retention_in_days" {
   description = "Number of days to retain log events"
   type        = number

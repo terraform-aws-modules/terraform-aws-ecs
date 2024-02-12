@@ -15,6 +15,7 @@ module "cluster" {
 
   # Cluster Cloudwatch log group
   create_cloudwatch_log_group            = var.create_cloudwatch_log_group
+  cloudwatch_log_group_name              = var.cloudwatch_log_group_name
   cloudwatch_log_group_retention_in_days = var.cloudwatch_log_group_retention_in_days
   cloudwatch_log_group_kms_key_id        = var.cloudwatch_log_group_kms_key_id
   cloudwatch_log_group_tags              = var.cloudwatch_log_group_tags
