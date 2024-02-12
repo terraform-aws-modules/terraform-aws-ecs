@@ -36,6 +36,7 @@ module "ecs_cluster" {
     # On-demand instances
     ex_1 = {
       auto_scaling_group_arn         = module.autoscaling["ex_1"].autoscaling_group_arn
+      managed_draining               = "ENABLED"
       managed_termination_protection = "ENABLED"
 
       managed_scaling = {
@@ -53,6 +54,7 @@ module "ecs_cluster" {
     # Spot instances
     ex_2 = {
       auto_scaling_group_arn         = module.autoscaling["ex_2"].autoscaling_group_arn
+      managed_draining               = "ENABLED"
       managed_termination_protection = "ENABLED"
 
       managed_scaling = {
