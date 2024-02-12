@@ -28,7 +28,7 @@ variable "cluster_configuration" {
 
 variable "cluster_settings" {
   description = "List of configuration block(s) with cluster settings. For example, this can be used to enable CloudWatch Container Insights for a cluster"
-  type        = list(map(string))
+  type        = any
   default = [
     {
       name  = "containerInsights"
