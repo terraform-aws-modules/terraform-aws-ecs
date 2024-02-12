@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.9.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.8.1...v5.9.0) (2024-02-12)
+
+
+### Features
+
+* Add support for cluster and container definition custom CloudWatch log group names ([#160](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/160)) ([9a8c7d3](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/9a8c7d3cb799ec297d8ae1891616bc2872799ab7))
+
 ### [5.8.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.8.0...v5.8.1) (2024-02-12)
 
 
