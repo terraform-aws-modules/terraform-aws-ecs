@@ -27,12 +27,14 @@ variable "cluster_configuration" {
 }
 
 variable "cluster_settings" {
-  description = "Configuration block(s) with cluster settings. For example, this can be used to enable CloudWatch Container Insights for a cluster"
-  type        = map(string)
-  default = {
-    name  = "containerInsights"
-    value = "enabled"
-  }
+  description = "List of configuration block(s) with cluster settings. For example, this can be used to enable CloudWatch Container Insights for a cluster"
+  type        = any
+  default = [
+    {
+      name  = "containerInsights"
+      value = "enabled"
+    }
+  ]
 }
 
 variable "cluster_service_connect_defaults" {
