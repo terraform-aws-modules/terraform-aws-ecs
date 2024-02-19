@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.9.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.9.0...v5.9.1) (2024-02-19)
+
+
+### Bug Fixes
+
+* Pass CloudWatch log group name from the service module to the container definition module ([#168](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/168)) ([9a7c9da](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/9a7c9da0fbe686bbe0f9c687986065c4655ba923))
+
 ## [5.9.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.8.1...v5.9.0) (2024-02-12)
 
 
