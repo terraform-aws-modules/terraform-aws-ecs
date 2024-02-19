@@ -120,6 +120,18 @@ module "ecs_service" {
 
       # Example image used requires access to write to root filesystem
       readonly_root_filesystem = false
+
+      enable_cloudwatch_logging              = true
+      create_cloudwatch_log_group            = true
+      cloudwatch_log_group_name              = "/aws/ecs/${local.name}/${local.container_name}"
+      cloudwatch_log_group_retention_in_days = 7
+
+      log_configuration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-region = local.region
+        }
+      }
     }
   }
 
