@@ -91,18 +91,16 @@ module "ecs" {
             condition     = "START"
           }]
 
-          enable_cloudwatch_logging              = true
-          create_cloudwatch_log_group            = true
-          cloudwatch_log_group_name              = "/aws/ecs/${local.name}/${local.container_name}"
-          cloudwatch_log_group_retention_in_days = 7
-
+          enable_cloudwatch_logging = false
           log_configuration = {
-            logDriver = "awslogs"
+            logDriver = "awsfirelens"
             options = {
-              awslogs-region = local.region
+              Name                    = "firehose"
+              region                  = local.region
+              delivery_stream         = "my-stream"
+              log-driver-buffer-limit = "2097152"
             }
           }
-
           memory_reservation = 100
         }
       }
