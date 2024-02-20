@@ -97,6 +97,7 @@ module "wrapper" {
   tags                                    = try(each.value.tags, var.defaults.tags, {})
   task_definition_arn                     = try(each.value.task_definition_arn, var.defaults.task_definition_arn, null)
   task_definition_placement_constraints   = try(each.value.task_definition_placement_constraints, var.defaults.task_definition_placement_constraints, {})
+  task_definition_track_latest            = try(each.value.task_definition_track_latest, var.defaults.task_definition_track_latest, true)
   task_exec_iam_role_arn                  = try(each.value.task_exec_iam_role_arn, var.defaults.task_exec_iam_role_arn, null)
   task_exec_iam_role_description          = try(each.value.task_exec_iam_role_description, var.defaults.task_exec_iam_role_description, null)
   task_exec_iam_role_name                 = try(each.value.task_exec_iam_role_name, var.defaults.task_exec_iam_role_name, null)

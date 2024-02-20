@@ -586,25 +586,7 @@ module "container_definition" {
 locals {
   create_task_definition = var.create && var.create_task_definition
 
-  # This allows us to query both the existing as well as Terraform's state and get
-  # and get the max version of either source, useful for when external resources
-  # update the container definition
-  max_task_def_revision = local.create_task_definition ? max(aws_ecs_task_definition.this[0].revision, data.aws_ecs_task_definition.this[0].revision) : 0
-  task_definition       = local.create_task_definition ? "${aws_ecs_task_definition.this[0].family}:${local.max_task_def_revision}" : var.task_definition_arn
-}
-
-# This allows us to query both the existing as well as Terraform's state and get
-# and get the max version of either source, useful for when external resources
-# update the container definition
-data "aws_ecs_task_definition" "this" {
-  count = local.create_task_definition ? 1 : 0
-
-  task_definition = aws_ecs_task_definition.this[0].family
-
-  depends_on = [
-    # Needs to exist first on first deployment
-    aws_ecs_task_definition.this
-  ]
+  task_definition = local.create_task_definition ? "${aws_ecs_task_definition.this[0].family}:${aws_ecs_task_definition.this[0].revision}" : var.task_definition_arn
 }
 
 resource "aws_ecs_task_definition" "this" {
@@ -730,6 +712,8 @@ resource "aws_ecs_task_definition" "this" {
       name      = try(volume.value.name, volume.key)
     }
   }
+
+  track_latest = var.task_definition_track_latest
 
   tags = merge(var.tags, var.task_tags)
 
