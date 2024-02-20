@@ -98,7 +98,8 @@ module "service" {
 
   # Task definition
   create_task_definition        = try(each.value.create_task_definition, true)
-  task_definition_arn           = lookup(each.value, "task_definition_arn", null)
+  task_definition_arn           = try(each.value.task_definition_arn, null)
+  task_definition_track_latest  = try(each.value.task_definition_track_latest, true)
   container_definitions         = try(each.value.container_definitions, {})
   container_definition_defaults = try(each.value.container_definition_defaults, {})
   cpu                           = try(each.value.cpu, 1024)
