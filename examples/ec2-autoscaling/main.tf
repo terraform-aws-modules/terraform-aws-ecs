@@ -128,9 +128,6 @@ module "ecs_service" {
 
       log_configuration = {
         logDriver = "awslogs"
-        options = {
-          awslogs-region = local.region
-        }
       }
     }
   }
