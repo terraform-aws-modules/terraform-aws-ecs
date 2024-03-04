@@ -1320,7 +1320,7 @@ resource "aws_security_group" "this" {
   description = var.security_group_description
   vpc_id      = data.aws_subnet.this[0].vpc_id
 
-  tags = merge(var.tags, var.security_group_tags)
+  tags = merge(var.tags, var.security_group_tags, { Name : local.security_group_name })
 
   lifecycle {
     create_before_destroy = true
