@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [5.9.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.9.1...v5.9.2) (2024-03-04)
+
+
+### Bug Fixes
+
+* Add missing `Name` tag to service security group ([#177](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/177)) ([b3600de](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/b3600def4e922e00483596fb84153ec82b77fc20))
+
 ### [5.9.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.9.0...v5.9.1) (2024-02-19)
 
 
