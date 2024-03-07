@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.9.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.9.2...v5.9.3) (2024-03-07)
+
+
+### Bug Fixes
+
+* Update CI workflow versions to remove deprecated runtime warnings ([#178](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/178)) ([a1fd9ef](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/a1fd9ef2199a0a5e851e4d131f8bca84d0723065))
+
 ### [5.9.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.9.1...v5.9.2) (2024-03-04)
 
 
