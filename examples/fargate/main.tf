@@ -170,6 +170,68 @@ module "ecs_service" {
   tags = local.tags
 }
 
+
+################################################################################
+# Standalone Task Definition (w/o Service)
+################################################################################
+
+module "ecs_task_definition" {
+  source = "../../modules/service"
+
+  # Service
+  name               = "${local.name}-standalone"
+  cluster_arn        = module.ecs_cluster.arn
+  create_service     = false
+  enable_autoscaling = false
+
+  # Task Definition
+  volume = {
+    my-vol = {}
+  }
+
+  # Container definition(s)
+  container_definitions = {
+    (local.container_name) = {
+      image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
+      port_mappings = [
+        {
+          name          = local.container_name
+          containerPort = local.container_port
+          protocol      = "tcp"
+        }
+      ]
+
+      mount_points = [
+        {
+          sourceVolume  = "my-vol",
+          containerPath = "/var/www/my-vol"
+        }
+      ]
+
+      entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+
+      # Example image used requires access to write to root filesystem
+      readonly_root_filesystem = false
+
+      enable_cloudwatch_logging              = true
+      create_cloudwatch_log_group            = true
+      cloudwatch_log_group_name              = "/aws/ecs/${local.name}-standalone/${local.container_name}"
+      cloudwatch_log_group_retention_in_days = 7
+
+      log_configuration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-region = local.region
+        }
+      }
+    }
+  }
+
+  subnet_ids = module.vpc.private_subnets
+
+  tags = local.tags
+}
+
 ################################################################################
 # Supporting Resources
 ################################################################################
