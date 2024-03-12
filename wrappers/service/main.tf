@@ -36,6 +36,7 @@ module "wrapper" {
   create                             = try(each.value.create, var.defaults.create, true)
   create_iam_role                    = try(each.value.create_iam_role, var.defaults.create_iam_role, true)
   create_security_group              = try(each.value.create_security_group, var.defaults.create_security_group, true)
+  create_service                     = try(each.value.create_service, var.defaults.create_service, true)
   create_task_definition             = try(each.value.create_task_definition, var.defaults.create_task_definition, true)
   create_task_exec_iam_role          = try(each.value.create_task_exec_iam_role, var.defaults.create_task_exec_iam_role, true)
   create_task_exec_policy            = try(each.value.create_task_exec_policy, var.defaults.create_task_exec_policy, true)
