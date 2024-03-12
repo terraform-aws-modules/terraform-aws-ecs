@@ -59,6 +59,11 @@ output "task_definition_family" {
   value       = try(aws_ecs_task_definition.this[0].family, null)
 }
 
+output "task_definition_family_revision" {
+  description = "The family and revision (family:revision) of the task definition"
+  value       = "${try(aws_ecs_task_definition.this[0].family, "")}:${local.max_task_def_revision}"
+}
+
 ################################################################################
 # Task Execution - IAM Role
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html

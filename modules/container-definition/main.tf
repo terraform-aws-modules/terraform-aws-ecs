@@ -60,7 +60,7 @@ locals {
     secrets                = length(var.secrets) > 0 ? var.secrets : null
     startTimeout           = var.start_timeout
     stopTimeout            = var.stop_timeout
-    systemControls         = length(var.system_controls) > 0 ? var.system_controls : null
+    systemControls         = length(var.system_controls) > 0 ? var.system_controls : []
     ulimits                = local.is_not_windows && length(var.ulimits) > 0 ? var.ulimits : null
     user                   = local.is_not_windows ? var.user : null
     volumesFrom            = var.volumes_from

@@ -114,6 +114,7 @@ module "ecs_service" {
 
       linux_parameters = {
         capabilities = {
+          add = []
           drop = [
             "NET_RAW"
           ]
@@ -170,7 +171,6 @@ module "ecs_service" {
   tags = local.tags
 }
 
-
 ################################################################################
 # Standalone Task Definition (w/o Service)
 ################################################################################
@@ -179,55 +179,42 @@ module "ecs_task_definition" {
   source = "../../modules/service"
 
   # Service
-  name               = "${local.name}-standalone"
-  cluster_arn        = module.ecs_cluster.arn
-  create_service     = false
-  enable_autoscaling = false
+  name           = "${local.name}-standalone"
+  cluster_arn    = module.ecs_cluster.arn
+  create_service = false
 
   # Task Definition
   volume = {
-    my-vol = {}
+    ex-vol = {}
   }
 
   # Container definition(s)
   container_definitions = {
-    (local.container_name) = {
-      image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
-      port_mappings = [
-        {
-          name          = local.container_name
-          containerPort = local.container_port
-          protocol      = "tcp"
-        }
-      ]
+    al2023 = {
+      image = "public.ecr.aws/amazonlinux/amazonlinux:2023-minimal"
 
       mount_points = [
         {
-          sourceVolume  = "my-vol",
-          containerPath = "/var/www/my-vol"
+          sourceVolume  = "ex-vol",
+          containerPath = "/var/www/ex-vol"
         }
       ]
 
-      entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
-
-      # Example image used requires access to write to root filesystem
-      readonly_root_filesystem = false
-
-      enable_cloudwatch_logging              = true
-      create_cloudwatch_log_group            = true
-      cloudwatch_log_group_name              = "/aws/ecs/${local.name}-standalone/${local.container_name}"
-      cloudwatch_log_group_retention_in_days = 7
-
-      log_configuration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-region = local.region
-        }
-      }
+      command = ["/usr/bin/cat", "/etc/os-release"]
     }
   }
 
   subnet_ids = module.vpc.private_subnets
+
+  security_group_rules = {
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
 
   tags = local.tags
 }
