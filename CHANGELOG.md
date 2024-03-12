@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.10.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.9.3...v5.10.0) (2024-03-12)
+
+
+### Features
+
+* Allow disabling service creation to support creating just a task definition ([#176](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/176)) ([94c992a](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/94c992aef62e6c8249acb1109b49a5cf98457288)), closes [#162](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/162)
+
 ## [5.9.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.9.2...v5.9.3) (2024-03-07)
 
 
