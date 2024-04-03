@@ -776,6 +776,7 @@ resource "aws_iam_role" "task_exec" {
   description = coalesce(var.task_exec_iam_role_description, "Task execution role for ${local.task_exec_iam_role_name}")
 
   assume_role_policy    = data.aws_iam_policy_document.task_exec_assume[0].json
+  max_session_duration  = var.task_exec_iam_role_max_session_duration
   permissions_boundary  = var.task_exec_iam_role_permissions_boundary
   force_detach_policies = true
 

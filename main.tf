@@ -130,6 +130,7 @@ module "service" {
   task_exec_iam_role_permissions_boundary = try(each.value.task_exec_iam_role_permissions_boundary, null)
   task_exec_iam_role_tags                 = try(each.value.task_exec_iam_role_tags, {})
   task_exec_iam_role_policies             = try(each.value.task_exec_iam_role_policies, {})
+  task_exec_iam_role_max_session_duration = try(each.value.task_exec_iam_role_max_session_duration, null)
 
   # Task execution IAM role policy
   create_task_exec_policy  = try(each.value.create_task_exec_policy, true)

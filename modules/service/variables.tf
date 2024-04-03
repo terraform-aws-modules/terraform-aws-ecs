@@ -438,6 +438,12 @@ variable "task_exec_iam_role_policies" {
   default     = {}
 }
 
+variable "task_exec_iam_role_max_session_duration" {
+  description = "Maximum session duration (in seconds) for ECS task execution role. Default is 3600."
+  type        = number
+  default     = null
+}
+
 variable "create_task_exec_policy" {
   description = "Determines whether the ECS task definition IAM policy should be created. This includes permissions included in AmazonECSTaskExecutionRolePolicy as well as access to secrets and SSM parameters"
   type        = bool
