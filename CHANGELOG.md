@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.11.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.10.1...v5.11.0) (2024-04-03)
+
+
+### Features
+
+* Allow configuring max_session_duration for the ECS Task Execution role ([#186](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/186)) ([1b8cad1](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/1b8cad10d2f414ecfdeb48e1dee73eccadefad1a))
+
 ## [5.10.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.10.0...v5.10.1) (2024-04-01)
 
 
