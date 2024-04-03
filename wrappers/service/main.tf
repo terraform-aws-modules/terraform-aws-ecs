@@ -100,6 +100,7 @@ module "wrapper" {
   task_definition_placement_constraints   = try(each.value.task_definition_placement_constraints, var.defaults.task_definition_placement_constraints, {})
   task_exec_iam_role_arn                  = try(each.value.task_exec_iam_role_arn, var.defaults.task_exec_iam_role_arn, null)
   task_exec_iam_role_description          = try(each.value.task_exec_iam_role_description, var.defaults.task_exec_iam_role_description, null)
+  task_exec_iam_role_max_session_duration = try(each.value.task_exec_iam_role_max_session_duration, var.defaults.task_exec_iam_role_max_session_duration, null)
   task_exec_iam_role_name                 = try(each.value.task_exec_iam_role_name, var.defaults.task_exec_iam_role_name, null)
   task_exec_iam_role_path                 = try(each.value.task_exec_iam_role_path, var.defaults.task_exec_iam_role_path, null)
   task_exec_iam_role_permissions_boundary = try(each.value.task_exec_iam_role_permissions_boundary, var.defaults.task_exec_iam_role_permissions_boundary, null)
