@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.11.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.11.0...v5.11.1) (2024-04-10)
+
+
+### Bug Fixes
+
+* Add aws to required providers ([#181](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/181)) ([59fd4fa](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/59fd4fa7b34daede721a27ba7fda44acfca8de29))
+
 ## [5.11.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.10.1...v5.11.0) (2024-04-03)
 
 
