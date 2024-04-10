@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.11.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.10.1...v5.11.0) (2024-04-03)
+
+
+### Features
+
+* Allow configuring max_session_duration for the ECS Task Execution role ([#186](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/186)) ([1b8cad1](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/1b8cad10d2f414ecfdeb48e1dee73eccadefad1a))
+
+## [5.10.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.10.0...v5.10.1) (2024-04-01)
+
+
+### Bug Fixes
+
+* Dynamic network configuration in service module for external deployments with awsvpc networkmode ([#185](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/185)) ([c817ed9](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/c817ed992ed75d73a54f69bf130c3730af8ba709)), closes [#184](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/184)
+
 ## [5.10.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.9.3...v5.10.0) (2024-03-12)
 
 

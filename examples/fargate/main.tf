@@ -121,6 +121,12 @@ module "ecs_service" {
         }
       }
 
+      # Not required for fluent-bit, just an example
+      volumes_from = [{
+        sourceContainer = "fluent-bit"
+        readOnly        = false
+      }]
+
       memory_reservation = 100
     }
   }
@@ -179,13 +185,17 @@ module "ecs_task_definition" {
   source = "../../modules/service"
 
   # Service
-  name           = "${local.name}-standalone"
-  cluster_arn    = module.ecs_cluster.arn
-  create_service = false
+  name        = "${local.name}-standalone"
+  cluster_arn = module.ecs_cluster.arn
 
   # Task Definition
   volume = {
     ex-vol = {}
+  }
+
+  runtime_platform = {
+    cpu_architecture        = "ARM64"
+    operating_system_family = "LINUX"
   }
 
   # Container definition(s)
@@ -200,7 +210,8 @@ module "ecs_task_definition" {
         }
       ]
 
-      command = ["/usr/bin/cat", "/etc/os-release"]
+      command    = ["echo hello world"]
+      entrypoint = ["/usr/bin/sh", "-c"]
     }
   }
 
