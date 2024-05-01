@@ -46,7 +46,7 @@ output "private_ecr_repository_push_commands" {
 output "s3_bucket_upload_command" {
   description = "Command to upload files to the example S3 bucket"
   value       = <<EOT
-    aws --region ${local.region} s3 cp <file> s3://${module.s3_bucket.s3_bucket_id}
+    aws --region ${local.region} s3 cp <local file> s3://${module.s3_bucket.s3_bucket_id}
   EOT
 }
 
