@@ -1,4 +1,4 @@
-# ECS Clusters w/ Fargate and private network access
+# ECS Cluster w/ Fargate and private network access
 
 The configuration in this directory creates:
 
