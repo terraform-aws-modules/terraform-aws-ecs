@@ -76,6 +76,7 @@ No inputs.
 | <a name="output_cluster_id"></a> [cluster\_id](#output\_cluster\_id) | ID that identifies the cluster |
 | <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | Name that identifies the cluster |
 | <a name="output_private_ecr_repository_push_commands"></a> [private\_ecr\_repository\_push\_commands](#output\_private\_ecr\_repository\_push\_commands) | Commands to push the awscli container image to the private ECR repository |
+| <a name="output_s3_bucket_upload_command"></a> [s3\_bucket\_upload\_command](#output\_s3\_bucket\_upload\_command) | Command to upload files to the example S3 bucket |
 | <a name="output_task_definition_run_task_command"></a> [task\_definition\_run\_task\_command](#output\_task\_definition\_run\_task\_command) | awscli command to run the standalone task |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
