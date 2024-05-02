@@ -243,7 +243,7 @@ module "kms_cloudwatch" {
         "kms:Decrypt*",
         "kms:ReEncrypt*",
         "kms:GenerateDataKey*",
-        "kms:Describe*"
+        "kms:Describe*",
       ]
 
       resources = [
