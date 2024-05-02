@@ -138,7 +138,7 @@ module "vpc_endpoints" {
       route_table_ids = module.vpc.intra_route_table_ids
       policy          = data.aws_iam_policy_document.s3_endpoint.json
       tags = {
-        "Name" = "${local.name}-s3"
+        Name = "${local.name}-s3"
       }
     }
     },
@@ -151,7 +151,7 @@ module "vpc_endpoints" {
         subnet_ids          = module.vpc.intra_subnets
         security_group_ids  = [module.security_group_vpc_endpoint_interface.security_group_id]
         tags = {
-          "Name" = "${local.name}-${service}"
+          Name = "${local.name}-${service}"
         }
       }
   })
@@ -164,7 +164,7 @@ data "aws_iam_policy_document" "s3_endpoint" {
   statement {
     sid = "AllowBucketAccessForECROperations"
 
-    # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#principals-and-not_principals
+    # See https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#principals-and-not_principals
     principals {
       type        = "*"
       identifiers = ["*"]
@@ -189,13 +189,10 @@ data "aws_iam_policy_document" "s3_endpoint" {
     }
 
     actions = [
-      "s3:PutObject",
-      "s3:GetObject",
       "s3:ListBucket",
     ]
 
     resources = [
-      "${module.s3_bucket.s3_bucket_arn}/*",
       module.s3_bucket.s3_bucket_arn,
     ]
 
@@ -275,7 +272,7 @@ module "kms_cloudwatch" {
   tags = merge(
     {
       # This module doesn't create resource-specific "Name" tags as the "name" input variable is not present
-      "Name" = local.name
+      Name = local.name
     },
     local.tags,
   )
@@ -309,7 +306,7 @@ module "kms_bucket" {
   tags = merge(
     {
       # This module doesn't create resource-specific "Name" tags as the "name" input variable is not present
-      "Name" = local.name
+      Name = local.name
     },
     local.tags,
   )
@@ -348,7 +345,7 @@ module "s3_bucket" {
   tags = merge(
     {
       # This module doesn't create resource-specific "Name" tags as the "name" input variable is not present
-      "Name" = local.name
+      Name = local.name
     },
     local.tags,
   )
@@ -364,13 +361,10 @@ data "aws_iam_policy_document" "bucket" {
     }
 
     actions = [
-      "s3:PutObject",
-      "s3:GetObject",
       "s3:ListBucket",
     ]
 
     resources = [
-      "${module.s3_bucket.s3_bucket_arn}/*",
       module.s3_bucket.s3_bucket_arn,
     ]
   }
