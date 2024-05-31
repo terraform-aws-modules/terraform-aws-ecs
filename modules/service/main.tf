@@ -201,7 +201,9 @@ resource "aws_ecs_service" "this" {
     delete = try(var.timeouts.delete, null)
   }
 
-  depends_on = [aws_iam_role_policy_attachment.service]
+  depends_on = [
+    aws_iam_role_policy_attachment.service
+  ]
 
   lifecycle {
     ignore_changes = [
@@ -387,7 +389,9 @@ resource "aws_ecs_service" "ignore_task_definition" {
     delete = try(var.timeouts.delete, null)
   }
 
-  depends_on = [aws_iam_role_policy_attachment.service]
+  depends_on = [
+    aws_iam_role_policy_attachment.service
+  ]
 
   lifecycle {
     ignore_changes = [
@@ -735,6 +739,12 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   tags = merge(var.tags, var.task_tags)
+
+  depends_on = [
+    aws_iam_role_policy_attachment.tasks,
+    aws_iam_role_policy_attachment.task_exec,
+    aws_iam_role_policy_attachment.task_exec_additional,
+  ]
 
   lifecycle {
     create_before_destroy = true
