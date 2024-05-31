@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.11.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.11.1...v5.11.2) (2024-05-31)
+
+
+### Bug Fixes
+
+* Make service, task, and task sets wait for their respective policy attachment to ensure permissions are available ([#201](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/201)) ([2033858](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/20338580482518fa086e90d9f74a54e8046fcb9a))
+
 ## [5.11.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.11.0...v5.11.1) (2024-04-10)
 
 
