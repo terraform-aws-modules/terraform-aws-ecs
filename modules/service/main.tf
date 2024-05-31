@@ -1243,13 +1243,13 @@ resource "aws_appautoscaling_policy" "this" {
         for_each = try([target_tracking_scaling_policy_configuration.value.customized_metric_specification], [])
 
         content {
-          dynamic "metrics"{
+          dynamic "metrics" {
             for_each = try(customized_metric_specification.value.metrics, [])
             content {
-              id = metrics.value.id
-              label = try(metrics.value.label, null)
+              id          = metrics.value.id
+              label       = try(metrics.value.label, null)
               return_data = try(metrics.value.return_data, true)
-              expression = try(metrics.value.expression, null)
+              expression  = try(metrics.value.expression, null)
 
 
               dynamic "metric_stat" {
@@ -1259,12 +1259,12 @@ resource "aws_appautoscaling_policy" "this" {
                   dynamic "metric" {
                     for_each = try([metric_stat.value.metric], [])
                     content {
-                      namespace = metric.value.namespace
+                      namespace   = metric.value.namespace
                       metric_name = metric.value.metric_name
                       dynamic "dimensions" {
                         for_each = try(metric.value.dimensions, [])
                         content {
-                          name = dimensions.value.name
+                          name  = dimensions.value.name
                           value = dimensions.value.value
                         }
                       }
