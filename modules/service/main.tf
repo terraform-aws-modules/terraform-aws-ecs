@@ -1496,7 +1496,7 @@ resource "aws_iam_role" "infrastructure_iam_role" {
   path        = var.infrastructure_iam_role_path
   description = coalesce(var.infrastructure_iam_role_description, "Amazon ECS infrastructure IAM role that is used to manage your infrastructure")
 
-  assume_role_policy    = data.aws_iam_policy_document.ecs_infrastructure_iam_role[0].json
+  assume_role_policy    = data.aws_iam_policy_document.infrastructure_iam_role[0].json
   permissions_boundary  = var.infrastructure_iam_role_permissions_boundary
   force_detach_policies = true
 
