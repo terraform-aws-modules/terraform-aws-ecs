@@ -130,3 +130,13 @@ output "service_autoscaling_scheduled_actions" {
   description = "Map of autoscaling scheduled actions and their attributes"
   value       = module.ecs_service.autoscaling_scheduled_actions
 }
+
+output "service_infrastructure_iam_role_arn" {
+  description = "Infrastructure IAM role ARN"
+  value       = module.ecs_service.infrastructure_iam_role_arn
+}
+
+output "service_infrastructure_iam_role_name" {
+  description = "Infrastructure IAM role name"
+  value       = module.ecs_service.infrastructure_iam_role_name
+}
