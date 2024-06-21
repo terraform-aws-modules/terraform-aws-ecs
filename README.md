@@ -101,14 +101,30 @@ module "ecs" {
       }
 
       service_connect_configuration = {
-        namespace = "example"
-        service = {
-          client_alias = {
-            port     = 80
-            dns_name = "ecs-sample"
-          }
-          port_name      = "ecs-sample"
-          discovery_name = "ecs-sample"
+        "example" = {
+          namespace = "example"
+          services = [
+            {
+              client_alias = [
+                {
+                  port     = 81
+                  dns_name = "example-grpc"
+                }
+              ]
+              port_name      = "example-grpc"
+              discovery_name = "example-grpc"
+            },
+            {
+              client_alias = [
+                {
+                  port     = 80
+                  dns_name = "example-http"
+                }
+              ]
+              port_name      = "example-http"
+              discovery_name = "example-http"
+            }
+          ]
         }
       }
 

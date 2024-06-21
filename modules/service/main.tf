@@ -129,7 +129,7 @@ resource "aws_ecs_service" "this" {
   scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
 
   dynamic "service_connect_configuration" {
-    for_each = length(var.service_connect_configuration) > 0 ? [var.service_connect_configuration] : []
+    for_each = length(var.service_connect_configuration) > 0 ? var.service_connect_configuration : {}
 
     content {
       enabled = try(service_connect_configuration.value.enabled, true)
@@ -152,15 +152,15 @@ resource "aws_ecs_service" "this" {
         }
       }
 
-      namespace = lookup(service_connect_configuration.value, "namespace", null)
+      namespace = try(service_connect_configuration.value.namespace, null)
 
       dynamic "service" {
-        for_each = try([service_connect_configuration.value.service], [])
+        for_each = service_connect_configuration.value.services
 
         content {
 
           dynamic "client_alias" {
-            for_each = try([service.value.client_alias], [])
+            for_each = service.value.client_alias
 
             content {
               dns_name = try(client_alias.value.dns_name, null)
@@ -317,7 +317,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
   scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
 
   dynamic "service_connect_configuration" {
-    for_each = length(var.service_connect_configuration) > 0 ? [var.service_connect_configuration] : []
+    for_each = length(var.service_connect_configuration) > 0 ? var.service_connect_configuration : {}
 
     content {
       enabled = try(service_connect_configuration.value.enabled, true)
@@ -340,15 +340,15 @@ resource "aws_ecs_service" "ignore_task_definition" {
         }
       }
 
-      namespace = lookup(service_connect_configuration.value, "namespace", null)
+      namespace = try(service_connect_configuration.value.namespace, null)
 
       dynamic "service" {
-        for_each = try([service_connect_configuration.value.service], [])
+        for_each = service_connect_configuration.value.services
 
         content {
 
           dynamic "client_alias" {
-            for_each = try([service.value.client_alias], [])
+            for_each = service.value.client_alias
 
             content {
               dns_name = try(client_alias.value.dns_name, null)

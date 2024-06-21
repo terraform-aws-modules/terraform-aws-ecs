@@ -130,16 +130,21 @@ module "ecs_service" {
       memory_reservation = 100
     }
   }
-
   service_connect_configuration = {
-    namespace = aws_service_discovery_http_namespace.this.arn
-    service = {
-      client_alias = {
-        port     = local.container_port
-        dns_name = local.container_name
-      }
-      port_name      = local.container_name
-      discovery_name = local.container_name
+    "example" = {
+      namespace = aws_service_discovery_http_namespace.this.arn
+      services = [
+        {
+          client_alias = [
+            {
+              port     = local.container_port
+              dns_name = local.container_name
+            }
+          ]
+          port_name      = local.container_name
+          discovery_name = local.container_name
+        }
+      ]
     }
   }
 
