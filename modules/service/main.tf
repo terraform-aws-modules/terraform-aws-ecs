@@ -170,11 +170,8 @@ resource "aws_ecs_service" "this" {
 
           discovery_name        = try(service.value.discovery_name, null)
           ingress_port_override = try(service.value.ingress_port_override, null)
+          timeout               = try(service.value.timeout, null) 
           port_name             = service.value.port_name
-          timeout {
-            idle_timeout_seconds = 20
-            per_request_timeout_seconds = 20
-          }
         }
       }
     }
