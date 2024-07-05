@@ -110,6 +110,7 @@ module "service" {
   ipc_mode                      = try(each.value.ipc_mode, null)
   memory                        = try(each.value.memory, 2048)
   network_mode                  = try(each.value.network_mode, "awsvpc")
+  pid_mode                      = try(each.value.pid_mode, null)
   proxy_configuration           = try(each.value.proxy_configuration, {})
   requires_compatibilities      = try(each.value.requires_compatibilities, ["FARGATE"])
   runtime_platform = try(each.value.runtime_platform, {
