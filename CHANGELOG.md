@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.11.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.11.2...v5.11.3) (2024-07-05)
+
+
+### Bug Fixes
+
+* Add missing `pid_mode` to root module ([#204](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/204)) ([c9cab6f](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/c9cab6f005379e25ee91d17c7b8d4cb9d8ca9af8))
+
 ## [5.11.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.11.1...v5.11.2) (2024-05-31)
 
 
