@@ -197,6 +197,30 @@ resource "aws_ecs_service" "this" {
     }
   }
 
+  dynamic "volume_configuration" {
+    for_each = var.volume_configuration
+
+    content {
+      name = try(volume_configuration.value.name, volume_configuration.key)
+
+      dynamic "managed_ebs_volume" {
+        for_each = try([volume_configuration.value.managed_ebs_volume], [])
+
+        content {
+          role_arn         = try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn)
+          encrypted        = try(managed_ebs_volume.value.encrypted, null)
+          file_system_type = try(managed_ebs_volume.value.file_system_type, null)
+          iops             = try(managed_ebs_volume.value.iops, null)
+          kms_key_id       = try(managed_ebs_volume.value.kms_key_id, null)
+          size_in_gb       = try(managed_ebs_volume.value.size_in_gb, null)
+          snapshot_id      = try(managed_ebs_volume.value.snapshot_id, null)
+          throughput       = try(managed_ebs_volume.value.throughput, null)
+          volume_type      = try(managed_ebs_volume.value.volume_type, null)
+        }
+      }
+    }
+  }
+
   task_definition       = local.task_definition
   triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state
@@ -211,7 +235,8 @@ resource "aws_ecs_service" "this" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.service
+    aws_iam_role_policy_attachment.service,
+    aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy
   ]
 
   lifecycle {
@@ -394,6 +419,30 @@ resource "aws_ecs_service" "ignore_task_definition" {
     }
   }
 
+  dynamic "volume_configuration" {
+    for_each = var.volume_configuration
+
+    content {
+      name = try(volume_configuration.value.name, volume_configuration.key)
+
+      dynamic "managed_ebs_volume" {
+        for_each = try([volume_configuration.value.managed_ebs_volume], [])
+
+        content {
+          role_arn         = try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn)
+          encrypted        = try(managed_ebs_volume.value.encrypted, null)
+          file_system_type = try(managed_ebs_volume.value.file_system_type, null)
+          iops             = try(managed_ebs_volume.value.iops, null)
+          kms_key_id       = try(managed_ebs_volume.value.kms_key_id, null)
+          size_in_gb       = try(managed_ebs_volume.value.size_in_gb, null)
+          snapshot_id      = try(managed_ebs_volume.value.snapshot_id, null)
+          throughput       = try(managed_ebs_volume.value.throughput, null)
+          volume_type      = try(managed_ebs_volume.value.volume_type, null)
+        }
+      }
+    }
+  }
+
   task_definition       = local.task_definition
   triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state
@@ -408,7 +457,8 @@ resource "aws_ecs_service" "ignore_task_definition" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.service
+    aws_iam_role_policy_attachment.service,
+    aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy
   ]
 
   lifecycle {
@@ -751,8 +801,9 @@ resource "aws_ecs_task_definition" "this" {
         }
       }
 
-      host_path = try(volume.value.host_path, null)
-      name      = try(volume.value.name, volume.key)
+      host_path           = try(volume.value.host_path, null)
+      configure_at_launch = try(volume.value.configure_at_launch, null)
+      name                = try(volume.value.name, volume.key)
     }
   }
 
@@ -1410,4 +1461,52 @@ resource "aws_security_group_rule" "this" {
   prefix_list_ids          = lookup(each.value, "prefix_list_ids", null)
   self                     = lookup(each.value, "self", null)
   source_security_group_id = lookup(each.value, "source_security_group_id", null)
+}
+
+############################################################################################
+# ECS infrastructure IAM role
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html
+############################################################################################
+
+locals {
+  needs_infrastructure_iam_role  = var.create_infrastructure_iam_role && var.volume_configuration != null
+  create_infrastructure_iam_role = var.create && local.needs_infrastructure_iam_role
+  infrastructure_iam_role_name   = try(coalesce(var.infrastructure_iam_role_name, var.name), "")
+}
+
+data "aws_iam_policy_document" "infrastructure_iam_role" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  statement {
+    sid     = "ECSServiceAssumeRole"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "infrastructure_iam_role" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  name        = var.infrastructure_iam_role_use_name_prefix ? null : local.infrastructure_iam_role_name
+  name_prefix = var.infrastructure_iam_role_use_name_prefix ? "${local.infrastructure_iam_role_name}-" : null
+  path        = var.infrastructure_iam_role_path
+  description = coalesce(var.infrastructure_iam_role_description, "Amazon ECS infrastructure IAM role that is used to manage your infrastructure")
+
+  assume_role_policy    = data.aws_iam_policy_document.infrastructure_iam_role[0].json
+  permissions_boundary  = var.infrastructure_iam_role_permissions_boundary
+  force_detach_policies = true
+
+  tags = merge(var.tags, var.infrastructure_iam_role_tags)
+}
+
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-volumes.html#ebs-volume-considerations/
+resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_ebs_policy" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  role       = aws_iam_role.infrastructure_iam_role[0].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSInfrastructureRolePolicyForVolumes"
 }
