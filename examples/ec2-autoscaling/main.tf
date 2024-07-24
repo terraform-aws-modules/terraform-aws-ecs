@@ -95,8 +95,24 @@ module "ecs_service" {
     }
   }
 
+  create_infrastructure_iam_role = true
+  volume_configuration = {
+    ebs-volume = {
+      managed_ebs_volume = {
+        encrypted        = true
+        file_system_type = "xfs"
+        size_in_gb       = 5
+        volume_type      = "gp3"
+      }
+    }
+  }
+
   volume = {
-    my-vol = {}
+    my-vol = {},
+    ebs-volume = {
+      name                = "ebs-volume"
+      configure_at_launch = true
+    }
   }
 
   # Container definition(s)
@@ -115,6 +131,10 @@ module "ecs_service" {
         {
           sourceVolume  = "my-vol",
           containerPath = "/var/www/my-vol"
+        },
+        {
+          containerPath = "/ebs/data"
+          sourceVolume  = "ebs-volume"
         }
       ]
 
