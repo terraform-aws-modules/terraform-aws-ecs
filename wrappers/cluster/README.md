@@ -12,9 +12,9 @@ This wrapper does not implement any extra functionality.
 
 ```hcl
 terraform {
-  source = "tfr:///terraform-aws-modules/feature-svc-connect-timeout/aws//wrappers/cluster"
+  source = "tfr:///terraform-aws-modules/ecs/aws//wrappers/cluster"
   # Alternative source:
-  # source = "git::git@github.com:terraform-aws-modules/terraform-aws-feature-svc-connect-timeout.git//wrappers/cluster?ref=master"
+  # source = "git::git@github.com:terraform-aws-modules/terraform-aws-ecs.git//wrappers/cluster?ref=master"
 }
 
 inputs = {
@@ -42,7 +42,7 @@ inputs = {
 
 ```hcl
 module "wrapper" {
-  source = "terraform-aws-modules/feature-svc-connect-timeout/aws//wrappers/cluster"
+  source = "terraform-aws-modules/ecs/aws//wrappers/cluster"
 
   defaults = { # Default values
     create = true

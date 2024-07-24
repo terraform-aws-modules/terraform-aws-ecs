@@ -155,3 +155,17 @@ output "security_group_id" {
   description = "ID of the security group"
   value       = try(aws_security_group.this[0].id, null)
 }
+
+############################################################################################
+# ECS infrastructure IAM role
+############################################################################################
+
+output "infrastructure_iam_role_arn" {
+  description = "Infrastructure IAM role ARN"
+  value       = try(aws_iam_role.infrastructure_iam_role[0].arn, null)
+}
+
+output "infrastructure_iam_role_name" {
+  description = "Infrastructure IAM role name"
+  value       = try(aws_iam_role.infrastructure_iam_role[0].name, null)
+}
