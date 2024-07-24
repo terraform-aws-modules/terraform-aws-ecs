@@ -168,6 +168,15 @@ resource "aws_ecs_service" "this" {
             }
           }
 
+          dynamic "timeout" {
+            for_each = try([service.value.timeout], [])
+
+            content {
+              idle_timeout_seconds        = try(timeout.value.idle_timeout_seconds, null)
+              per_request_timeout_seconds = try(timeout.value.per_request_timeout_seconds, null)
+            }
+          }
+
           discovery_name        = try(service.value.discovery_name, null)
           ingress_port_override = try(service.value.ingress_port_override, null)
           port_name             = service.value.port_name
@@ -353,6 +362,15 @@ resource "aws_ecs_service" "ignore_task_definition" {
             content {
               dns_name = try(client_alias.value.dns_name, null)
               port     = client_alias.value.port
+            }
+          }
+
+          dynamic "timeout" {
+            for_each = try([service.value.timeout], [])
+
+            content {
+              idle_timeout_seconds        = try(timeout.value.idle_timeout_seconds, null)
+              per_request_timeout_seconds = try(timeout.value.per_request_timeout_seconds, null)
             }
           }
 

@@ -12,9 +12,9 @@ This wrapper does not implement any extra functionality.
 
 ```hcl
 terraform {
-  source = "tfr:///terraform-aws-modules/ecs/aws//wrappers/service"
+  source = "tfr:///terraform-aws-modules/feature-svc-connect-timeout/aws//wrappers/service"
   # Alternative source:
-  # source = "git::git@github.com:terraform-aws-modules/terraform-aws-ecs.git//wrappers/service?ref=master"
+  # source = "git::git@github.com:terraform-aws-modules/terraform-aws-feature-svc-connect-timeout.git//wrappers/service?ref=master"
 }
 
 inputs = {
@@ -42,7 +42,7 @@ inputs = {
 
 ```hcl
 module "wrapper" {
-  source = "terraform-aws-modules/ecs/aws//wrappers/service"
+  source = "terraform-aws-modules/feature-svc-connect-timeout/aws//wrappers/service"
 
   defaults = { # Default values
     create = true
