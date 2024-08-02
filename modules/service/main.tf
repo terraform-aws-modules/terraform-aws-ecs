@@ -190,7 +190,7 @@ resource "aws_ecs_service" "this" {
                 }
               }
 
-              kms_key = try(tls.value.kms_key, null)
+              kms_key  = try(tls.value.kms_key, null)
               role_arn = try(tls.value.role_arn, null)
             }
           }
@@ -426,7 +426,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
                 for_each = tls.value.issuer_cert_authority
 
                 content {
-                  aws_pca_authority_arn = try(issuer_cert_authority.value.aws_pca_authority_arn, null)
+                  aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
                 }
               }
 
