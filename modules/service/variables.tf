@@ -373,6 +373,12 @@ variable "volume" {
   default     = {}
 }
 
+variable "volume_configuration" {
+  description = "Configuration for a volume specified in the task definition as a volume that is configured at launch time. Currently, the only supported volume type is an Amazon EBS volume"
+  type        = any
+  default     = {}
+}
+
 variable "task_tags" {
   description = "A map of additional tags to add to the task definition/set created"
   type        = map(string)
@@ -656,6 +662,58 @@ variable "security_group_rules" {
 
 variable "security_group_tags" {
   description = "A map of additional tags to add to the security group created"
+  type        = map(string)
+  default     = {}
+}
+
+############################################################################################
+# ECS infrastructure IAM role
+############################################################################################
+
+variable "create_infrastructure_iam_role" {
+  description = "Determines whether the ECS infrastructure IAM role should be created"
+  type        = bool
+  default     = false
+}
+
+variable "infrastructure_iam_role_arn" {
+  description = "Existing IAM role ARN"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_name" {
+  description = "Name to use on IAM role created"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_use_name_prefix" {
+  description = "Determines whether the IAM role name (`iam_role_name`) is used as a prefix"
+  type        = bool
+  default     = true
+}
+
+variable "infrastructure_iam_role_path" {
+  description = "IAM role path"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_description" {
+  description = "Description of the role"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_permissions_boundary" {
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_tags" {
+  description = "A map of additional tags to add to the IAM role created"
   type        = map(string)
   default     = {}
 }
