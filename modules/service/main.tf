@@ -430,7 +430,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
                 }
               }
 
-              kms_key = try(tls.value.kms_key, null)
+              kms_key  = try(tls.value.kms_key, null)
               role_arn = try(tls.value.role_arn, null)
             }
           }
