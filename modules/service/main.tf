@@ -1203,7 +1203,7 @@ resource "aws_ecs_task_set" "ignore_task_definition" {
 locals {
   enable_autoscaling = local.create_service && var.enable_autoscaling && !local.is_daemon
 
-  cluster_name = element(split("/", var.cluster_arn), 1)
+  cluster_name = try(element(split("/", var.cluster_arn), 1), "")
 }
 
 resource "aws_appautoscaling_target" "this" {
