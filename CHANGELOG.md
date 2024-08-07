@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.11.4](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.11.3...v5.11.4) (2024-08-07)
+
+
+### Bug Fixes
+
+* Local `cluster_name` error when `var.cluster_arn` is empty ([#218](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/218)) ([42f11fe](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/42f11fe46b1f2a00125af0ee98813bff25d0bc46))
+
 ## [5.11.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.11.2...v5.11.3) (2024-07-05)
 
 
