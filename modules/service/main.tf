@@ -510,6 +510,7 @@ resource "aws_iam_policy" "service" {
   name_prefix = var.iam_role_use_name_prefix ? "${local.iam_role_name}-" : null
   description = coalesce(var.iam_role_description, "ECS service policy that allows Amazon ECS to make calls to your load balancer on your behalf")
   policy      = data.aws_iam_policy_document.service[0].json
+  path        = var.iam_role_path
 
   tags = merge(var.tags, var.iam_role_tags)
 }
@@ -894,6 +895,7 @@ resource "aws_iam_policy" "task_exec" {
   name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
   description = coalesce(var.task_exec_iam_role_description, "Task execution role IAM policy")
   policy      = data.aws_iam_policy_document.task_exec[0].json
+  path        = var.task_exec_iam_role_path
 
   tags = merge(var.tags, var.task_exec_iam_role_tags)
 }
