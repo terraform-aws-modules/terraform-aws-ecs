@@ -100,7 +100,7 @@ module "service" {
   iam_role_statements           = lookup(each.value, "iam_role_statements", {})
 
   # ECS infrastructure IAM role
-  create_infrastructure_iam_role = try(each.value.create_infrastructure_iam_role, false)
+  create_infrastructure_iam_role = try(each.value.create_infrastructure_iam_role, true)
   infrastructure_iam_role_arn = try(each.value.infrastructure_iam_role_arn, null)
   infrastructure_iam_role_name = try(each.value.infrastructure_iam_role_name, null)
   infrastructure_iam_role_use_name_prefix = try(each.value.infrastructure_iam_role_use_name_prefix, true)
