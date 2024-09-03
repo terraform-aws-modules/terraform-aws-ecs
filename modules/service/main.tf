@@ -1505,7 +1505,7 @@ resource "aws_security_group_rule" "this" {
 ############################################################################################
 
 locals {
-  needs_infrastructure_iam_role  = var.volume_configuration != null
+  needs_infrastructure_iam_role  = length(var.volume_configuration) > 0
   create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.needs_infrastructure_iam_role
   infrastructure_iam_role_name   = try(coalesce(var.infrastructure_iam_role_name, var.name), "")
 }
