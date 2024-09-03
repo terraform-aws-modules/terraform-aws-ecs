@@ -673,7 +673,7 @@ variable "security_group_tags" {
 variable "create_infrastructure_iam_role" {
   description = "Determines whether the ECS infrastructure IAM role should be created"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "infrastructure_iam_role_arn" {
