@@ -95,7 +95,6 @@ module "ecs_service" {
     }
   }
 
-  create_infrastructure_iam_role = true
   volume_configuration = {
     ebs-volume = {
       managed_ebs_volume = {
