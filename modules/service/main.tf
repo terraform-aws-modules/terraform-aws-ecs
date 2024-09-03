@@ -254,7 +254,8 @@ resource "aws_ecs_service" "this" {
 
   depends_on = [
     aws_iam_role_policy_attachment.service,
-    aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy
+    aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
+    aws_iam_role.infrastructure_iam_role,
   ]
 
   lifecycle {
