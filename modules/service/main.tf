@@ -225,7 +225,7 @@ resource "aws_ecs_service" "this" {
         for_each = try([volume_configuration.value.managed_ebs_volume], [])
 
         content {
-          role_arn         = try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn)
+          role_arn         = local.infrastructure_iam_role_arn
           encrypted        = try(managed_ebs_volume.value.encrypted, null)
           file_system_type = try(managed_ebs_volume.value.file_system_type, null)
           iops             = try(managed_ebs_volume.value.iops, null)
@@ -1507,6 +1507,7 @@ resource "aws_security_group_rule" "this" {
 locals {
   needs_infrastructure_iam_role  = length(var.volume_configuration) > 0
   create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.needs_infrastructure_iam_role
+  infrastructure_iam_role_arn    = local.needs_infrastructure_iam_role ? try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn) : null
   infrastructure_iam_role_name   = try(coalesce(var.infrastructure_iam_role_name, var.name), "")
 }
 
