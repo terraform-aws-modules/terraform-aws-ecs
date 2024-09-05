@@ -181,13 +181,8 @@ resource "aws_ecs_service" "this" {
             for_each = try([service.value.tls], [])
 
             content {
-
-              dynamic "issuer_cert_authority" {
-                for_each = tls.value.issuer_cert_authority
-
-                content {
-                  aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
-                }
+              issuer_cert_authority {
+                aws_pca_authority_arn = tls.value.issuer_cert_authority.aws_pca_authority_arn
               }
 
               kms_key  = try(tls.value.kms_key, null)
@@ -422,13 +417,8 @@ resource "aws_ecs_service" "ignore_task_definition" {
             for_each = try([service.value.tls], [])
 
             content {
-
-              dynamic "issuer_cert_authority" {
-                for_each = tls.value.issuer_cert_authority
-
-                content {
-                  aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
-                }
+              issuer_cert_authority {
+                aws_pca_authority_arn = tls.value.issuer_cert_authority.aws_pca_authority_arn
               }
 
               kms_key  = try(tls.value.kms_key, null)
