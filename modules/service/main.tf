@@ -584,6 +584,13 @@ resource "aws_ecs_service" "codedeploy" {
     aws_iam_role_policy_attachment.service
   ]
 
+  # https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/APIReference/API_UpdateService.html 
+  # For services using the blue/green (CODE_DEPLOY) deployment controller, only the desired count,
+  # deployment configuration, health check grace period, task placement constraints and strategies,
+  # enable ECS managed tags option, and propagate tags can be updated using this API. If the network configuration,
+  # platform version, task definition, or load balancer need to be updated, create a new AWS CodeDeploy deployment.
+  # For more information, see CreateDeployment in the AWS CodeDeploy API Reference.
+
   lifecycle {
     ignore_changes = [
       desired_count, # Always ignored
