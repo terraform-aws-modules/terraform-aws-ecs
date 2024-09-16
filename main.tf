@@ -85,6 +85,7 @@ module "service" {
   service_registries                 = lookup(each.value, "service_registries", {})
   timeouts                           = try(each.value.timeouts, {})
   triggers                           = try(each.value.triggers, {})
+  volume_configuration               = try(each.value.volume_configuration, {})
   wait_for_steady_state              = try(each.value.wait_for_steady_state, null)
 
   # Service IAM role
@@ -97,6 +98,16 @@ module "service" {
   iam_role_permissions_boundary = try(each.value.iam_role_permissions_boundary, null)
   iam_role_tags                 = try(each.value.iam_role_tags, {})
   iam_role_statements           = lookup(each.value, "iam_role_statements", {})
+
+  # ECS infrastructure IAM role
+  create_infrastructure_iam_role = try(each.value.create_infrastructure_iam_role, true)
+  infrastructure_iam_role_arn = try(each.value.infrastructure_iam_role_arn, null)
+  infrastructure_iam_role_name = try(each.value.infrastructure_iam_role_name, null)
+  infrastructure_iam_role_use_name_prefix = try(each.value.infrastructure_iam_role_use_name_prefix, true)
+  infrastructure_iam_role_path = try(each.value.infrastructure_iam_role_path, null)
+  infrastructure_iam_role_description = try(each.value.infrastructure_iam_role_description, null)
+  infrastructure_iam_role_permissions_boundary = try(each.value.infrastructure_iam_role_permissions_boundary, null)
+  infrastructure_iam_role_tags = try(each.value.infrastructure_iam_role_tags, {})
 
   # Task definition
   create_task_definition        = try(each.value.create_task_definition, true)

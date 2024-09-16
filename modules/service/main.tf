@@ -155,7 +155,7 @@ resource "aws_ecs_service" "this" {
       namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
-        for_each = try([service_connect_configuration.value.service], [])
+        for_each = try(service_connect_configuration.value.service, [])
 
         content {
 
@@ -165,6 +165,33 @@ resource "aws_ecs_service" "this" {
             content {
               dns_name = try(client_alias.value.dns_name, null)
               port     = client_alias.value.port
+            }
+          }
+
+          dynamic "timeout" {
+            for_each = try([service.value.timeout], [])
+
+            content {
+              idle_timeout_seconds        = try(timeout.value.idle_timeout_seconds, null)
+              per_request_timeout_seconds = try(timeout.value.per_request_timeout_seconds, null)
+            }
+          }
+
+          dynamic "tls" {
+            for_each = try([service.value.tls], [])
+
+            content {
+
+              dynamic "issuer_cert_authority" {
+                for_each = tls.value.issuer_cert_authority
+
+                content {
+                  aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
+                }
+              }
+
+              kms_key  = try(tls.value.kms_key, null)
+              role_arn = try(tls.value.role_arn, null)
             }
           }
 
@@ -188,6 +215,30 @@ resource "aws_ecs_service" "this" {
     }
   }
 
+  dynamic "volume_configuration" {
+    for_each = var.volume_configuration
+
+    content {
+      name = try(volume_configuration.value.name, volume_configuration.key)
+
+      dynamic "managed_ebs_volume" {
+        for_each = try([volume_configuration.value.managed_ebs_volume], [])
+
+        content {
+          role_arn         = local.infrastructure_iam_role_arn
+          encrypted        = try(managed_ebs_volume.value.encrypted, null)
+          file_system_type = try(managed_ebs_volume.value.file_system_type, null)
+          iops             = try(managed_ebs_volume.value.iops, null)
+          kms_key_id       = try(managed_ebs_volume.value.kms_key_id, null)
+          size_in_gb       = try(managed_ebs_volume.value.size_in_gb, null)
+          snapshot_id      = try(managed_ebs_volume.value.snapshot_id, null)
+          throughput       = try(managed_ebs_volume.value.throughput, null)
+          volume_type      = try(managed_ebs_volume.value.volume_type, null)
+        }
+      }
+    }
+  }
+
   task_definition       = local.task_definition
   triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state
@@ -202,7 +253,9 @@ resource "aws_ecs_service" "this" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.service
+    aws_iam_role_policy_attachment.service,
+    aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
+    aws_iam_role.infrastructure_iam_role,
   ]
 
   lifecycle {
@@ -343,7 +396,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
       namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
-        for_each = try([service_connect_configuration.value.service], [])
+        for_each = try(service_connect_configuration.value.service, [])
 
         content {
 
@@ -353,6 +406,33 @@ resource "aws_ecs_service" "ignore_task_definition" {
             content {
               dns_name = try(client_alias.value.dns_name, null)
               port     = client_alias.value.port
+            }
+          }
+
+          dynamic "timeout" {
+            for_each = try([service.value.timeout], [])
+
+            content {
+              idle_timeout_seconds        = try(timeout.value.idle_timeout_seconds, null)
+              per_request_timeout_seconds = try(timeout.value.per_request_timeout_seconds, null)
+            }
+          }
+
+          dynamic "tls" {
+            for_each = try([service.value.tls], [])
+
+            content {
+
+              dynamic "issuer_cert_authority" {
+                for_each = tls.value.issuer_cert_authority
+
+                content {
+                  aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
+                }
+              }
+
+              kms_key  = try(tls.value.kms_key, null)
+              role_arn = try(tls.value.role_arn, null)
             }
           }
 
@@ -376,6 +456,30 @@ resource "aws_ecs_service" "ignore_task_definition" {
     }
   }
 
+  dynamic "volume_configuration" {
+    for_each = var.volume_configuration
+
+    content {
+      name = try(volume_configuration.value.name, volume_configuration.key)
+
+      dynamic "managed_ebs_volume" {
+        for_each = try([volume_configuration.value.managed_ebs_volume], [])
+
+        content {
+          role_arn         = try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn)
+          encrypted        = try(managed_ebs_volume.value.encrypted, null)
+          file_system_type = try(managed_ebs_volume.value.file_system_type, null)
+          iops             = try(managed_ebs_volume.value.iops, null)
+          kms_key_id       = try(managed_ebs_volume.value.kms_key_id, null)
+          size_in_gb       = try(managed_ebs_volume.value.size_in_gb, null)
+          snapshot_id      = try(managed_ebs_volume.value.snapshot_id, null)
+          throughput       = try(managed_ebs_volume.value.throughput, null)
+          volume_type      = try(managed_ebs_volume.value.volume_type, null)
+        }
+      }
+    }
+  }
+
   task_definition       = local.task_definition
   triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state
@@ -390,7 +494,8 @@ resource "aws_ecs_service" "ignore_task_definition" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.service
+    aws_iam_role_policy_attachment.service,
+    aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy
   ]
 
   lifecycle {
@@ -734,8 +839,9 @@ resource "aws_ecs_task_definition" "this" {
         }
       }
 
-      host_path = try(volume.value.host_path, null)
-      name      = try(volume.value.name, volume.key)
+      host_path           = try(volume.value.host_path, null)
+      configure_at_launch = try(volume.value.configure_at_launch, null)
+      name                = try(volume.value.name, volume.key)
     }
   }
 
@@ -1258,6 +1364,37 @@ resource "aws_appautoscaling_policy" "this" {
         for_each = try([target_tracking_scaling_policy_configuration.value.customized_metric_specification], [])
 
         content {
+          dynamic "metrics" {
+            for_each = try(customized_metric_specification.value.metrics, [])
+            content {
+              id          = metrics.value.id
+              label       = try(metrics.value.label, null)
+              return_data = try(metrics.value.return_data, true)
+              expression  = try(metrics.value.expression, null)
+
+
+              dynamic "metric_stat" {
+                for_each = try([metrics.value.metric_stat], [])
+                content {
+                  stat = metric_stat.value.stat
+                  dynamic "metric" {
+                    for_each = try([metric_stat.value.metric], [])
+                    content {
+                      namespace   = metric.value.namespace
+                      metric_name = metric.value.metric_name
+                      dynamic "dimensions" {
+                        for_each = try(metric.value.dimensions, [])
+                        content {
+                          name  = dimensions.value.name
+                          value = dimensions.value.value
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
           dynamic "dimensions" {
             for_each = try(customized_metric_specification.value.dimensions, [])
 
@@ -1267,9 +1404,9 @@ resource "aws_appautoscaling_policy" "this" {
             }
           }
 
-          metric_name = customized_metric_specification.value.metric_name
-          namespace   = customized_metric_specification.value.namespace
-          statistic   = customized_metric_specification.value.statistic
+          metric_name = try(customized_metric_specification.value.metric_name, null)
+          namespace   = try(customized_metric_specification.value.namespace, null)
+          statistic   = try(customized_metric_specification.value.statistic, null)
           unit        = try(customized_metric_specification.value.unit, null)
         }
       }
@@ -1362,4 +1499,53 @@ resource "aws_security_group_rule" "this" {
   prefix_list_ids          = lookup(each.value, "prefix_list_ids", null)
   self                     = lookup(each.value, "self", null)
   source_security_group_id = lookup(each.value, "source_security_group_id", null)
+}
+
+############################################################################################
+# ECS infrastructure IAM role
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html
+############################################################################################
+
+locals {
+  needs_infrastructure_iam_role  = length(var.volume_configuration) > 0
+  create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.needs_infrastructure_iam_role
+  infrastructure_iam_role_arn    = local.needs_infrastructure_iam_role ? try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn) : null
+  infrastructure_iam_role_name   = try(coalesce(var.infrastructure_iam_role_name, var.name), "")
+}
+
+data "aws_iam_policy_document" "infrastructure_iam_role" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  statement {
+    sid     = "ECSServiceAssumeRole"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "infrastructure_iam_role" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  name        = var.infrastructure_iam_role_use_name_prefix ? null : local.infrastructure_iam_role_name
+  name_prefix = var.infrastructure_iam_role_use_name_prefix ? "${local.infrastructure_iam_role_name}-" : null
+  path        = var.infrastructure_iam_role_path
+  description = coalesce(var.infrastructure_iam_role_description, "Amazon ECS infrastructure IAM role that is used to manage your infrastructure")
+
+  assume_role_policy    = data.aws_iam_policy_document.infrastructure_iam_role[0].json
+  permissions_boundary  = var.infrastructure_iam_role_permissions_boundary
+  force_detach_policies = true
+
+  tags = merge(var.tags, var.infrastructure_iam_role_tags)
+}
+
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-volumes.html#ebs-volume-considerations/
+resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_ebs_policy" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  role       = aws_iam_role.infrastructure_iam_role[0].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSInfrastructureRolePolicyForVolumes"
 }

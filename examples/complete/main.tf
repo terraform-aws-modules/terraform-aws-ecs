@@ -113,14 +113,22 @@ module "ecs" {
 
       service_connect_configuration = {
         namespace = aws_service_discovery_http_namespace.this.arn
-        service = {
-          client_alias = {
-            port     = local.container_port
-            dns_name = local.container_name
+        service = [
+          {
+            client_alias = {
+              port     = local.container_port
+              dns_name = local.container_name
+            }
+
+            timeout = {
+              idle_timeout_seconds        = 20
+              per_request_timeout_seconds = 30
+            }
+
+            port_name      = local.container_name
+            discovery_name = local.container_name
           }
-          port_name      = local.container_name
-          discovery_name = local.container_name
-        }
+        ]
       }
 
       load_balancer = {
