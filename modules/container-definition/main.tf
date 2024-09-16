@@ -54,6 +54,7 @@ locals {
     portMappings           = var.port_mappings
     privileged             = local.is_not_windows ? var.privileged : null
     pseudoTerminal         = var.pseudo_terminal
+    restartPolicy          = var.restart_policy
     readonlyRootFilesystem = local.is_not_windows ? var.readonly_root_filesystem : null
     repositoryCredentials  = length(var.repository_credentials) > 0 ? var.repository_credentials : null
     resourceRequirements   = length(var.resource_requirements) > 0 ? var.resource_requirements : null
