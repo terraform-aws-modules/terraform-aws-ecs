@@ -215,6 +215,16 @@ variable "resource_requirements" {
   default = []
 }
 
+variable "restart_policy" {
+  description = "Container restart policy; helps overcome transient failures faster and maintain task availability"
+  type = object({
+    enabled              = optional(bool)
+    ignoredExitCodes     = optional(list(number))
+    restartAttemptPeriod = optional(number)
+  })
+  default = null
+}
+
 variable "secrets" {
   description = "The secrets to pass to the container. For more information, see [Specifying Sensitive Data](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html) in the Amazon Elastic Container Service Developer Guide"
   type = list(object({

@@ -670,6 +670,7 @@ module "container_definition" {
   readonly_root_filesystem = try(each.value.readonly_root_filesystem, var.container_definition_defaults.readonly_root_filesystem, true)
   repository_credentials   = try(each.value.repository_credentials, var.container_definition_defaults.repository_credentials, {})
   resource_requirements    = try(each.value.resource_requirements, var.container_definition_defaults.resource_requirements, [])
+  restart_policy           = try(each.value.restart_policy, var.container_definition_defaults.restart_policy, { enabled = false })
   secrets                  = try(each.value.secrets, var.container_definition_defaults.secrets, [])
   start_timeout            = try(each.value.start_timeout, var.container_definition_defaults.start_timeout, 30)
   stop_timeout             = try(each.value.stop_timeout, var.container_definition_defaults.stop_timeout, 120)
