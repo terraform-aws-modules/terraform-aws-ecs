@@ -35,7 +35,7 @@ module "wrapper" {
   cpu                                          = try(each.value.cpu, var.defaults.cpu, 1024)
   create                                       = try(each.value.create, var.defaults.create, true)
   create_iam_role                              = try(each.value.create_iam_role, var.defaults.create_iam_role, true)
-  create_infrastructure_iam_role               = try(each.value.create_infrastructure_iam_role, var.defaults.create_infrastructure_iam_role, false)
+  create_infrastructure_iam_role               = try(each.value.create_infrastructure_iam_role, var.defaults.create_infrastructure_iam_role, true)
   create_security_group                        = try(each.value.create_security_group, var.defaults.create_security_group, true)
   create_service                               = try(each.value.create_service, var.defaults.create_service, true)
   create_task_definition                       = try(each.value.create_task_definition, var.defaults.create_task_definition, true)

@@ -116,13 +116,13 @@ module "example_ecs_container_definition" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.59 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.63 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.59 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.63 |
 
 ## Modules
 
@@ -178,6 +178,7 @@ No modules.
 | <a name="input_readonly_root_filesystem"></a> [readonly\_root\_filesystem](#input\_readonly\_root\_filesystem) | When this parameter is true, the container is given read-only access to its root file system | `bool` | `true` | no |
 | <a name="input_repository_credentials"></a> [repository\_credentials](#input\_repository\_credentials) | Container repository credentials; required when using a private repo.  This map currently supports a single key; "credentialsParameter", which should be the ARN of a Secrets Manager's secret holding the credentials | `map(string)` | `{}` | no |
 | <a name="input_resource_requirements"></a> [resource\_requirements](#input\_resource\_requirements) | The type and amount of a resource to assign to a container. The only supported resource is a GPU | <pre>list(object({<br/>    type  = string<br/>    value = string<br/>  }))</pre> | `[]` | no |
+| <a name="input_restart_policy"></a> [restart\_policy](#input\_restart\_policy) | Container restart policy; helps overcome transient failures faster and maintain task availability | <pre>object({<br/>    enabled              = optional(bool)<br/>    ignoredExitCodes     = optional(list(number))<br/>    restartAttemptPeriod = optional(number)<br/>  })</pre> | `null` | no |
 | <a name="input_secrets"></a> [secrets](#input\_secrets) | The secrets to pass to the container. For more information, see [Specifying Sensitive Data](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html) in the Amazon Elastic Container Service Developer Guide | <pre>list(object({<br/>    name      = string<br/>    valueFrom = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_service"></a> [service](#input\_service) | The name of the service that the container definition is associated with | `string` | `""` | no |
 | <a name="input_start_timeout"></a> [start\_timeout](#input\_start\_timeout) | Time duration (in seconds) to wait before giving up on resolving dependencies for a container | `number` | `30` | no |
