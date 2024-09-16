@@ -218,17 +218,11 @@ variable "resource_requirements" {
 variable "restart_policy" {
   description = "Container restart policy; helps overcome transient failures faster and maintain task availability"
   type = object({
-    enabled              = bool
+    enabled              = optional(bool)
     ignoredExitCodes     = optional(list(number))
     restartAttemptPeriod = optional(number)
   })
-  default = {
-    enabled = false
-  }
-  validation {
-    condition     = var.restart_policy.restartAttemptPeriod == null ? true : (var.restart_policy.restartAttemptPeriod >= 60 && var.restart_policy.restartAttemptPeriod <= 1800)
-    error_message = "The restart attempt period must be between 60 and 1800 seconds."
-  }
+  default = null
 }
 
 variable "secrets" {
