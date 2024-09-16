@@ -102,6 +102,12 @@ module "ecs" {
             }
           }
           memory_reservation = 100
+
+          restart_policy = {
+            enabled              = true
+            ignoredExitCodes     = [1]
+            restartAttemptPeriod = 60
+          }
         }
       }
 

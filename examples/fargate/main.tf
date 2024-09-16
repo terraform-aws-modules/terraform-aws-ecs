@@ -121,6 +121,12 @@ module "ecs_service" {
         }
       }
 
+      restart_policy = {
+        enabled              = true
+        ignoredExitCodes     = [1]
+        restartAttemptPeriod = 60
+      }
+
       # Not required for fluent-bit, just an example
       volumes_from = [{
         sourceContainer = "fluent-bit"
