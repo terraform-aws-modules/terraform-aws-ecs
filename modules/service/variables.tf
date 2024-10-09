@@ -468,6 +468,12 @@ variable "task_exec_iam_statements" {
   default     = {}
 }
 
+variable "task_exec_iam_policy_path" {
+  description = "Path for the iam role"
+  type        = string
+  default     = null
+}
+
 ################################################################################
 # Tasks - IAM role
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html
