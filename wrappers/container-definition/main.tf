@@ -42,6 +42,7 @@ module "wrapper" {
   readonly_root_filesystem               = try(each.value.readonly_root_filesystem, var.defaults.readonly_root_filesystem, true)
   repository_credentials                 = try(each.value.repository_credentials, var.defaults.repository_credentials, {})
   resource_requirements                  = try(each.value.resource_requirements, var.defaults.resource_requirements, [])
+  restart_policy                         = try(each.value.restart_policy, var.defaults.restart_policy, null)
   secrets                                = try(each.value.secrets, var.defaults.secrets, [])
   service                                = try(each.value.service, var.defaults.service, "")
   start_timeout                          = try(each.value.start_timeout, var.defaults.start_timeout, 30)
