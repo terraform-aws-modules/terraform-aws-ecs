@@ -4,7 +4,7 @@ Configuration in this directory creates an Amazon ECS container definition.
 
 The module defaults to creating and utilizing a CloudWatch log group. You can disable this behavior by setting `enable_cloudwatch_logging` = `false` - useful for scenarios where Firelens is used for log forwarding.
 
-For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/design.md)
+For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/README.md)
 
 ## Usage
 
