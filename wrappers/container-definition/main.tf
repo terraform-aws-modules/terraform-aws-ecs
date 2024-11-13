@@ -4,6 +4,7 @@ module "wrapper" {
   for_each = var.items
 
   cloudwatch_log_group_kms_key_id        = try(each.value.cloudwatch_log_group_kms_key_id, var.defaults.cloudwatch_log_group_kms_key_id, null)
+  cloudwatch_log_group_log_group_class   = try(each.value.cloudwatch_log_group_log_group_class, var.defaults.cloudwatch_log_group_log_group_class, "STANDARD")
   cloudwatch_log_group_name              = try(each.value.cloudwatch_log_group_name, var.defaults.cloudwatch_log_group_name, null)
   cloudwatch_log_group_retention_in_days = try(each.value.cloudwatch_log_group_retention_in_days, var.defaults.cloudwatch_log_group_retention_in_days, 30)
   cloudwatch_log_group_use_name_prefix   = try(each.value.cloudwatch_log_group_use_name_prefix, var.defaults.cloudwatch_log_group_use_name_prefix, false)
