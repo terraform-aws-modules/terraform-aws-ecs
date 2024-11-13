@@ -65,6 +65,12 @@ variable "cloudwatch_log_group_name" {
   default     = null
 }
 
+variable "cloudwatch_log_group_log_group_class" {
+  description = "Specified the log class of the log group. Possible values are: STANDARD or INFREQUENT_ACCESS. Default is STANDARD"
+  type        = string
+  default     = "STANDARD"
+}
+
 variable "cloudwatch_log_group_retention_in_days" {
   description = "Number of days to retain log events"
   type        = number
