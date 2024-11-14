@@ -101,7 +101,8 @@ module "ecs_service" {
         condition     = "START"
       }]
 
-      enable_cloudwatch_logging = false
+      enable_cloudwatch_logging = true
+      cloudwatch_log_group_log_group_class = "INFREQUENT_ACCESS"
       log_configuration = {
         logDriver = "awsfirelens"
         options = {
