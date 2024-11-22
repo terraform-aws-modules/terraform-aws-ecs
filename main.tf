@@ -200,7 +200,8 @@ module "service" {
   security_group_name            = try(each.value.security_group_name, null)
   security_group_use_name_prefix = try(each.value.security_group_use_name_prefix, true)
   security_group_description     = try(each.value.security_group_description, null)
-  security_group_rules           = lookup(each.value, "security_group_rules", {})
+  security_group_ingress_rules   = lookup(each.value, "security_group_ingress_rules", {})
+  security_group_egress_rules    = lookup(each.value, "security_group_egress_rules", {})
   security_group_tags            = try(each.value.security_group_tags, {})
 
   tags = merge(var.tags, try(each.value.tags, {}))
