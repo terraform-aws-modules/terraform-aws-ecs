@@ -115,14 +115,14 @@ module "example_ecs_container_definition" {
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.63 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.10 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.77 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.63 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.77 |
 
 ## Modules
 
