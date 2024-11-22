@@ -160,21 +160,19 @@ module "ecs_service" {
   }
 
   subnet_ids = module.vpc.private_subnets
-  security_group_rules = {
+  security_group_ingress_rules = {
     alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = local.container_port
-      to_port                  = local.container_port
-      protocol                 = "tcp"
       description              = "Service port"
+      from_port                = local.container_port
+      ip_protocol              = "tcp"
       source_security_group_id = module.alb.security_group_id
     }
+  }
+  security_group_egress_rules = {
     egress_all = {
-      type        = "egress"
-      from_port   = 0
       to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 
@@ -225,13 +223,11 @@ module "ecs_task_definition" {
 
   subnet_ids = module.vpc.private_subnets
 
-  security_group_rules = {
+  security_group_egress_rules = {
     egress_all = {
-      type        = "egress"
-      from_port   = 0
       to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 
