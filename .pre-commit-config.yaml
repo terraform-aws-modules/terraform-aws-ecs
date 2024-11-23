@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.96.1
+    rev: v1.96.2
     hooks:
       - id: terraform_fmt
       - id: terraform_wrapper_module_for_each
@@ -17,7 +17,7 @@ repos:
           - '--args=--only=terraform_documented_variables'
           - '--args=--only=terraform_typed_variables'
           - '--args=--only=terraform_module_pinned_source'
-          - '--args=--only=terraform_naming_convention'
+          # - '--args=--only=terraform_naming_convention' # Disabled due to container definition variables requiring camelCase
           - '--args=--only=terraform_required_version'
           - '--args=--only=terraform_required_providers'
           - '--args=--only=terraform_standard_module_structure'
