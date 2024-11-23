@@ -687,47 +687,47 @@ module "container_definition" {
   operating_system_family = try(var.runtime_platform.operating_system_family, "LINUX")
 
   # Container Definition
-  command                  = try(each.value.command, var.container_definition_defaults.command, [])
-  cpu                      = try(each.value.cpu, var.container_definition_defaults.cpu, null)
-  dependencies             = try(each.value.dependencies, var.container_definition_defaults.dependencies, []) # depends_on is a reserved word
-  disable_networking       = try(each.value.disable_networking, var.container_definition_defaults.disable_networking, null)
-  dns_search_domains       = try(each.value.dns_search_domains, var.container_definition_defaults.dns_search_domains, [])
-  dns_servers              = try(each.value.dns_servers, var.container_definition_defaults.dns_servers, [])
-  docker_labels            = try(each.value.docker_labels, var.container_definition_defaults.docker_labels, {})
-  docker_security_options  = try(each.value.docker_security_options, var.container_definition_defaults.docker_security_options, [])
-  enable_execute_command   = try(each.value.enable_execute_command, var.container_definition_defaults.enable_execute_command, var.enable_execute_command)
-  entrypoint               = try(each.value.entrypoint, var.container_definition_defaults.entrypoint, [])
-  environment              = try(each.value.environment, var.container_definition_defaults.environment, [])
-  environment_files        = try(each.value.environment_files, var.container_definition_defaults.environment_files, [])
-  essential                = try(each.value.essential, var.container_definition_defaults.essential, null)
-  extra_hosts              = try(each.value.extra_hosts, var.container_definition_defaults.extra_hosts, [])
-  firelens_configuration   = try(each.value.firelens_configuration, var.container_definition_defaults.firelens_configuration, {})
-  health_check             = try(each.value.health_check, var.container_definition_defaults.health_check, {})
-  hostname                 = try(each.value.hostname, var.container_definition_defaults.hostname, null)
-  image                    = try(each.value.image, var.container_definition_defaults.image, null)
-  interactive              = try(each.value.interactive, var.container_definition_defaults.interactive, false)
-  links                    = try(each.value.links, var.container_definition_defaults.links, [])
-  linux_parameters         = try(each.value.linux_parameters, var.container_definition_defaults.linux_parameters, {})
-  log_configuration        = try(each.value.log_configuration, var.container_definition_defaults.log_configuration, {})
-  memory                   = try(each.value.memory, var.container_definition_defaults.memory, null)
-  memory_reservation       = try(each.value.memory_reservation, var.container_definition_defaults.memory_reservation, null)
-  mount_points             = try(each.value.mount_points, var.container_definition_defaults.mount_points, [])
-  name                     = try(each.value.name, each.key)
-  port_mappings            = try(each.value.port_mappings, var.container_definition_defaults.port_mappings, [])
-  privileged               = try(each.value.privileged, var.container_definition_defaults.privileged, false)
-  pseudo_terminal          = try(each.value.pseudo_terminal, var.container_definition_defaults.pseudo_terminal, false)
-  readonly_root_filesystem = try(each.value.readonly_root_filesystem, var.container_definition_defaults.readonly_root_filesystem, true)
-  repository_credentials   = try(each.value.repository_credentials, var.container_definition_defaults.repository_credentials, {})
-  resource_requirements    = try(each.value.resource_requirements, var.container_definition_defaults.resource_requirements, [])
-  restart_policy           = try(each.value.restart_policy, var.container_definition_defaults.restart_policy, { enabled = false })
-  secrets                  = try(each.value.secrets, var.container_definition_defaults.secrets, [])
-  start_timeout            = try(each.value.start_timeout, var.container_definition_defaults.start_timeout, 30)
-  stop_timeout             = try(each.value.stop_timeout, var.container_definition_defaults.stop_timeout, 120)
-  system_controls          = try(each.value.system_controls, var.container_definition_defaults.system_controls, [])
-  ulimits                  = try(each.value.ulimits, var.container_definition_defaults.ulimits, [])
-  user                     = try(each.value.user, var.container_definition_defaults.user, 0)
-  volumes_from             = try(each.value.volumes_from, var.container_definition_defaults.volumes_from, [])
-  working_directory        = try(each.value.working_directory, var.container_definition_defaults.working_directory, null)
+  command                = try(each.value.command, var.container_definition_defaults.command, null)
+  cpu                    = try(each.value.cpu, var.container_definition_defaults.cpu, null)
+  dependsOn              = try(each.value.dependsOn, var.container_definition_defaults.dependsOn, null)
+  disableNetworking      = try(each.value.disableNetworking, var.container_definition_defaults.disableNetworking, null)
+  dnsSearchDomains       = try(each.value.dnsSearchDomains, var.container_definition_defaults.dnsSearchDomains, null)
+  dnsServers             = try(each.value.dnsServers, var.container_definition_defaults.dnsServers, null)
+  dockerLabels           = try(each.value.dockerLabels, var.container_definition_defaults.dockerLabels, null)
+  dockerSecurityOptions  = try(each.value.dockerSecurityOptions, var.container_definition_defaults.dockerSecurityOptions, null)
+  enable_execute_command = try(each.value.enable_execute_command, var.container_definition_defaults.enable_execute_command, var.enable_execute_command)
+  entrypoint             = try(each.value.entrypoint, var.container_definition_defaults.entrypoint, null)
+  environment            = try(each.value.environment, var.container_definition_defaults.environment, null)
+  environmentFiles       = try(each.value.environmentFiles, var.container_definition_defaults.environmentFiles, null)
+  essential              = try(each.value.essential, var.container_definition_defaults.essential, null)
+  extraHosts             = try(each.value.extraHosts, var.container_definition_defaults.extraHosts, null)
+  firelensConfiguration  = try(each.value.firelensConfiguration, var.container_definition_defaults.firelensConfiguration, null)
+  healthCheck            = try(each.value.healthCheck, var.container_definition_defaults.healthCheck, null)
+  hostname               = try(each.value.hostname, var.container_definition_defaults.hostname, null)
+  image                  = try(each.value.image, var.container_definition_defaults.image, null)
+  interactive            = try(each.value.interactive, var.container_definition_defaults.interactive, false)
+  links                  = try(each.value.links, var.container_definition_defaults.links, null)
+  linuxParameters        = try(each.value.linuxParameters, var.container_definition_defaults.linuxParameters, { initProcessEnabled = false })
+  logConfiguration       = try(each.value.logConfiguration, var.container_definition_defaults.logConfiguration, {})
+  memory                 = try(each.value.memory, var.container_definition_defaults.memory, null)
+  memoryReservation      = try(each.value.memory_reservation, var.container_definition_defaults.memoryReservation, null)
+  mountPoints            = try(each.value.mount_points, var.container_definition_defaults.mountPoints, null)
+  name                   = try(each.value.name, each.key)
+  portMappings           = try(each.value.port_mappings, var.container_definition_defaults.portMappings, null)
+  privileged             = try(each.value.privileged, var.container_definition_defaults.privileged, false)
+  pseudoTerminal         = try(each.value.pseudoTerminal, var.container_definition_defaults.pseudoTerminal, false)
+  readonlyRootFilesystem = try(each.value.readonlyRootFilesystem, var.container_definition_defaults.readonlyRootFilesystem, true)
+  repositoryCredentials  = try(each.value.repositoryCredentials, var.container_definition_defaults.repositoryCredentials, null)
+  resourceRequirements   = try(each.value.resourceRequirements, var.container_definition_defaults.resourceRequirements, null)
+  restartPolicy          = try(each.value.restartPolicy, var.container_definition_defaults.restartPolicy, { enabled = true })
+  secrets                = try(each.value.secrets, var.container_definition_defaults.secrets, null)
+  startTimeout           = try(each.value.startTimeout, var.container_definition_defaults.startTimeout, 30)
+  stopTimeout            = try(each.value.stopTimeout, var.container_definition_defaults.stopTimeout, 120)
+  systemControls         = try(each.value.systemControls, var.container_definition_defaults.systemControls, null)
+  ulimits                = try(each.value.ulimits, var.container_definition_defaults.ulimits, null)
+  user                   = try(each.value.user, var.container_definition_defaults.user, null)
+  volumesFrom            = try(each.value.volumesFrom, var.container_definition_defaults.volumesFrom, null)
+  workingDirectory       = try(each.value.workingDirectory, var.container_definition_defaults.workingDirectory, null)
 
   # CloudWatch Log Group
   service                                = var.name
@@ -735,6 +735,7 @@ module "container_definition" {
   create_cloudwatch_log_group            = try(each.value.create_cloudwatch_log_group, var.container_definition_defaults.create_cloudwatch_log_group, true)
   cloudwatch_log_group_name              = try(each.value.cloudwatch_log_group_name, var.container_definition_defaults.cloudwatch_log_group_name, null)
   cloudwatch_log_group_use_name_prefix   = try(each.value.cloudwatch_log_group_use_name_prefix, var.container_definition_defaults.cloudwatch_log_group_use_name_prefix, false)
+  cloudwatch_log_group_class             = try(each.value.cloudwatch_log_group_class, var.container_definition_defaults.cloudwatch_log_group_class, null)
   cloudwatch_log_group_retention_in_days = try(each.value.cloudwatch_log_group_retention_in_days, var.container_definition_defaults.cloudwatch_log_group_retention_in_days, 14)
   cloudwatch_log_group_kms_key_id        = try(each.value.cloudwatch_log_group_kms_key_id, var.container_definition_defaults.cloudwatch_log_group_kms_key_id, null)
 
@@ -872,7 +873,7 @@ resource "aws_ecs_task_definition" "this" {
 
       host_path           = volume.value.host_path
       configure_at_launch = volume.value.configure_at_launch
-      name                = try(volume.value.name, volume.key)
+      name                = coalesce(volume.value.name, volume.key)
     }
   }
 
@@ -1163,7 +1164,7 @@ data "aws_iam_policy_document" "tasks" {
 }
 
 resource "aws_iam_role_policy" "tasks" {
-  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
+  count = local.create_tasks_iam_role && (var.tasks_iam_role_statements != null || var.enable_execute_command) ? 1 : 0
 
   name        = var.tasks_iam_role_use_name_prefix ? null : local.tasks_iam_role_name
   name_prefix = var.tasks_iam_role_use_name_prefix ? "${local.tasks_iam_role_name}-" : null
@@ -1530,7 +1531,7 @@ resource "aws_vpc_security_group_ingress_rule" "this" {
     var.security_group_tags,
     each.value.tags
   )
-  to_port = try(each.value.to_port, each.value.from_port)
+  to_port = try(coalesce(each.value.to_port, each.value.from_port), null)
 }
 
 resource "aws_vpc_security_group_egress_rule" "this" {
@@ -1539,7 +1540,7 @@ resource "aws_vpc_security_group_egress_rule" "this" {
   cidr_ipv4                    = each.value.cidr_ipv4
   cidr_ipv6                    = each.value.cidr_ipv6
   description                  = each.value.description
-  from_port                    = try(each.value.from_port, each.value.to_port)
+  from_port                    = try(coalesce(each.value.from_port, each.value.to_port), null)
   ip_protocol                  = each.value.ip_protocol
   prefix_list_id               = each.value.prefix_list_id
   referenced_security_group_id = each.value.referenced_security_group_id

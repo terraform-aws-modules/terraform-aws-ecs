@@ -5,7 +5,7 @@ locals {
 
   log_group_name = try(coalesce(var.cloudwatch_log_group_name, "/aws/ecs/${var.service}/${var.name}"), "")
 
-  log_configuration = merge(
+  logConfiguration = merge(
     { for k, v in {
       logDriver = "awslogs",
       options = {
@@ -14,58 +14,52 @@ locals {
         awslogs-stream-prefix = "ecs"
       },
     } : k => v if var.enable_cloudwatch_logging },
-    var.log_configuration
+    var.logConfiguration
   )
 
-  linux_parameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, var.linux_parameters) : merge({ "initProcessEnabled" : false }, var.linux_parameters)
-
-  health_check = length(var.health_check) > 0 ? merge({
-    interval = 30,
-    retries  = 3,
-    timeout  = 5
-  }, var.health_check) : null
+  linuxParameters = var.enable_execute_command ? merge(var.linuxParameters, { "initProcessEnabled" : true }) : var.linuxParameters
 
   definition = {
-    command                = length(var.command) > 0 ? var.command : null
+    command                = var.command
     cpu                    = var.cpu
-    dependsOn              = length(var.dependencies) > 0 ? var.dependencies : null # depends_on is a reserved word
-    disableNetworking      = local.is_not_windows ? var.disable_networking : null
-    dnsSearchDomains       = local.is_not_windows && length(var.dns_search_domains) > 0 ? var.dns_search_domains : null
-    dnsServers             = local.is_not_windows && length(var.dns_servers) > 0 ? var.dns_servers : null
-    dockerLabels           = length(var.docker_labels) > 0 ? var.docker_labels : null
-    dockerSecurityOptions  = length(var.docker_security_options) > 0 ? var.docker_security_options : null
-    entrypoint             = length(var.entrypoint) > 0 ? var.entrypoint : null
+    dependsOn              = var.dependsOn
+    disableNetworking      = local.is_not_windows ? var.disableNetworking : null
+    dnsSearchDomains       = local.is_not_windows ? var.dnsSearchDomains : null
+    dnsServers             = local.is_not_windows ? var.dnsServers : null
+    dockerLabels           = var.dockerLabels
+    dockerSecurityOptions  = var.dockerSecurityOptions
+    entrypoint             = var.entrypoint
     environment            = var.environment
-    environmentFiles       = length(var.environment_files) > 0 ? var.environment_files : null
+    environmentFiles       = var.environmentFiles
     essential              = var.essential
-    extraHosts             = local.is_not_windows && length(var.extra_hosts) > 0 ? var.extra_hosts : null
-    firelensConfiguration  = length(var.firelens_configuration) > 0 ? var.firelens_configuration : null
-    healthCheck            = local.health_check
+    extraHosts             = local.is_not_windows ? var.extraHosts : null
+    firelensConfiguration  = var.firelensConfiguration
+    healthCheck            = var.healthCheck
     hostname               = var.hostname
     image                  = var.image
     interactive            = var.interactive
-    links                  = local.is_not_windows && length(var.links) > 0 ? var.links : null
-    linuxParameters        = local.is_not_windows && length(local.linux_parameters) > 0 ? local.linux_parameters : null
-    logConfiguration       = length(local.log_configuration) > 0 ? local.log_configuration : null
+    links                  = local.is_not_windows ? var.links : null
+    linuxParameters        = local.is_not_windows ? local.linuxParameters : null
+    logConfiguration       = length(local.logConfiguration) > 0 ? local.logConfiguration : null
     memory                 = var.memory
-    memoryReservation      = var.memory_reservation
-    mountPoints            = var.mount_points
+    memoryReservation      = var.memoryReservation
+    mountPoints            = var.mountPoints
     name                   = var.name
-    portMappings           = var.port_mappings
+    portMappings           = var.portMappings
     privileged             = local.is_not_windows ? var.privileged : null
-    pseudoTerminal         = var.pseudo_terminal
-    restartPolicy          = var.restart_policy
-    readonlyRootFilesystem = local.is_not_windows ? var.readonly_root_filesystem : null
-    repositoryCredentials  = length(var.repository_credentials) > 0 ? var.repository_credentials : null
-    resourceRequirements   = length(var.resource_requirements) > 0 ? var.resource_requirements : null
-    secrets                = length(var.secrets) > 0 ? var.secrets : null
-    startTimeout           = var.start_timeout
-    stopTimeout            = var.stop_timeout
-    systemControls         = length(var.system_controls) > 0 ? var.system_controls : []
-    ulimits                = local.is_not_windows && length(var.ulimits) > 0 ? var.ulimits : null
+    pseudoTerminal         = var.pseudoTerminal
+    restartPolicy          = var.restartPolicy
+    readonlyRootFilesystem = local.is_not_windows ? var.readonlyRootFilesystem : null
+    repositoryCredentials  = var.repositoryCredentials
+    resourceRequirements   = var.resourceRequirements
+    secrets                = var.secrets
+    startTimeout           = var.startTimeout
+    stopTimeout            = var.stopTimeout
+    systemControls         = var.systemControls
+    ulimits                = local.is_not_windows ? var.ulimits : null
     user                   = local.is_not_windows ? var.user : null
-    volumesFrom            = var.volumes_from
-    workingDirectory       = var.working_directory
+    volumesFrom            = var.volumesFrom
+    workingDirectory       = var.workingDirectory
   }
 
   # Strip out all null values, ECS API will provide defaults in place of null/empty values
@@ -77,6 +71,7 @@ resource "aws_cloudwatch_log_group" "this" {
 
   name              = var.cloudwatch_log_group_use_name_prefix ? null : local.log_group_name
   name_prefix       = var.cloudwatch_log_group_use_name_prefix ? "${local.log_group_name}-" : null
+  log_group_class   = var.cloudwatch_log_group_class
   retention_in_days = var.cloudwatch_log_group_retention_in_days
   kms_key_id        = var.cloudwatch_log_group_kms_key_id
 
