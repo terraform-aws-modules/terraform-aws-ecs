@@ -894,8 +894,8 @@ resource "aws_iam_policy" "task_exec" {
   name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
   description = coalesce(var.task_exec_iam_role_description, "Task execution role IAM policy")
   policy      = data.aws_iam_policy_document.task_exec[0].json
-
-  tags = merge(var.tags, var.task_exec_iam_role_tags)
+  path        = var.task_exec_iam_policy_path
+  tags        = merge(var.tags, var.task_exec_iam_role_tags)
 }
 
 resource "aws_iam_role_policy_attachment" "task_exec" {
