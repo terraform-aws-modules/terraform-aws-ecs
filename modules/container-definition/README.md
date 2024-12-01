@@ -196,6 +196,7 @@ No modules.
 | <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | ARN of CloudWatch log group created |
 | <a name="output_cloudwatch_log_group_name"></a> [cloudwatch\_log\_group\_name](#output\_cloudwatch\_log\_group\_name) | Name of CloudWatch log group created |
 | <a name="output_container_definition"></a> [container\_definition](#output\_container\_definition) | Container definition |
+| <a name="output_secrets_arns"></a> [secrets\_arns](#output\_secrets\_arns) | The secrets ARNs for all containers defined |
 <!-- END_TF_DOCS -->
 
 ## License

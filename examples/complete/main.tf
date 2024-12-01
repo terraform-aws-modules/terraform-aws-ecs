@@ -27,7 +27,7 @@ module "secrets_manager" {
     FOO = "secret2"
   }
 
-  source = "terraform-aws-modules/secrets-manager/aws"
+  source  = "terraform-aws-modules/secrets-manager/aws"
   version = "~> 1.3"
 
   name_prefix   = each.key

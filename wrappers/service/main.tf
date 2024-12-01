@@ -50,6 +50,7 @@ module "wrapper" {
   enable_ecs_managed_tags            = try(each.value.enable_ecs_managed_tags, var.defaults.enable_ecs_managed_tags, true)
   enable_execute_command             = try(each.value.enable_execute_command, var.defaults.enable_execute_command, false)
   ephemeral_storage                  = try(each.value.ephemeral_storage, var.defaults.ephemeral_storage, {})
+  explicit_task_exec_secret_arns     = try(each.value.explicit_task_exec_secret_arns, var.defaults.explicit_task_exec_secret_arns, false)
   external_id                        = try(each.value.external_id, var.defaults.external_id, null)
   family                             = try(each.value.family, var.defaults.family, null)
   force_delete                       = try(each.value.force_delete, var.defaults.force_delete, null)
