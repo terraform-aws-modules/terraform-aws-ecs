@@ -21,6 +21,19 @@ locals {
   }
 }
 
+module "secrets_manager" {
+  for_each = {
+    BAR = "secret1"
+    FOO = "secret2"
+  }
+
+  source = "terraform-aws-modules/secrets-manager/aws"
+  version = "~> 1.3"
+
+  name_prefix   = each.key
+  secret_string = each.value
+}
+
 ################################################################################
 # Cluster
 ################################################################################
@@ -50,7 +63,7 @@ module "ecs" {
       cpu    = 1024
       memory = 4096
 
-      explicit_task_exec_secret_arns = true
+      explicit_task_exec_secret_arns = false
 
       # Container definition(s)
       container_definitions = {
@@ -71,6 +84,17 @@ module "ecs" {
           memory    = 1024
           essential = true
           image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+
+          secrets = [
+            {
+              name      = "FOO"
+              valueFrom = module.secrets_manager["FOO"].secret_arn
+            },
+            {
+              name      = "BAR"
+              valueFrom = module.secrets_manager["BAR"].secret_arn
+            }
+          ]
 
           health_check = {
             command = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/health || exit 1"]

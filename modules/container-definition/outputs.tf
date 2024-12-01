@@ -7,6 +7,11 @@ output "container_definition" {
   value       = local.container_definition
 }
 
+output "secrets_arns" {
+  description = "The secrets ARNs for all containers defined"
+  value = [for v in try(local.container_definition.secrets, []): v.valueFrom]
+}
+
 ################################################################################
 # CloudWatch Log Group
 ################################################################################

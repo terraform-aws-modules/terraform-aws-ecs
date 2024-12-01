@@ -27,8 +27,8 @@ locals {
 
   create_service = var.create && var.create_service
 
-  container_definitions_secrets = flatten([for k, v in module.container_definition : v.container_definition.secrets])
-  task_exec_secret_arns         = var.explicit_task_exec_secret_arns ? [for v in local.container_definitions_secrets : v.valueFrom] : var.task_exec_secret_arns
+  secrets_arns          = flatten([for k, v in module.container_definition : v.secrets_arns])
+  task_exec_secret_arns = var.explicit_task_exec_secret_arns ? local.secrets_arns : var.task_exec_secret_arns
 }
 
 resource "aws_ecs_service" "this" {
