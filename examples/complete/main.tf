@@ -50,6 +50,8 @@ module "ecs" {
       cpu    = 1024
       memory = 4096
 
+      explicit_task_exec_secret_arns = true
+
       # Container definition(s)
       container_definitions = {
 

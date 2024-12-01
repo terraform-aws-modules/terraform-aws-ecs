@@ -134,10 +134,11 @@ module "service" {
   task_exec_iam_role_max_session_duration = try(each.value.task_exec_iam_role_max_session_duration, null)
 
   # Task execution IAM role policy
-  create_task_exec_policy  = try(each.value.create_task_exec_policy, true)
-  task_exec_ssm_param_arns = lookup(each.value, "task_exec_ssm_param_arns", ["arn:aws:ssm:*:*:parameter/*"])
-  task_exec_secret_arns    = lookup(each.value, "task_exec_secret_arns", ["arn:aws:secretsmanager:*:*:secret:*"])
-  task_exec_iam_statements = lookup(each.value, "task_exec_iam_statements", {})
+  create_task_exec_policy        = try(each.value.create_task_exec_policy, true)
+  task_exec_ssm_param_arns       = lookup(each.value, "task_exec_ssm_param_arns", ["arn:aws:ssm:*:*:parameter/*"])
+  task_exec_secret_arns          = lookup(each.value, "task_exec_secret_arns", ["arn:aws:secretsmanager:*:*:secret:*"])
+  explicit_task_exec_secret_arns = lookup(each.value, "explicit_task_exec_secret_arns", false)
+  task_exec_iam_statements       = lookup(each.value, "task_exec_iam_statements", {})
 
   # Tasks - IAM role
   create_tasks_iam_role               = try(each.value.create_tasks_iam_role, true)

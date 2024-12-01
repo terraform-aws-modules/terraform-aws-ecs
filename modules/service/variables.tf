@@ -462,6 +462,12 @@ variable "task_exec_secret_arns" {
   default     = ["arn:aws:secretsmanager:*:*:secret:*"]
 }
 
+variable "explicit_task_exec_secret_arns" {
+  description = "Change the task_exec_secret_arns behavior to get the list of ARNs from the secrets defined in containers_definitions"
+  type        = bool
+  default     = false
+}
+
 variable "task_exec_iam_statements" {
   description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
   type        = any
