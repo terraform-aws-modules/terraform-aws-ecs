@@ -191,6 +191,11 @@ module "ecs_task_definition" {
   # Task Definition
   volume = {
     ex-vol = {}
+    ex-vol2 = {
+      host_path = "/tmp"
+      # Only one volume can be configured at launch
+      configure_at_launch = true
+    }
   }
 
   runtime_platform = {
