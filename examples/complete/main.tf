@@ -21,17 +21,16 @@ locals {
   }
 }
 
-module "secrets_manager" {
-  for_each = {
-    BAR = "secret1"
-    FOO = "secret2"
-  }
+module "postgres" {
+  source = "../../modules/container-definition"
 
-  source  = "terraform-aws-modules/secrets-manager/aws"
-  version = "~> 1.3"
+  name  = "postgres"
+  image = "postgres:latest"
 
-  name_prefix   = each.key
-  secret_string = each.value
+  secrets = [{
+    name      = "POSTGRES_PASSWORD"
+    valueFrom = "arn:POSTGRES_PASSWORD"
+  }]
 }
 
 ################################################################################
@@ -63,7 +62,7 @@ module "ecs" {
       cpu    = 1024
       memory = 4096
 
-      explicit_task_exec_secret_arns = false
+      explicit_task_exec_secret_arns = true
 
       # Container definition(s)
       container_definitions = {
@@ -85,16 +84,10 @@ module "ecs" {
           essential = true
           image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
 
-          secrets = [
-            {
-              name      = "FOO"
-              valueFrom = module.secrets_manager["FOO"].secret_arn
-            },
-            {
-              name      = "BAR"
-              valueFrom = module.secrets_manager["BAR"].secret_arn
-            }
-          ]
+          secrets = [{
+            name      = "BAR"
+            valueFrom = "arn:BAR"
+          }]
 
           health_check = {
             command = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/health || exit 1"]
@@ -129,6 +122,8 @@ module "ecs" {
           }
           memory_reservation = 100
         }
+
+        postgres = module.postgres.container_definition
       }
 
       service_connect_configuration = {
