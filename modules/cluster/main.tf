@@ -109,8 +109,8 @@ resource "aws_cloudwatch_log_group" "this" {
 
 locals {
   default_capacity_providers = merge(
-    { for k, v in var.fargate_capacity_providers : k => v if var.default_capacity_provider_use_fargate },
-    { for k, v in var.autoscaling_capacity_providers : k => v if !var.default_capacity_provider_use_fargate }
+    { for k, v in var.fargate_capacity_providers : k => v if var.default_capacity_provider_use_fargate && lookup(v, "default_capacity_provider_strategy", null) != null },
+    { for k, v in var.autoscaling_capacity_providers : k => v if !var.default_capacity_provider_use_fargate && lookup(v, "default_capacity_provider_strategy", null) != null }
   )
 }
 
