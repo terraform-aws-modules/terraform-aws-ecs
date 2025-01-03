@@ -188,6 +188,16 @@ resource "aws_ecs_service" "this" {
     }
   }
 
+  dynamic "vpc_lattice_configuration" {
+    for_each = length(var.vpc_lattice_configuration) > 0 ? [var.vpc_lattice_configuration] : []
+
+    content {
+      role_arn  = try(vpc_lattice_configuration.value.role_arn, null)
+      target_group_arn = try(vpc_lattice_configuration.value.target_group_arn, null)
+      port_name           = try(vpc_lattice_configuration.value.port_name, null)
+    }
+  }
+
   task_definition       = local.task_definition
   triggers              = var.triggers
   wait_for_steady_state = var.wait_for_steady_state

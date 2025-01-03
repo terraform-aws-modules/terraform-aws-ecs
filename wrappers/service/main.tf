@@ -91,6 +91,7 @@ module "wrapper" {
   security_group_tags                     = try(each.value.security_group_tags, var.defaults.security_group_tags, {})
   security_group_use_name_prefix          = try(each.value.security_group_use_name_prefix, var.defaults.security_group_use_name_prefix, true)
   service_connect_configuration           = try(each.value.service_connect_configuration, var.defaults.service_connect_configuration, {})
+  vpc_lattice_configuration               = try(each.value.vpc_lattice_configuration, var.defaults.vpc_lattice_configuration, {})
   service_registries                      = try(each.value.service_registries, var.defaults.service_registries, {})
   service_tags                            = try(each.value.service_tags, var.defaults.service_tags, {})
   skip_destroy                            = try(each.value.skip_destroy, var.defaults.skip_destroy, null)
