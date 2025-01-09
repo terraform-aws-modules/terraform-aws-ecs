@@ -283,7 +283,7 @@ variable "volume_configuration" {
       snapshot_id      = optional(string)
       throughput       = optional(number)
       volume_type      = optional(string)
-      tag_specification = optional(list(object({
+      tag_specifications = optional(list(object({
         resource_type  = string
         propagate_tags = optional(string, "TASK_DEFINITION")
         tags           = optional(map(string))
