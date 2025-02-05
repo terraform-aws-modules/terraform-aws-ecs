@@ -82,7 +82,7 @@ module "service" {
   propagate_tags                     = try(each.value.propagate_tags, null)
   scheduling_strategy                = try(each.value.scheduling_strategy, null)
   service_connect_configuration      = lookup(each.value, "service_connect_configuration", {})
-  vpc_lattice_configuration      =     lookup(each.value, "vpc_lattice_configuration", {})
+  vpc_lattice_configuration          = lookup(each.value, "vpc_lattice_configuration", {})
   service_registries                 = lookup(each.value, "service_registries", {})
   timeouts                           = try(each.value.timeouts, {})
   triggers                           = try(each.value.triggers, {})

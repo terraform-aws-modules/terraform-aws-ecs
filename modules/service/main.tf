@@ -188,7 +188,7 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-  dynamic "vpc_lattice_configuration" {
+  dynamic "vpc_lattice_configurations" {
     for_each = length(var.vpc_lattice_configuration) > 0 ? [var.vpc_lattice_configuration] : []
 
     content {
