@@ -743,7 +743,7 @@ variable "tasks_iam_role_statements" {
       type        = string
       identifiers = list(string)
     })))
-    condition = optional(list(object({
+    conditions = optional(list(object({
       test     = string
       values   = list(string)
       variable = string
