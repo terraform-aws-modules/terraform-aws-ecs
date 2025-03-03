@@ -58,7 +58,7 @@ module "service" {
 
   # Service
   ignore_task_definition_changes     = try(each.value.ignore_task_definition_changes, false)
-  alarms                             = try(each.value.alarms, {})
+  alarms                             = try(each.value.alarms, null)
   capacity_provider_strategy         = try(each.value.capacity_provider_strategy, {})
   cluster_arn                        = module.cluster.arn
   deployment_circuit_breaker         = try(each.value.deployment_circuit_breaker, {})
@@ -81,8 +81,8 @@ module "service" {
   platform_version                   = try(each.value.platform_version, null)
   propagate_tags                     = try(each.value.propagate_tags, null)
   scheduling_strategy                = try(each.value.scheduling_strategy, null)
-  service_connect_configuration      = lookup(each.value, "service_connect_configuration", {})
-  service_registries                 = lookup(each.value, "service_registries", {})
+  service_connect_configuration      = lookup(each.value, "service_connect_configuration", null)
+  service_registries                 = lookup(each.value, "service_registries", null)
   timeouts                           = try(each.value.timeouts, {})
   triggers                           = try(each.value.triggers, {})
   volume_configuration               = try(each.value.volume_configuration, {})
@@ -97,7 +97,7 @@ module "service" {
   iam_role_description          = try(each.value.iam_role_description, null)
   iam_role_permissions_boundary = try(each.value.iam_role_permissions_boundary, null)
   iam_role_tags                 = try(each.value.iam_role_tags, {})
-  iam_role_statements           = lookup(each.value, "iam_role_statements", {})
+  iam_role_statements           = lookup(each.value, "iam_role_statements", [])
 
   # ECS infrastructure IAM role
   create_infrastructure_iam_role               = try(each.value.create_infrastructure_iam_role, true)
@@ -115,14 +115,14 @@ module "service" {
   container_definitions         = try(each.value.container_definitions, {})
   container_definition_defaults = try(each.value.container_definition_defaults, {})
   cpu                           = try(each.value.cpu, 1024)
-  ephemeral_storage             = try(each.value.ephemeral_storage, {})
+  ephemeral_storage             = try(each.value.ephemeral_storage, null)
   family                        = try(each.value.family, null)
-  inference_accelerator         = try(each.value.inference_accelerator, {})
+  inference_accelerator         = try(each.value.inference_accelerator, null)
   ipc_mode                      = try(each.value.ipc_mode, null)
   memory                        = try(each.value.memory, 2048)
   network_mode                  = try(each.value.network_mode, "awsvpc")
   pid_mode                      = try(each.value.pid_mode, null)
-  proxy_configuration           = try(each.value.proxy_configuration, {})
+  proxy_configuration           = try(each.value.proxy_configuration, null)
   requires_compatibilities      = try(each.value.requires_compatibilities, ["FARGATE"])
   runtime_platform = try(each.value.runtime_platform, {
     operating_system_family = "LINUX"
@@ -148,7 +148,7 @@ module "service" {
   create_task_exec_policy  = try(each.value.create_task_exec_policy, true)
   task_exec_ssm_param_arns = lookup(each.value, "task_exec_ssm_param_arns", ["arn:aws:ssm:*:*:parameter/*"])
   task_exec_secret_arns    = lookup(each.value, "task_exec_secret_arns", ["arn:aws:secretsmanager:*:*:secret:*"])
-  task_exec_iam_statements = lookup(each.value, "task_exec_iam_statements", {})
+  task_exec_iam_statements = lookup(each.value, "task_exec_iam_statements", [])
 
   # Tasks - IAM role
   create_tasks_iam_role               = try(each.value.create_tasks_iam_role, true)
