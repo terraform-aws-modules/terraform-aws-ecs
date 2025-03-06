@@ -32,6 +32,12 @@ variable "alarms" {
   default     = {}
 }
 
+variable "availability_zone_rebalancing" {
+  description = "Specifies whether to enable availability zone rebalancing"
+  type        = string
+  default     = "DISABLED"
+}
+
 variable "capacity_provider_strategy" {
   description = "Capacity provider strategies to use for the service. Can be one or more"
   type        = any
