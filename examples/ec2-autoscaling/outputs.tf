@@ -130,3 +130,12 @@ output "service_autoscaling_scheduled_actions" {
   description = "Map of autoscaling scheduled actions and their attributes"
   value       = module.ecs_service.autoscaling_scheduled_actions
 }
+
+################################################################################
+# Application Load Balancer
+################################################################################
+
+output "alb_dns_name" {
+  description = "The DNS name of the load balancer"
+  value       = module.alb.dns_name
+}
