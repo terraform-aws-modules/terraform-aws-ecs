@@ -137,7 +137,8 @@ module "ecs" {
         }
       ]
 
-      subnet_ids = module.vpc.private_subnets
+      subnet_ids                    = module.vpc.private_subnets
+      availability_zone_rebalancing = "ENABLED"
       security_group_rules = {
         alb_ingress_3000 = {
           type                     = "ingress"

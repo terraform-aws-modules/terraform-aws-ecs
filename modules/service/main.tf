@@ -41,6 +41,8 @@ resource "aws_ecs_service" "this" {
     }
   }
 
+  availability_zone_rebalancing = var.availability_zone_rebalancing
+
   dynamic "capacity_provider_strategy" {
     # Set by task set if deployment controller is external
     for_each = { for k, v in var.capacity_provider_strategy : k => v if !local.is_external_deployment }
@@ -228,6 +230,8 @@ resource "aws_ecs_service" "ignore_task_definition" {
       rollback    = try(alarms.value.rollback, true)
     }
   }
+
+  availability_zone_rebalancing = var.availability_zone_rebalancing
 
   dynamic "capacity_provider_strategy" {
     # Set by task set if deployment controller is external
