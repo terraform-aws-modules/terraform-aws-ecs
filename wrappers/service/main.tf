@@ -124,6 +124,7 @@ module "wrapper" {
   timeouts                                = try(each.value.timeouts, var.defaults.timeouts, {})
   triggers                                = try(each.value.triggers, var.defaults.triggers, {})
   volume                                  = try(each.value.volume, var.defaults.volume, {})
+  vpc_lattice_configuration               = try(each.value.vpc_lattice_configuration, var.defaults.vpc_lattice_configuration, {})
   wait_for_steady_state                   = try(each.value.wait_for_steady_state, var.defaults.wait_for_steady_state, null)
   wait_until_stable                       = try(each.value.wait_until_stable, var.defaults.wait_until_stable, null)
   wait_until_stable_timeout               = try(each.value.wait_until_stable_timeout, var.defaults.wait_until_stable_timeout, null)

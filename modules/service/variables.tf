@@ -176,6 +176,12 @@ variable "service_registries" {
   default     = {}
 }
 
+variable "vpc_lattice_configuration" {
+  description = "The VPC Lattice configuration for your service that allows Lattice to connect, secure, and monitor your service across multiple accounts and VPCs"
+  type        = any
+  default     = {}
+}
+
 variable "timeouts" {
   description = "Create, update, and delete timeout configurations for the service"
   type        = map(string)
