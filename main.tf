@@ -159,6 +159,7 @@ module "service" {
   tasks_iam_role_description          = try(each.value.tasks_iam_role_description, null)
   tasks_iam_role_permissions_boundary = try(each.value.tasks_iam_role_permissions_boundary, null)
   tasks_iam_role_tags                 = try(each.value.tasks_iam_role_tags, {})
+  tasks_iam_policy_path               = try(each.value.tasks_iam_policy_path, null)
   tasks_iam_role_policies             = lookup(each.value, "tasks_iam_role_policies", {})
   tasks_iam_role_statements           = lookup(each.value, "tasks_iam_role_statements", {})
 
