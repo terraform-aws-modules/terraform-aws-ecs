@@ -539,6 +539,12 @@ variable "tasks_iam_role_statements" {
   default     = {}
 }
 
+variable "tasks_iam_policy_path" {
+  description = "Path for the tasks iam policy"
+  type        = string
+  default     = null
+}
+
 ################################################################################
 # Task Set
 ################################################################################

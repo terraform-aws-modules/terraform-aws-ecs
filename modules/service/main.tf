@@ -1024,13 +1024,22 @@ data "aws_iam_policy_document" "tasks" {
   }
 }
 
-resource "aws_iam_role_policy" "tasks" {
+resource "aws_iam_policy" "tasks" {
   count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
 
   name        = var.tasks_iam_role_use_name_prefix ? null : local.tasks_iam_role_name
   name_prefix = var.tasks_iam_role_use_name_prefix ? "${local.tasks_iam_role_name}-" : null
+  description = coalesce(var.tasks_iam_role_description, "Task role IAM policy")
   policy      = data.aws_iam_policy_document.tasks[0].json
-  role        = aws_iam_role.tasks[0].id
+  path        = var.tasks_iam_policy_path
+  tags        = merge(var.tags, var.tasks_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "tasks_policy" {
+  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
+
+  role       = aws_iam_role.tasks[0].name
+  policy_arn = aws_iam_policy.tasks[0].arn
 }
 
 ################################################################################
