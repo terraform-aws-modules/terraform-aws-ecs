@@ -1164,8 +1164,7 @@ data "aws_iam_policy_document" "tasks" {
 }
 
 resource "aws_iam_policy" "tasks" {
-  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
-
+  count       = local.create_tasks_iam_role && (var.tasks_iam_role_statements != null || var.enable_execute_command) ? 1 : 0
   name        = var.tasks_iam_role_use_name_prefix ? null : local.tasks_iam_role_name
   name_prefix = var.tasks_iam_role_use_name_prefix ? "${local.tasks_iam_role_name}-" : null
   description = coalesce(var.tasks_iam_role_description, "Task role IAM policy")
