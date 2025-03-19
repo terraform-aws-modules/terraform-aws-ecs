@@ -121,6 +121,12 @@ module "ecs_service" {
         }
       }
 
+      restart_policy = {
+        enabled              = true
+        ignoredExitCodes     = [1]
+        restartAttemptPeriod = 60
+      }
+
       # Not required for fluent-bit, just an example
       volumes_from = [{
         sourceContainer = "fluent-bit"
@@ -133,14 +139,16 @@ module "ecs_service" {
 
   service_connect_configuration = {
     namespace = aws_service_discovery_http_namespace.this.arn
-    service = {
-      client_alias = {
-        port     = local.container_port
-        dns_name = local.container_name
+    service = [
+      {
+        client_alias = {
+          port     = local.container_port
+          dns_name = local.container_name
+        }
+        port_name      = local.container_name
+        discovery_name = local.container_name
       }
-      port_name      = local.container_name
-      discovery_name = local.container_name
-    }
+    ]
   }
 
   load_balancer = {
@@ -152,21 +160,18 @@ module "ecs_service" {
   }
 
   subnet_ids = module.vpc.private_subnets
-  security_group_rules = {
+  security_group_ingress_rules = {
     alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = local.container_port
-      to_port                  = local.container_port
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
+      description                  = "Service port"
+      from_port                    = local.container_port
+      ip_protocol                  = "tcp"
+      referenced_security_group_id = module.alb.security_group_id
     }
+  }
+  security_group_egress_rules = {
     egress_all = {
-      type        = "egress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 
@@ -218,13 +223,10 @@ module "ecs_task_definition" {
 
   subnet_ids = module.vpc.private_subnets
 
-  security_group_rules = {
+  security_group_egress_rules = {
     egress_all = {
-      type        = "egress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 

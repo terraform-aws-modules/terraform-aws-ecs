@@ -131,11 +131,12 @@ output "service_autoscaling_scheduled_actions" {
   value       = module.ecs_service.autoscaling_scheduled_actions
 }
 
-################################################################################
-# Application Load Balancer
-################################################################################
+output "service_infrastructure_iam_role_arn" {
+  description = "Infrastructure IAM role ARN"
+  value       = module.ecs_service.infrastructure_iam_role_arn
+}
 
-output "alb_dns_name" {
-  description = "The DNS name of the load balancer"
-  value       = module.alb.dns_name
+output "service_infrastructure_iam_role_name" {
+  description = "Infrastructure IAM role name"
+  value       = module.ecs_service.infrastructure_iam_role_name
 }
