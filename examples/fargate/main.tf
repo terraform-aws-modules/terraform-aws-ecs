@@ -140,6 +140,13 @@ module "ecs_service" {
       }
       port_name      = local.container_name
       discovery_name = local.container_name
+
+      tls = {
+        role_arn = module.tls_role.iam_role_arn
+        issuer_cert_authority = {
+          aws_pca_authority_arn = aws_acmpca_certificate_authority.this.arn
+        }
+      }
     }
   }
 
@@ -328,6 +335,47 @@ module "vpc" {
 
   enable_nat_gateway = true
   single_nat_gateway = true
+
+  tags = local.tags
+}
+
+module "tls_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
+  version = "5.41.0"
+
+  create_role = true
+
+  role_name         = "ServiceRoleForECSConnectTLS"
+  role_description  = "ECS service role to access Private CA for TLS Service Connect"
+  role_requires_mfa = false
+
+  custom_role_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonECSInfrastructureRolePolicyForServiceConnectTransportLayerSecurity"]
+
+  trusted_role_services = ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
+
+  tags = local.tags
+}
+
+resource "aws_acmpca_certificate_authority" "this" {
+  enabled = true
+
+  usage_mode = "SHORT_LIVED_CERTIFICATE"
+  type       = "ROOT"
+
+  certificate_authority_configuration {
+    key_algorithm     = "EC_secp384r1"
+    signing_algorithm = "SHA512WITHECDSA"
+
+    subject {
+      common_name = "example.com"
+    }
+  }
+
+  revocation_configuration {
+    ocsp_configuration {
+      enabled = false
+    }
+  }
 
   tags = local.tags
 }

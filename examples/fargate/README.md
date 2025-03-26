@@ -43,12 +43,14 @@ Note that this example may create resources which will incur monetary charges on
 | <a name="module_ecs_cluster"></a> [ecs\_cluster](#module\_ecs\_cluster) | ../../modules/cluster | n/a |
 | <a name="module_ecs_service"></a> [ecs\_service](#module\_ecs\_service) | ../../modules/service | n/a |
 | <a name="module_ecs_task_definition"></a> [ecs\_task\_definition](#module\_ecs\_task\_definition) | ../../modules/service | n/a |
+| <a name="module_tls_role"></a> [tls\_role](#module\_tls\_role) | terraform-aws-modules/iam/aws//modules/iam-assumable-role | 5.41.0 |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 5.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
+| [aws_acmpca_certificate_authority.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acmpca_certificate_authority) | resource |
 | [aws_service_discovery_http_namespace.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/service_discovery_http_namespace) | resource |
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
 | [aws_ssm_parameter.fluentbit](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
