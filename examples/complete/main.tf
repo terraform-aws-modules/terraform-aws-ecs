@@ -114,6 +114,10 @@ module "ecs" {
           }
           port_name      = local.container_name
           discovery_name = local.container_name
+          timeout = {
+            idle_timeout_seconds        = 60
+            per_request_timeout_seconds = 60
+          }
         }
       }
 
