@@ -118,7 +118,6 @@ module "service" {
   cpu                           = try(each.value.cpu, 1024)
   ephemeral_storage             = try(each.value.ephemeral_storage, {})
   family                        = try(each.value.family, null)
-  inference_accelerator         = try(each.value.inference_accelerator, {})
   ipc_mode                      = try(each.value.ipc_mode, null)
   memory                        = try(each.value.memory, 2048)
   network_mode                  = try(each.value.network_mode, "awsvpc")

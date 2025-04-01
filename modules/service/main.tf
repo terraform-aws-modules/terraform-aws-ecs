@@ -1,11 +1,17 @@
-data "aws_region" "current" {}
-data "aws_partition" "current" {}
-data "aws_caller_identity" "current" {}
+data "aws_region" "current" {
+  count = var.create ? 1 : 0
+}
+data "aws_partition" "current" {
+  count = var.create ? 1 : 0
+}
+data "aws_caller_identity" "current" {
+  count = var.create ? 1 : 0
+}
 
 locals {
-  account_id = data.aws_caller_identity.current.account_id
-  partition  = data.aws_partition.current.partition
-  region     = data.aws_region.current.name
+  account_id = try(data.aws_caller_identity.current[0].account_id, "")
+  partition  = try(data.aws_partition.current[0].partition, "")
+  region     = try(data.aws_region.current[0].name, "")
 }
 
 ################################################################################
@@ -146,7 +152,7 @@ resource "aws_ecs_service" "this" {
           options    = log_configuration.value.options
 
           dynamic "secret_option" {
-            for_each = log_configuration.value.secret_option != null ? [log_configuration.value.secret_option] : []
+            for_each = log_configuration.value.secret_option != null ? log_configuration.value.secret_option : []
 
             content {
               name       = secret_option.value.name
@@ -228,7 +234,7 @@ resource "aws_ecs_service" "this" {
       name = volume_configuration.value.name
 
       dynamic "managed_ebs_volume" {
-        for_each = volume_configuration.value.managed_ebs_volume
+        for_each = [volume_configuration.value.managed_ebs_volume]
 
         content {
           encrypted        = managed_ebs_volume.value.encrypted
@@ -238,8 +244,6 @@ resource "aws_ecs_service" "this" {
           role_arn         = local.infrastructure_iam_role_arn
           size_in_gb       = managed_ebs_volume.value.size_in_gb
           snapshot_id      = managed_ebs_volume.value.snapshot_id
-          throughput       = managed_ebs_volume.value.throughput
-          volume_type      = managed_ebs_volume.value.volume_type
 
           dynamic "tag_specifications" {
             for_each = managed_ebs_volume.value.tag_specifications != null ? managed_ebs_volume.value.tag_specifications : []
@@ -250,6 +254,9 @@ resource "aws_ecs_service" "this" {
               tags           = tag_specifications.value.tags
             }
           }
+
+          throughput  = managed_ebs_volume.value.throughput
+          volume_type = managed_ebs_volume.value.volume_type
         }
       }
     }
@@ -411,7 +418,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
           options    = log_configuration.value.options
 
           dynamic "secret_option" {
-            for_each = log_configuration.value.secret_option != null ? [log_configuration.value.secret_option] : []
+            for_each = log_configuration.value.secret_option != null ? log_configuration.value.secret_option : []
 
             content {
               name       = secret_option.value.name
@@ -493,7 +500,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
       name = volume_configuration.value.name
 
       dynamic "managed_ebs_volume" {
-        for_each = volume_configuration.value.managed_ebs_volume
+        for_each = [volume_configuration.value.managed_ebs_volume]
 
         content {
           encrypted        = managed_ebs_volume.value.encrypted
@@ -503,8 +510,6 @@ resource "aws_ecs_service" "ignore_task_definition" {
           role_arn         = local.infrastructure_iam_role_arn
           size_in_gb       = managed_ebs_volume.value.size_in_gb
           snapshot_id      = managed_ebs_volume.value.snapshot_id
-          throughput       = managed_ebs_volume.value.throughput
-          volume_type      = managed_ebs_volume.value.volume_type
 
           dynamic "tag_specifications" {
             for_each = managed_ebs_volume.value.tag_specifications != null ? managed_ebs_volume.value.tag_specifications : []
@@ -515,6 +520,9 @@ resource "aws_ecs_service" "ignore_task_definition" {
               tags           = tag_specifications.value.tags
             }
           }
+
+          throughput  = managed_ebs_volume.value.throughput
+          volume_type = managed_ebs_volume.value.volume_type
         }
       }
     }
@@ -755,8 +763,9 @@ resource "aws_ecs_task_definition" "this" {
   count = local.create_task_definition ? 1 : 0
 
   # Convert map of maps to array of maps before JSON encoding
-  container_definitions = jsonencode([for k, v in module.container_definition : v.container_definition])
-  cpu                   = var.cpu
+  container_definitions  = jsonencode([for k, v in module.container_definition : v.container_definition])
+  cpu                    = var.cpu
+  enable_fault_injection = var.enable_fault_injection
 
   dynamic "ephemeral_storage" {
     for_each = var.ephemeral_storage != null ? [var.ephemeral_storage] : []
@@ -768,15 +777,6 @@ resource "aws_ecs_task_definition" "this" {
 
   execution_role_arn = try(aws_iam_role.task_exec[0].arn, var.task_exec_iam_role_arn)
   family             = coalesce(var.family, var.name)
-
-  dynamic "inference_accelerator" {
-    for_each = var.inference_accelerator != null ? [var.inference_accelerator] : []
-
-    content {
-      device_name = inference_accelerator.value.device_name
-      device_type = inference_accelerator.value.device_type
-    }
-  }
 
   ipc_mode     = var.ipc_mode
   memory       = var.memory
@@ -821,6 +821,8 @@ resource "aws_ecs_task_definition" "this" {
     for_each = var.volume != null ? var.volume : {}
 
     content {
+      configure_at_launch = volume.value.configure_at_launch
+
       dynamic "docker_volume_configuration" {
         for_each = volume.value.docker_volume_configuration != null ? [volume.value.docker_volume_configuration] : []
 
@@ -871,9 +873,8 @@ resource "aws_ecs_task_definition" "this" {
         }
       }
 
-      host_path           = volume.value.host_path
-      configure_at_launch = volume.value.configure_at_launch
-      name                = coalesce(volume.value.name, volume.key)
+      host_path = volume.value.host_path
+      name      = coalesce(volume.value.name, volume.key)
     }
   }
 
@@ -1524,7 +1525,7 @@ resource "aws_security_group" "this" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "this" {
-  for_each = var.security_group_ingress_rules != null && local.create_security_group ? var.security_group_ingress_rules : {}
+  for_each = { for k, v in var.security_group_ingress_rules : k => v if var.security_group_ingress_rules != null && local.create_security_group }
 
   cidr_ipv4                    = each.value.cidr_ipv4
   cidr_ipv6                    = each.value.cidr_ipv6
@@ -1536,15 +1537,15 @@ resource "aws_vpc_security_group_ingress_rule" "this" {
   security_group_id            = aws_security_group.this[0].id
   tags = merge(
     var.tags,
-    { "Name" = try(each.value.name, "${local.security_group_name}-${each.key}") },
     var.security_group_tags,
+    { "Name" = try(each.value.name, "${local.security_group_name}-${each.key}") },
     each.value.tags
   )
   to_port = try(coalesce(each.value.to_port, each.value.from_port), null)
 }
 
 resource "aws_vpc_security_group_egress_rule" "this" {
-  for_each = var.security_group_egress_rules != null && local.create_security_group ? var.security_group_egress_rules : {}
+  for_each = { for k, v in var.security_group_egress_rules : k => v if var.security_group_egress_rules != null && local.create_security_group }
 
   cidr_ipv4                    = each.value.cidr_ipv4
   cidr_ipv6                    = each.value.cidr_ipv6
@@ -1556,8 +1557,8 @@ resource "aws_vpc_security_group_egress_rule" "this" {
   security_group_id            = aws_security_group.this[0].id
   tags = merge(
     var.tags,
-    { "Name" = try(each.value.name, "${local.security_group_name}-${each.key}") },
     var.security_group_tags,
+    { "Name" = try(each.value.name, "${local.security_group_name}-${each.key}") },
     each.value.tags
   )
   to_port = each.value.to_port
