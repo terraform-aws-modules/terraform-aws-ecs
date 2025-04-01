@@ -28,7 +28,7 @@ locals {
 module "ecs_cluster" {
   source = "../../modules/cluster"
 
-  cluster_name = local.name
+  name = local.name
 
   # Capacity provider
   fargate_capacity_providers = {

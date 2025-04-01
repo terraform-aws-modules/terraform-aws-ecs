@@ -8,10 +8,10 @@ module "cluster" {
   create = var.create
 
   # Cluster
-  cluster_name                     = var.cluster_name
-  cluster_configuration            = var.cluster_configuration
-  cluster_settings                 = var.cluster_settings
-  cluster_service_connect_defaults = var.cluster_service_connect_defaults
+  name                     = var.cluster_name
+  configuration            = var.cluster_configuration
+  settings                 = var.cluster_settings
+  service_connect_defaults = var.cluster_service_connect_defaults
 
   # Cluster Cloudwatch log group
   create_cloudwatch_log_group            = var.create_cloudwatch_log_group

@@ -231,7 +231,7 @@ resource "aws_ecs_service" "this" {
     for_each = var.volume_configuration != null ? [var.volume_configuration] : []
 
     content {
-      name = volume_configuration.value.name
+      name = try(volume_configuration.value.name, volume_configuration.key)
 
       dynamic "managed_ebs_volume" {
         for_each = [volume_configuration.value.managed_ebs_volume]
