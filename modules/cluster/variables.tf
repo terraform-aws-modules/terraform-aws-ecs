@@ -14,33 +14,60 @@ variable "tags" {
 # Cluster
 ################################################################################
 
-variable "cluster_name" {
+variable "name" {
   description = "Name of the cluster (up to 255 letters, numbers, hyphens, and underscores)"
   type        = string
   default     = ""
 }
 
-variable "cluster_configuration" {
+variable "configuration" {
   description = "The execute command configuration for the cluster"
-  type        = any
-  default     = {}
+  type = object({
+    execute_command_configuration = optional(object({
+      kms_key_id = optional(string)
+      log_configuration = optional(object({
+        cloud_watch_encryption_enabled = optional(bool)
+        cloud_watch_log_group_name     = optional(string)
+        s3_bucket_encryption_enabled   = optional(bool)
+        s3_bucket_name                 = optional(string)
+        s3_kms_key_id                  = optional(string)
+      }))
+      logging = optional(string, "OVERRIDE")
+    }))
+    managed_storage_configuration = optional(object({
+      fargate_ephemeral_storage_kms_key_id = optional(string)
+      kms_key_id                           = optional(string)
+    }))
+  })
+  default = {
+    execute_command_configuration = {
+      log_configuration = {
+        cloud_watch_log_group_name = "placeholder" # will use CloudWatch log group created by module
+      }
+    }
+  }
 }
 
-variable "cluster_settings" {
+variable "service_connect_defaults" {
+  description = "Configures a default Service Connect namespace"
+  type = object({
+    namespace = string
+  })
+  default = null
+}
+
+variable "settings" {
   description = "List of configuration block(s) with cluster settings. For example, this can be used to enable CloudWatch Container Insights for a cluster"
-  type        = any
+  type = list(object({
+    name  = string
+    value = string
+  }))
   default = [
     {
       name  = "containerInsights"
       value = "enabled"
     }
   ]
-}
-
-variable "cluster_service_connect_defaults" {
-  description = "Configures a default Service Connect namespace"
-  type        = map(string)
-  default     = {}
 }
 
 ################################################################################

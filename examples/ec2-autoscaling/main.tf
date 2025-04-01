@@ -28,7 +28,7 @@ locals {
 module "ecs_cluster" {
   source = "../../modules/cluster"
 
-  cluster_name = local.name
+  name = local.name
 
   # Capacity provider - autoscaling groups
   default_capacity_provider_use_fargate = false
@@ -96,13 +96,12 @@ module "ecs_service" {
   }
 
   volume_configuration = {
-    ebs-volume = {
-      managed_ebs_volume = {
-        encrypted        = true
-        file_system_type = "xfs"
-        size_in_gb       = 5
-        volume_type      = "gp3"
-      }
+    name = "ebs-volume"
+    managed_ebs_volume = {
+      encrypted        = true
+      file_system_type = "xfs"
+      size_in_gb       = 5
+      volume_type      = "gp3"
     }
   }
 
@@ -162,11 +161,9 @@ module "ecs_service" {
   }
 
   subnet_ids = module.vpc.private_subnets
-  security_group_rules = {
+  security_group_ingress_rules = {
     alb_http_ingress = {
-      type                     = "ingress"
       from_port                = local.container_port
-      to_port                  = local.container_port
       protocol                 = "tcp"
       description              = "Service port"
       source_security_group_id = module.alb.security_group_id

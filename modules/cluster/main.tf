@@ -2,76 +2,50 @@
 # Cluster
 ################################################################################
 
-locals {
-  execute_command_configuration = {
-    logging = "OVERRIDE"
-    log_configuration = {
-      cloud_watch_log_group_name = try(aws_cloudwatch_log_group.this[0].name, null)
-    }
-  }
-}
-
 resource "aws_ecs_cluster" "this" {
   count = var.create ? 1 : 0
 
-  name = var.cluster_name
-
   dynamic "configuration" {
-    for_each = var.create_cloudwatch_log_group ? [var.cluster_configuration] : []
+    for_each = var.configuration != null ? [var.configuration] : []
 
     content {
       dynamic "execute_command_configuration" {
-        for_each = try([merge(local.execute_command_configuration, configuration.value.execute_command_configuration)], [{}])
+        for_each = configuration.value.execute_command_configuration != null ? [configuration.value.execute_command_configuration] : []
 
         content {
-          kms_key_id = try(execute_command_configuration.value.kms_key_id, null)
-          logging    = try(execute_command_configuration.value.logging, "DEFAULT")
+          kms_key_id = execute_command_configuration.value.kms_key_id
 
           dynamic "log_configuration" {
-            for_each = try([execute_command_configuration.value.log_configuration], [])
+            for_each = execute_command_configuration.value.log_configuration != null ? [execute_command_configuration.value.log_configuration] : []
 
             content {
-              cloud_watch_encryption_enabled = try(log_configuration.value.cloud_watch_encryption_enabled, null)
-              cloud_watch_log_group_name     = try(log_configuration.value.cloud_watch_log_group_name, null)
-              s3_bucket_name                 = try(log_configuration.value.s3_bucket_name, null)
-              s3_bucket_encryption_enabled   = try(log_configuration.value.s3_bucket_encryption_enabled, null)
-              s3_key_prefix                  = try(log_configuration.value.s3_key_prefix, null)
+              cloud_watch_encryption_enabled = log_configuration.value.cloud_watch_encryption_enabled
+              cloud_watch_log_group_name     = try(aws_cloudwatch_log_group.this[0].name, log_configuration.value.cloud_watch_log_group_name)
+              s3_bucket_encryption_enabled   = log_configuration.value.s3_bucket_encryption_enabled
+              s3_bucket_name                 = log_configuration.value.s3_bucket_name
+              s3_key_prefix                  = log_configuration.value.s3_key_prefix
             }
           }
+
+          logging = try(execute_command_configuration.value.logging, "DEFAULT")
+        }
+      }
+
+      dynamic "managed_storage_configuration" {
+        for_each = configuration.value.managed_storage_configuration != null ? [configuration.value.managed_storage_configuration] : []
+
+        content {
+          fargate_ephemeral_storage_kms_key_id = managed_storage_configuration.value.fargate_ephemeral_storage_kms_key_id
+          kms_key_id                           = managed_storage_configuration.value.kms_key_id
         }
       }
     }
   }
 
-  dynamic "configuration" {
-    for_each = !var.create_cloudwatch_log_group && length(var.cluster_configuration) > 0 ? [var.cluster_configuration] : []
-
-    content {
-      dynamic "execute_command_configuration" {
-        for_each = try([configuration.value.execute_command_configuration], [{}])
-
-        content {
-          kms_key_id = try(execute_command_configuration.value.kms_key_id, null)
-          logging    = try(execute_command_configuration.value.logging, "DEFAULT")
-
-          dynamic "log_configuration" {
-            for_each = try([execute_command_configuration.value.log_configuration], [])
-
-            content {
-              cloud_watch_encryption_enabled = try(log_configuration.value.cloud_watch_encryption_enabled, null)
-              cloud_watch_log_group_name     = try(log_configuration.value.cloud_watch_log_group_name, null)
-              s3_bucket_name                 = try(log_configuration.value.s3_bucket_name, null)
-              s3_bucket_encryption_enabled   = try(log_configuration.value.s3_bucket_encryption_enabled, null)
-              s3_key_prefix                  = try(log_configuration.value.s3_key_prefix, null)
-            }
-          }
-        }
-      }
-    }
-  }
+  name = var.name
 
   dynamic "service_connect_defaults" {
-    for_each = length(var.cluster_service_connect_defaults) > 0 ? [var.cluster_service_connect_defaults] : []
+    for_each = var.service_connect_defaults != null ? [var.service_connect_defaults] : []
 
     content {
       namespace = service_connect_defaults.value.namespace
@@ -79,7 +53,7 @@ resource "aws_ecs_cluster" "this" {
   }
 
   dynamic "setting" {
-    for_each = flatten([var.cluster_settings])
+    for_each = var.settings != null ? var.settings : []
 
     content {
       name  = setting.value.name
@@ -93,10 +67,11 @@ resource "aws_ecs_cluster" "this" {
 ################################################################################
 # CloudWatch Log Group
 ################################################################################
+
 resource "aws_cloudwatch_log_group" "this" {
   count = var.create && var.create_cloudwatch_log_group ? 1 : 0
 
-  name              = try(coalesce(var.cloudwatch_log_group_name, "/aws/ecs/${var.cluster_name}"), "")
+  name              = try(coalesce(var.cloudwatch_log_group_name, "/aws/ecs/${var.name}"), "")
   retention_in_days = var.cloudwatch_log_group_retention_in_days
   kms_key_id        = var.cloudwatch_log_group_kms_key_id
 
@@ -177,7 +152,7 @@ resource "aws_ecs_capacity_provider" "this" {
 ################################################################################
 
 locals {
-  task_exec_iam_role_name = try(coalesce(var.task_exec_iam_role_name, var.cluster_name), "")
+  task_exec_iam_role_name = try(coalesce(var.task_exec_iam_role_name, var.name), "")
 
   create_task_exec_iam_role = var.create && var.create_task_exec_iam_role
   create_task_exec_policy   = local.create_task_exec_iam_role && var.create_task_exec_policy
@@ -203,7 +178,7 @@ resource "aws_iam_role" "task_exec" {
   name        = var.task_exec_iam_role_use_name_prefix ? null : local.task_exec_iam_role_name
   name_prefix = var.task_exec_iam_role_use_name_prefix ? "${local.task_exec_iam_role_name}-" : null
   path        = var.task_exec_iam_role_path
-  description = coalesce(var.task_exec_iam_role_description, "Task execution role for ${var.cluster_name}")
+  description = coalesce(var.task_exec_iam_role_description, "Task execution role for ${var.name}")
 
   assume_role_policy    = data.aws_iam_policy_document.task_exec_assume[0].json
   permissions_boundary  = var.task_exec_iam_role_permissions_boundary
