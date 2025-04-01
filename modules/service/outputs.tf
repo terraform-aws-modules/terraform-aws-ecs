@@ -59,11 +59,6 @@ output "task_definition_family" {
   value       = try(aws_ecs_task_definition.this[0].family, null)
 }
 
-output "task_definition_family_revision" {
-  description = "The family and revision (family:revision) of the task definition"
-  value       = "${try(aws_ecs_task_definition.this[0].family, "")}:${local.max_task_def_revision}"
-}
-
 ################################################################################
 # Task Execution - IAM Role
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html
@@ -154,4 +149,18 @@ output "security_group_arn" {
 output "security_group_id" {
   description = "ID of the security group"
   value       = try(aws_security_group.this[0].id, null)
+}
+
+############################################################################################
+# ECS infrastructure IAM role
+############################################################################################
+
+output "infrastructure_iam_role_arn" {
+  description = "Infrastructure IAM role ARN"
+  value       = try(aws_iam_role.infrastructure_iam_role[0].arn, null)
+}
+
+output "infrastructure_iam_role_name" {
+  description = "Infrastructure IAM role name"
+  value       = try(aws_iam_role.infrastructure_iam_role[0].name, null)
 }
