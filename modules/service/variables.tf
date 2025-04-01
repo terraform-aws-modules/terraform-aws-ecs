@@ -727,7 +727,7 @@ variable "tasks_iam_role_tags" {
 }
 
 variable "tasks_iam_role_policies" {
-  description = "Map of IAM role policy ARNs to attach to the IAM role"
+  description = "Map of additioanl IAM role policy ARNs to attach to the IAM role"
   type        = map(string)
   default     = {}
 }
