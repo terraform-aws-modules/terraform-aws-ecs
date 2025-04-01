@@ -207,10 +207,10 @@ variable "service_connect_configuration" {
     log_configuration = optional(object({
       log_driver = string
       options    = optional(map(string))
-      secret_option = optional(object({
+      secret_option = optional(list(object({
         name       = string
         value_from = string
-      }))
+      })))
     }))
     namespace = optional(string)
     service = optional(list(object({
@@ -226,9 +226,9 @@ variable "service_connect_configuration" {
         per_request_timeout_seconds = optional(number)
       }))
       tls = optional(object({
-        issuer_cert_authority = optional(object({
+        issuer_cert_authority = object({
           aws_pca_authority_arn = string
-        }))
+        })
         kms_key  = optional(string)
         role_arn = optional(string)
       }))
@@ -274,21 +274,21 @@ variable "volume_configuration" {
   description = "Configuration for a volume specified in the task definition as a volume that is configured at launch time"
   type = object({
     name = string
-    managed_ebs_volume = list(object({
+    managed_ebs_volume = object({
       encrypted        = optional(bool)
       file_system_type = optional(string)
       iops             = optional(number)
       kms_key_id       = optional(string)
       size_in_gb       = optional(number)
       snapshot_id      = optional(string)
-      throughput       = optional(number)
-      volume_type      = optional(string)
       tag_specifications = optional(list(object({
-        resource_type  = string
         propagate_tags = optional(string, "TASK_DEFINITION")
+        resource_type  = string
         tags           = optional(map(string))
       })))
-    }))
+      throughput  = optional(number)
+      volume_type = optional(string)
+    })
   })
   default = null
 }
@@ -421,6 +421,12 @@ variable "cpu" {
   default     = 1024
 }
 
+variable "enable_fault_injection" {
+  description = "Enables fault injection and allows for fault injection requests to be accepted from the task's containers. Default is `false`"
+  type        = bool
+  default     = null
+}
+
 variable "ephemeral_storage" {
   description = "The amount of ephemeral storage to allocate for the task. This parameter is used to expand the total amount of ephemeral storage available, beyond the default amount, for tasks hosted on AWS Fargate"
   type = object({
@@ -433,15 +439,6 @@ variable "family" {
   description = "A unique name for your task definition"
   type        = string
   default     = null
-}
-
-variable "inference_accelerator" {
-  description = "Configuration block(s) with Inference Accelerators settings"
-  type = object({
-    device_name = string
-    device_type = string
-  })
-  default = null
 }
 
 variable "ipc_mode" {
@@ -505,16 +502,16 @@ variable "runtime_platform" {
   }
 }
 
-variable "track_latest" {
-  description = "Whether should track latest `ACTIVE` task definition on AWS or the one created with the resource stored in state. Default is `false`. Useful in the event the task definition is modified outside of this resource"
-  type        = bool
-  default     = true
-}
-
 variable "skip_destroy" {
   description = "If true, the task is not deleted when the service is deleted"
   type        = bool
   default     = null
+}
+
+variable "track_latest" {
+  description = "Whether should track latest `ACTIVE` task definition on AWS or the one created with the resource stored in state. Default is `false`. Useful in the event the task definition is modified outside of this resource"
+  type        = bool
+  default     = true
 }
 
 variable "volume" {
