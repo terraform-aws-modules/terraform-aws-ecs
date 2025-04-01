@@ -12,7 +12,7 @@ module "cluster" {
   cluster_configuration            = var.cluster_configuration
   cluster_settings                 = var.cluster_settings
   cluster_service_connect_defaults = var.cluster_service_connect_defaults
-
+  managed_storage_configuration    = var.managed_storage_configuration
   # Cluster Cloudwatch log group
   create_cloudwatch_log_group            = var.create_cloudwatch_log_group
   cloudwatch_log_group_name              = var.cloudwatch_log_group_name

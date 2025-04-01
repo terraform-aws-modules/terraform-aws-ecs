@@ -49,6 +49,12 @@ variable "cluster_tags" {
   default     = {}
 }
 
+variable "managed_storage_configuration" {
+  description = "Configuration for the managed storage"
+  type        = any
+  default     = {}
+}
+
 ################################################################################
 # CloudWatch Log Group
 ################################################################################

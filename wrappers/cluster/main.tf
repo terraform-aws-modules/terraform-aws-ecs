@@ -23,6 +23,7 @@ module "wrapper" {
   create_task_exec_policy                 = try(each.value.create_task_exec_policy, var.defaults.create_task_exec_policy, true)
   default_capacity_provider_use_fargate   = try(each.value.default_capacity_provider_use_fargate, var.defaults.default_capacity_provider_use_fargate, true)
   fargate_capacity_providers              = try(each.value.fargate_capacity_providers, var.defaults.fargate_capacity_providers, {})
+  managed_storage_configuration           = try(each.value.managed_storage_configuration, var.defaults.managed_storage_configuration, {})
   tags                                    = try(each.value.tags, var.defaults.tags, {})
   task_exec_iam_role_description          = try(each.value.task_exec_iam_role_description, var.defaults.task_exec_iam_role_description, null)
   task_exec_iam_role_name                 = try(each.value.task_exec_iam_role_name, var.defaults.task_exec_iam_role_name, null)

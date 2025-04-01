@@ -43,6 +43,12 @@ variable "cluster_service_connect_defaults" {
   default     = {}
 }
 
+variable "managed_storage_configuration" {
+  description = "Configuration for the managed storage"
+  type        = any
+  default     = {}
+}
+
 ################################################################################
 # CloudWatch Log Group
 ################################################################################
