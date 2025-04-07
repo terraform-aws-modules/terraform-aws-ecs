@@ -1,3 +1,6 @@
+data "aws_partition" "this" {}
+
+
 ################################################################################
 # Cluster
 ################################################################################
@@ -135,8 +138,8 @@ module "service" {
 
   # Task execution IAM role policy
   create_task_exec_policy  = try(each.value.create_task_exec_policy, true)
-  task_exec_ssm_param_arns = lookup(each.value, "task_exec_ssm_param_arns", ["arn:aws:ssm:*:*:parameter/*"])
-  task_exec_secret_arns    = lookup(each.value, "task_exec_secret_arns", ["arn:aws:secretsmanager:*:*:secret:*"])
+  task_exec_ssm_param_arns = lookup(each.value, "task_exec_ssm_param_arns", ["arn:${data.aws_partition.this.partition}:ssm:*:*:parameter/*"])
+  task_exec_secret_arns    = lookup(each.value, "task_exec_secret_arns", ["arn:${data.aws_partition.this.partition}:secretsmanager:*:*:secret:*"])
   task_exec_iam_statements = lookup(each.value, "task_exec_iam_statements", {})
 
   # Tasks - IAM role
