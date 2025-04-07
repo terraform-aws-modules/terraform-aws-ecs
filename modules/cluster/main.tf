@@ -42,7 +42,7 @@ resource "aws_ecs_cluster" "this" {
       }
 
       dynamic "managed_storage_configuration" {
-        for_each = try([configuration.value.managed_storage_configuration], [{}])
+        for_each = try([configuration.value.managed_storage_configuration], [])
 
         content {
           kms_key_id                           = try(managed_storage_configuration.value.kms_key_id, null)
@@ -78,7 +78,7 @@ resource "aws_ecs_cluster" "this" {
       }
 
       dynamic "managed_storage_configuration" {
-        for_each = try([configuration.value.managed_storage_configuration], [{}])
+        for_each = try([configuration.value.managed_storage_configuration], [])
 
         content {
           kms_key_id                           = try(managed_storage_configuration.value.kms_key_id, null)
