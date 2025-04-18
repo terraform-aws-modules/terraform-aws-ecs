@@ -381,7 +381,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
   wait_for_steady_state = var.wait_for_steady_state
 
   propagate_tags = var.propagate_tags
-  tags           = var.tags
+  tags           = merge(var.tags, var.service_tags)
 
   timeouts {
     create = try(var.timeouts.create, null)
