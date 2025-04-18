@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.12.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.12.0...v5.12.1) (2025-04-18)
+
+
+### Bug Fixes
+
+* Ensure both ECS service definitions use the same settings/configurations ([#277](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/277)) ([6f4feab](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/6f4feaba42afcc3f233b41110d0b9ed204438843))
+
 ## [5.12.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.11.4...v5.12.0) (2024-11-29)
 
 
