@@ -76,11 +76,6 @@ output "service_task_definition_family" {
   value       = module.ecs_service.task_definition_family
 }
 
-output "service_task_definition_family_revision" {
-  description = "The family and revision (family:revision) of the task definition"
-  value       = module.ecs_service.task_definition_family_revision
-}
-
 output "service_task_exec_iam_role_name" {
   description = "Task execution IAM role name"
   value       = module.ecs_service.task_exec_iam_role_name
@@ -159,7 +154,7 @@ output "task_definition_run_task_command" {
   description = "awscli command to run the standalone task"
   value       = <<EOT
     aws ecs run-task --cluster ${module.ecs_cluster.name} \
-      --task-definition ${module.ecs_task_definition.task_definition_family_revision} \
+      --task-definition ${module.ecs_task_definition.task_definition_family}:${module.ecs_task_definition.task_definition_revision} \
       --network-configuration "awsvpcConfiguration={subnets=[${join(",", module.vpc.private_subnets)}],securityGroups=[${module.ecs_task_definition.security_group_id}]}" \
       --region ${local.region}
   EOT

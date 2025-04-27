@@ -8,21 +8,27 @@ module "wrapper" {
   cloudwatch_log_group_name              = try(each.value.cloudwatch_log_group_name, var.defaults.cloudwatch_log_group_name, null)
   cloudwatch_log_group_retention_in_days = try(each.value.cloudwatch_log_group_retention_in_days, var.defaults.cloudwatch_log_group_retention_in_days, 90)
   cloudwatch_log_group_tags              = try(each.value.cloudwatch_log_group_tags, var.defaults.cloudwatch_log_group_tags, {})
-  cluster_configuration                  = try(each.value.cluster_configuration, var.defaults.cluster_configuration, {})
-  cluster_name                           = try(each.value.cluster_name, var.defaults.cluster_name, "")
-  cluster_service_connect_defaults       = try(each.value.cluster_service_connect_defaults, var.defaults.cluster_service_connect_defaults, {})
-  cluster_settings = try(each.value.cluster_settings, var.defaults.cluster_settings, [
+  configuration = try(each.value.configuration, var.defaults.configuration, {
+    execute_command_configuration = {
+      log_configuration = {
+        cloud_watch_log_group_name = "placeholder"
+      }
+    }
+  })
+  create                                = try(each.value.create, var.defaults.create, true)
+  create_cloudwatch_log_group           = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)
+  create_task_exec_iam_role             = try(each.value.create_task_exec_iam_role, var.defaults.create_task_exec_iam_role, false)
+  create_task_exec_policy               = try(each.value.create_task_exec_policy, var.defaults.create_task_exec_policy, true)
+  default_capacity_provider_use_fargate = try(each.value.default_capacity_provider_use_fargate, var.defaults.default_capacity_provider_use_fargate, true)
+  fargate_capacity_providers            = try(each.value.fargate_capacity_providers, var.defaults.fargate_capacity_providers, {})
+  name                                  = try(each.value.name, var.defaults.name, "")
+  service_connect_defaults              = try(each.value.service_connect_defaults, var.defaults.service_connect_defaults, null)
+  settings = try(each.value.settings, var.defaults.settings, [
     {
       name  = "containerInsights"
       value = "enabled"
     }
   ])
-  create                                  = try(each.value.create, var.defaults.create, true)
-  create_cloudwatch_log_group             = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)
-  create_task_exec_iam_role               = try(each.value.create_task_exec_iam_role, var.defaults.create_task_exec_iam_role, false)
-  create_task_exec_policy                 = try(each.value.create_task_exec_policy, var.defaults.create_task_exec_policy, true)
-  default_capacity_provider_use_fargate   = try(each.value.default_capacity_provider_use_fargate, var.defaults.default_capacity_provider_use_fargate, true)
-  fargate_capacity_providers              = try(each.value.fargate_capacity_providers, var.defaults.fargate_capacity_providers, {})
   tags                                    = try(each.value.tags, var.defaults.tags, {})
   task_exec_iam_role_description          = try(each.value.task_exec_iam_role_description, var.defaults.task_exec_iam_role_description, null)
   task_exec_iam_role_name                 = try(each.value.task_exec_iam_role_name, var.defaults.task_exec_iam_role_name, null)
