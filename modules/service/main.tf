@@ -80,6 +80,7 @@ resource "aws_ecs_service" "this" {
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
   launch_type                        = local.is_external_deployment || length(var.capacity_provider_strategy) > 0 ? null : var.launch_type
+  availability_zone_rebalancing      = var.availability_zone_rebalancing
 
   dynamic "load_balancer" {
     # Set by task set if deployment controller is external

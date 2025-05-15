@@ -71,6 +71,7 @@ module "wrapper" {
   memory                             = try(each.value.memory, var.defaults.memory, 2048)
   name                               = try(each.value.name, var.defaults.name, null)
   network_mode                       = try(each.value.network_mode, var.defaults.network_mode, "awsvpc")
+  availability_zone_rebalancing      = try(each.value.availability_zone_rebalancing, var.defaults.availability_zone_rebalancing, "DISABLED")
   ordered_placement_strategy         = try(each.value.ordered_placement_strategy, var.defaults.ordered_placement_strategy, {})
   pid_mode                           = try(each.value.pid_mode, var.defaults.pid_mode, null)
   placement_constraints              = try(each.value.placement_constraints, var.defaults.placement_constraints, {})

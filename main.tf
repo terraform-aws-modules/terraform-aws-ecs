@@ -71,6 +71,7 @@ module "service" {
   force_new_deployment               = try(each.value.force_new_deployment, true)
   health_check_grace_period_seconds  = try(each.value.health_check_grace_period_seconds, null)
   launch_type                        = try(each.value.launch_type, "FARGATE")
+  availability_zone_rebalancing      = try(each.value.availability_zone_rebalancing, "DISABLED")
   load_balancer                      = lookup(each.value, "load_balancer", {})
   name                               = try(each.value.name, each.key)
   assign_public_ip                   = try(each.value.assign_public_ip, false)

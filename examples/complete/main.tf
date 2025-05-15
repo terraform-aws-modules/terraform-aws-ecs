@@ -50,6 +50,7 @@ module "ecs" {
       cpu    = 1024
       memory = 4096
 
+      availability_zone_rebalancing = "ENABLED"
       # Container definition(s)
       container_definitions = {
 

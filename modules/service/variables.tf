@@ -20,6 +20,12 @@ variable "tags" {
 # Service
 ################################################################################
 
+variable "availability_zone_rebalancing" {
+  description = "ECS automatically redistributes tasks within a service across Availability Zones (AZs) to mitigate the risk of impaired application availability due to underlying infrastructure failures and task lifecycle activities."
+  type        = string
+  default     = "DISABLED"
+}
+
 variable "ignore_task_definition_changes" {
   description = "Whether changes to service `task_definition` changes should be ignored"
   type        = bool
