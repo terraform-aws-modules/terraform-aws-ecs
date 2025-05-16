@@ -65,6 +65,7 @@ locals {
     user                   = local.is_not_windows ? var.user : null
     volumesFrom            = var.volumes_from
     workingDirectory       = var.working_directory
+    versionConsistency     = var.version_consistency
   }
 
   # Strip out all null values, ECS API will provide defaults in place of null/empty values
