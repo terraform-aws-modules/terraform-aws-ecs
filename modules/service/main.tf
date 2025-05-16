@@ -573,6 +573,7 @@ module "container_definition" {
   user                     = try(each.value.user, var.container_definition_defaults.user, 0)
   volumes_from             = try(each.value.volumes_from, var.container_definition_defaults.volumes_from, [])
   working_directory        = try(each.value.working_directory, var.container_definition_defaults.working_directory, null)
+  version_consistency      = try(each.value.version_consistency, var.container_definition_defaults.version_consistency, "enabled")
 
   # CloudWatch Log Group
   service                                = var.name
