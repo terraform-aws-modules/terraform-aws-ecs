@@ -270,6 +270,15 @@ variable "working_directory" {
   default     = null
 }
 
+variable "version_consistency" {
+  description = "Specifies whether Amazon ECS will resolve the container image tag provided in the container definition to an image digest. The default is `enabled`. If set to `disabled`, Amazon ECS will not resolve the container image tag to a digest (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-ecs.html#deployment-container-image-stability)."
+  type        = string
+  validation {
+    condition     = contains(["enabled", "disabled"], var.version_consistency)
+    error_message = "The version consistency must be either `enabled` or `disabled`"
+  }
+  default = "enabled"
+}
 ################################################################################
 # CloudWatch Log Group
 ################################################################################
