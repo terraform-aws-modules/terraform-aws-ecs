@@ -197,7 +197,7 @@ variable "pseudo_terminal" {
 variable "readonly_root_filesystem" {
   description = "When this parameter is true, the container is given read-only access to its root file system"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "repository_credentials" {
