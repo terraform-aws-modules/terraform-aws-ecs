@@ -318,7 +318,7 @@ module "ecs_service" {
 | <a name="input_tasks_iam_role_tags"></a> [tasks\_iam\_role\_tags](#input\_tasks\_iam\_role\_tags) | A map of additional tags to add to the IAM role created | `map(string)` | `{}` | no |
 | <a name="input_tasks_iam_role_use_name_prefix"></a> [tasks\_iam\_role\_use\_name\_prefix](#input\_tasks\_iam\_role\_use\_name\_prefix) | Determines whether the IAM role name (`tasks_iam_role_name`) is used as a prefix | `bool` | `true` | no |
 | <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | Create, update, and delete timeout configurations for the service | `map(string)` | `{}` | no |
-| <a name="input_triggers"></a> [triggers](#input\_triggers) | Map of arbitrary keys and values that, when changed, will trigger an in-place update (redeployment). Useful with `timestamp()` | `any` | `{}` | no |
+| <a name="input_triggers"></a> [triggers](#input\_triggers) | Map of arbitrary keys and values that, when changed, will trigger an in-place update (redeployment). Useful with `plantimestamp()` | `any` | `{}` | no |
 | <a name="input_volume"></a> [volume](#input\_volume) | Configuration block for volumes that containers in your task may use | `any` | `{}` | no |
 | <a name="input_wait_for_steady_state"></a> [wait\_for\_steady\_state](#input\_wait\_for\_steady\_state) | If true, Terraform will wait for the service to reach a steady state before continuing. Default is `false` | `bool` | `null` | no |
 | <a name="input_wait_until_stable"></a> [wait\_until\_stable](#input\_wait\_until\_stable) | Whether terraform should wait until the task set has reached `STEADY_STATE` | `bool` | `null` | no |

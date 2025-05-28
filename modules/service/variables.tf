@@ -183,7 +183,7 @@ variable "timeouts" {
 }
 
 variable "triggers" {
-  description = "Map of arbitrary keys and values that, when changed, will trigger an in-place update (redeployment). Useful with `timestamp()`"
+  description = "Map of arbitrary keys and values that, when changed, will trigger an in-place update (redeployment). Useful with `plantimestamp()`"
   type        = any
   default     = {}
 }
