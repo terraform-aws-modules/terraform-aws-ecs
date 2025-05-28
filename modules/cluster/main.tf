@@ -70,6 +70,20 @@ resource "aws_ecs_cluster" "this" {
     }
   }
 
+  dynamic "configuration" {
+    for_each = length(var.cluster_configuration) > 0 ? [var.cluster_configuration] : []
+
+    content {
+      dynamic "managed_storage_configuration" {
+        for_each = try([configuration.value.managed_storage_configuration], [{}])
+        content {
+          fargate_ephemeral_storage_kms_key_id = try(configuration.value.managed_storage_configuration.fargate_ephemeral_storage_kms_key_id, null)
+          kms_key_id = try(configuration.value.managed_storage_configuration.kms_key_id, null)
+        }
+      }
+    }
+  }
+
   dynamic "service_connect_defaults" {
     for_each = length(var.cluster_service_connect_defaults) > 0 ? [var.cluster_service_connect_defaults] : []
 
