@@ -155,8 +155,10 @@ resource "aws_ecs_service" "this" {
       namespace = lookup(service_connect_configuration.value, "namespace", null)
 
       dynamic "service" {
-        for_each = can(service_connect_configuration.value.service[0]) ? service_connect_configuration.value.service : can(length(keys(service_connect_configuration.value.service))) && length(keys(service_connect_configuration.value.service)) > 0 ? [service_connect_configuration.value.service] : []
-
+        for_each = try(
+          service_connect_configuration.value.service[*],
+          try([service_connect_configuration.value.service], [])
+        )
         content {
 
           dynamic "client_alias" {
