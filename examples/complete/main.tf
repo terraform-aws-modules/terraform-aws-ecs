@@ -119,6 +119,7 @@ module "ecs" {
               port     = local.container_port
               dns_name = local.container_name
             }
+
             timeout = {
               idle_timeout_seconds        = 20
               per_request_timeout_seconds = 30
