@@ -14,11 +14,6 @@ locals {
   container_name = "ecsdemo-frontend"
   container_port = 3000
 
-  # Service Connect multiple ports 
-  websocket_port              = 3001
-  websocket_port_name         = "websocket"
-  websocket_port_service_name = "websocket"
-
   tags = {
     Name       = local.name
     Example    = local.name
@@ -85,12 +80,6 @@ module "ecs" {
               containerPort = local.container_port
               hostPort      = local.container_port
               protocol      = "tcp"
-            },
-            {
-              name          = local.websocket_port_name
-              containerPort = local.websocket_port
-              hostPort      = local.websocket_port
-              protocol      = "tcp"
             }
           ]
 
@@ -113,6 +102,12 @@ module "ecs" {
             }
           }
           memory_reservation = 100
+
+          restart_policy = {
+            enabled              = true
+            ignoredExitCodes     = [1]
+            restartAttemptPeriod = 60
+          }
         }
       }
 
@@ -126,14 +121,6 @@ module "ecs" {
             }
             port_name      = local.container_name
             discovery_name = local.container_name
-          },
-          {
-            client_alias = {
-              port     = local.websocket_port
-              dns_name = "${local.container_name}-${local.websocket_port_service_name}"
-            }
-            port_name      = local.websocket_port_name
-            discovery_name = "${local.container_name}-${local.websocket_port_service_name}"
           }
         ]
       }
@@ -158,7 +145,8 @@ module "ecs" {
         }
       ]
 
-      subnet_ids = module.vpc.private_subnets
+      subnet_ids                    = module.vpc.private_subnets
+      availability_zone_rebalancing = "ENABLED"
       security_group_rules = {
         alb_ingress_3000 = {
           type                     = "ingress"

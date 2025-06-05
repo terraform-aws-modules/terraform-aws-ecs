@@ -1,11 +1,17 @@
-data "aws_region" "current" {}
-data "aws_partition" "current" {}
-data "aws_caller_identity" "current" {}
+data "aws_region" "current" {
+  count = var.create ? 1 : 0
+}
+data "aws_partition" "current" {
+  count = var.create ? 1 : 0
+}
+data "aws_caller_identity" "current" {
+  count = var.create ? 1 : 0
+}
 
 locals {
-  account_id = data.aws_caller_identity.current.account_id
-  partition  = data.aws_partition.current.partition
-  region     = data.aws_region.current.name
+  account_id = try(data.aws_caller_identity.current[0].account_id, "")
+  partition  = try(data.aws_partition.current[0].partition, "")
+  region     = try(data.aws_region.current[0].name, "")
 }
 
 ################################################################################
@@ -32,30 +38,32 @@ resource "aws_ecs_service" "this" {
   count = local.create_service && !var.ignore_task_definition_changes ? 1 : 0
 
   dynamic "alarms" {
-    for_each = length(var.alarms) > 0 ? [var.alarms] : []
+    for_each = var.alarms != null ? [var.alarms] : []
 
     content {
       alarm_names = alarms.value.alarm_names
-      enable      = try(alarms.value.enable, true)
-      rollback    = try(alarms.value.rollback, true)
+      enable      = alarms.value.enable
+      rollback    = alarms.value.rollback
     }
   }
 
+  availability_zone_rebalancing = var.availability_zone_rebalancing
+
   dynamic "capacity_provider_strategy" {
     # Set by task set if deployment controller is external
-    for_each = { for k, v in var.capacity_provider_strategy : k => v if !local.is_external_deployment }
+    for_each = !local.is_external_deployment && var.capacity_provider_strategy != null ? var.capacity_provider_strategy : {}
 
     content {
-      base              = try(capacity_provider_strategy.value.base, null)
+      base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider_strategy.value.weight, null)
+      weight            = capacity_provider_strategy.value.weight
     }
   }
 
   cluster = var.cluster_arn
 
   dynamic "deployment_circuit_breaker" {
-    for_each = length(var.deployment_circuit_breaker) > 0 ? [var.deployment_circuit_breaker] : []
+    for_each = var.deployment_circuit_breaker != null ? [var.deployment_circuit_breaker] : []
 
     content {
       enable   = deployment_circuit_breaker.value.enable
@@ -64,10 +72,10 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "deployment_controller" {
-    for_each = length(var.deployment_controller) > 0 ? [var.deployment_controller] : []
+    for_each = var.deployment_controller != null ? [var.deployment_controller] : []
 
     content {
-      type = try(deployment_controller.value.type, null)
+      type = deployment_controller.value.type
     }
   }
 
@@ -76,20 +84,21 @@ resource "aws_ecs_service" "this" {
   desired_count                      = local.is_daemon || local.is_external_deployment ? null : var.desired_count
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
   enable_execute_command             = var.enable_execute_command
+  force_delete                       = var.force_delete
   force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
-  launch_type                        = local.is_external_deployment || length(var.capacity_provider_strategy) > 0 ? null : var.launch_type
+  launch_type                        = local.is_external_deployment || var.capacity_provider_strategy != null ? null : var.launch_type
 
   dynamic "load_balancer" {
     # Set by task set if deployment controller is external
-    for_each = { for k, v in var.load_balancer : k => v if !local.is_external_deployment }
+    for_each = var.load_balancer != null ? var.load_balancer : {}
 
     content {
       container_name   = load_balancer.value.container_name
       container_port   = load_balancer.value.container_port
-      elb_name         = try(load_balancer.value.elb_name, null)
-      target_group_arn = try(load_balancer.value.target_group_arn, null)
+      elb_name         = load_balancer.value.elb_name
+      target_group_arn = load_balancer.value.target_group_arn
     }
   }
 
@@ -107,42 +116,43 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "ordered_placement_strategy" {
-    for_each = var.ordered_placement_strategy
+    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : {}
 
     content {
-      field = try(ordered_placement_strategy.value.field, null)
+      field = ordered_placement_strategy.value.field
       type  = ordered_placement_strategy.value.type
     }
   }
 
   dynamic "placement_constraints" {
-    for_each = var.placement_constraints
+    for_each = var.placement_constraints != null ? var.placement_constraints : {}
 
     content {
-      expression = try(placement_constraints.value.expression, null)
+      expression = placement_constraints.value.expression
       type       = placement_constraints.value.type
     }
   }
 
   # Set by task set if deployment controller is external
   platform_version    = local.is_fargate && !local.is_external_deployment ? var.platform_version : null
+  propagate_tags      = var.propagate_tags
   scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
 
   dynamic "service_connect_configuration" {
-    for_each = length(var.service_connect_configuration) > 0 ? [var.service_connect_configuration] : []
+    for_each = var.service_connect_configuration != null ? [var.service_connect_configuration] : []
 
     content {
-      enabled = try(service_connect_configuration.value.enabled, true)
+      enabled = service_connect_configuration.value.enabled
 
       dynamic "log_configuration" {
-        for_each = try([service_connect_configuration.value.log_configuration], [])
+        for_each = service_connect_configuration.value.log_configuration != null ? [service_connect_configuration.value.log_configuration] : []
 
         content {
-          log_driver = try(log_configuration.value.log_driver, null)
-          options    = try(log_configuration.value.options, null)
+          log_driver = log_configuration.value.log_driver
+          options    = log_configuration.value.options
 
           dynamic "secret_option" {
-            for_each = try(log_configuration.value.secret_option, [])
+            for_each = log_configuration.value.secret_option != null ? log_configuration.value.secret_option : []
 
             content {
               name       = secret_option.value.name
@@ -152,7 +162,7 @@ resource "aws_ecs_service" "this" {
         }
       }
 
-      namespace = lookup(service_connect_configuration.value, "namespace", null)
+      namespace = service_connect_configuration.value.namespace
 
       dynamic "service" {
         for_each = try(
@@ -160,19 +170,44 @@ resource "aws_ecs_service" "this" {
           try([service_connect_configuration.value.service], [])
         )
         content {
-
           dynamic "client_alias" {
-            for_each = try([service.value.client_alias], [])
+            for_each = service.value.client_alias != null ? [service.value.client_alias] : []
 
             content {
-              dns_name = try(client_alias.value.dns_name, null)
+              dns_name = client_alias.value.dns_name
               port     = client_alias.value.port
             }
           }
 
-          discovery_name        = try(service.value.discovery_name, null)
-          ingress_port_override = try(service.value.ingress_port_override, null)
+          discovery_name        = service.value.discovery_name
+          ingress_port_override = service.value.ingress_port_override
           port_name             = service.value.port_name
+
+          dynamic "timeout" {
+            for_each = service.value.timeout != null ? [service.value.timeout] : []
+
+            content {
+              idle_timeout_seconds        = timeout.value.idle_timeout_seconds
+              per_request_timeout_seconds = timeout.value.per_request_timeout_seconds
+            }
+          }
+
+          dynamic "tls" {
+            for_each = service.value.tls != null ? [service.value.tls] : []
+
+            content {
+              dynamic "issuer_cert_authority" {
+                for_each = tls.value.issuer_cert_authority
+
+                content {
+                  aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
+                }
+              }
+
+              kms_key  = tls.value.kms_key
+              role_arn = tls.value.role_arn
+            }
+          }
         }
       }
     }
@@ -180,31 +215,80 @@ resource "aws_ecs_service" "this" {
 
   dynamic "service_registries" {
     # Set by task set if deployment controller is external
-    for_each = length(var.service_registries) > 0 ? [{ for k, v in var.service_registries : k => v if !local.is_external_deployment }] : []
+    for_each = var.service_registries != null && !local.is_external_deployment ? [var.service_registries] : []
 
     content {
-      container_name = try(service_registries.value.container_name, null)
-      container_port = try(service_registries.value.container_port, null)
-      port           = try(service_registries.value.port, null)
+      container_name = service_registries.value.container_name
+      container_port = service_registries.value.container_port
+      port           = service_registries.value.port
       registry_arn   = service_registries.value.registry_arn
     }
   }
 
-  task_definition       = local.task_definition
-  triggers              = var.triggers
+  tags            = merge(var.tags, var.service_tags)
+  task_definition = local.task_definition
+  triggers        = var.triggers
+
+  dynamic "volume_configuration" {
+    for_each = var.volume_configuration != null ? [var.volume_configuration] : []
+
+    content {
+      name = try(volume_configuration.value.name, volume_configuration.key)
+
+      dynamic "managed_ebs_volume" {
+        for_each = [volume_configuration.value.managed_ebs_volume]
+
+        content {
+          encrypted        = managed_ebs_volume.value.encrypted
+          file_system_type = managed_ebs_volume.value.file_system_type
+          iops             = managed_ebs_volume.value.iops
+          kms_key_id       = managed_ebs_volume.value.kms_key_id
+          role_arn         = local.infrastructure_iam_role_arn
+          size_in_gb       = managed_ebs_volume.value.size_in_gb
+          snapshot_id      = managed_ebs_volume.value.snapshot_id
+
+          dynamic "tag_specifications" {
+            for_each = managed_ebs_volume.value.tag_specifications != null ? managed_ebs_volume.value.tag_specifications : []
+
+            content {
+              resource_type  = tag_specifications.value.resource_type
+              propagate_tags = tag_specifications.value.propagate_tags
+              tags           = tag_specifications.value.tags
+            }
+          }
+
+          throughput  = managed_ebs_volume.value.throughput
+          volume_type = managed_ebs_volume.value.volume_type
+        }
+      }
+    }
+  }
+
+  dynamic "vpc_lattice_configurations" {
+    for_each = var.vpc_lattice_configurations != null ? [var.vpc_lattice_configurations] : []
+
+    content {
+      role_arn         = local.infrastructure_iam_role_arn
+      target_group_arn = vpc_lattice_configurations.value.target_group_arn
+      port_name        = vpc_lattice_configurations.value.port_name
+    }
+  }
+
   wait_for_steady_state = var.wait_for_steady_state
 
-  propagate_tags = var.propagate_tags
-  tags           = merge(var.tags, var.service_tags)
+  dynamic "timeouts" {
+    for_each = var.timeouts != null ? [var.timeouts] : []
 
-  timeouts {
-    create = try(var.timeouts.create, null)
-    update = try(var.timeouts.update, null)
-    delete = try(var.timeouts.delete, null)
+    content {
+      create = timeouts.value.create
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.service
+    aws_iam_role_policy_attachment.service,
+    aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
   ]
 
   lifecycle {
@@ -222,30 +306,32 @@ resource "aws_ecs_service" "ignore_task_definition" {
   count = local.create_service && var.ignore_task_definition_changes ? 1 : 0
 
   dynamic "alarms" {
-    for_each = length(var.alarms) > 0 ? [var.alarms] : []
+    for_each = var.alarms != null ? [var.alarms] : []
 
     content {
       alarm_names = alarms.value.alarm_names
-      enable      = try(alarms.value.enable, true)
-      rollback    = try(alarms.value.rollback, true)
+      enable      = alarms.value.enable
+      rollback    = alarms.value.rollback
     }
   }
 
+  availability_zone_rebalancing = var.availability_zone_rebalancing
+
   dynamic "capacity_provider_strategy" {
     # Set by task set if deployment controller is external
-    for_each = { for k, v in var.capacity_provider_strategy : k => v if !local.is_external_deployment }
+    for_each = !local.is_external_deployment && var.capacity_provider_strategy != null ? var.capacity_provider_strategy : {}
 
     content {
-      base              = try(capacity_provider_strategy.value.base, null)
+      base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider_strategy.value.weight, null)
+      weight            = capacity_provider_strategy.value.weight
     }
   }
 
   cluster = var.cluster_arn
 
   dynamic "deployment_circuit_breaker" {
-    for_each = length(var.deployment_circuit_breaker) > 0 ? [var.deployment_circuit_breaker] : []
+    for_each = var.deployment_circuit_breaker != null ? [var.deployment_circuit_breaker] : []
 
     content {
       enable   = deployment_circuit_breaker.value.enable
@@ -254,10 +340,10 @@ resource "aws_ecs_service" "ignore_task_definition" {
   }
 
   dynamic "deployment_controller" {
-    for_each = length(var.deployment_controller) > 0 ? [var.deployment_controller] : []
+    for_each = var.deployment_controller != null ? [var.deployment_controller] : []
 
     content {
-      type = try(deployment_controller.value.type, null)
+      type = deployment_controller.value.type
     }
   }
 
@@ -266,20 +352,21 @@ resource "aws_ecs_service" "ignore_task_definition" {
   desired_count                      = local.is_daemon || local.is_external_deployment ? null : var.desired_count
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
   enable_execute_command             = var.enable_execute_command
+  force_delete                       = var.force_delete
   force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = local.iam_role_arn
-  launch_type                        = local.is_external_deployment || length(var.capacity_provider_strategy) > 0 ? null : var.launch_type
+  launch_type                        = local.is_external_deployment || var.capacity_provider_strategy != null ? null : var.launch_type
 
   dynamic "load_balancer" {
     # Set by task set if deployment controller is external
-    for_each = { for k, v in var.load_balancer : k => v if !local.is_external_deployment }
+    for_each = var.load_balancer != null ? var.load_balancer : {}
 
     content {
       container_name   = load_balancer.value.container_name
       container_port   = load_balancer.value.container_port
-      elb_name         = try(load_balancer.value.elb_name, null)
-      target_group_arn = try(load_balancer.value.target_group_arn, null)
+      elb_name         = load_balancer.value.elb_name
+      target_group_arn = load_balancer.value.target_group_arn
     }
   }
 
@@ -297,42 +384,43 @@ resource "aws_ecs_service" "ignore_task_definition" {
   }
 
   dynamic "ordered_placement_strategy" {
-    for_each = var.ordered_placement_strategy
+    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : {}
 
     content {
-      field = try(ordered_placement_strategy.value.field, null)
+      field = ordered_placement_strategy.value.field
       type  = ordered_placement_strategy.value.type
     }
   }
 
   dynamic "placement_constraints" {
-    for_each = var.placement_constraints
+    for_each = var.placement_constraints != null ? var.placement_constraints : {}
 
     content {
-      expression = try(placement_constraints.value.expression, null)
+      expression = placement_constraints.value.expression
       type       = placement_constraints.value.type
     }
   }
 
   # Set by task set if deployment controller is external
   platform_version    = local.is_fargate && !local.is_external_deployment ? var.platform_version : null
+  propagate_tags      = var.propagate_tags
   scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
 
   dynamic "service_connect_configuration" {
-    for_each = length(var.service_connect_configuration) > 0 ? [var.service_connect_configuration] : []
+    for_each = var.service_connect_configuration != null ? [var.service_connect_configuration] : []
 
     content {
-      enabled = try(service_connect_configuration.value.enabled, true)
+      enabled = service_connect_configuration.value.enabled
 
       dynamic "log_configuration" {
-        for_each = try([service_connect_configuration.value.log_configuration], [])
+        for_each = service_connect_configuration.value.log_configuration != null ? [service_connect_configuration.value.log_configuration] : []
 
         content {
-          log_driver = try(log_configuration.value.log_driver, null)
-          options    = try(log_configuration.value.options, null)
+          log_driver = log_configuration.value.log_driver
+          options    = log_configuration.value.options
 
           dynamic "secret_option" {
-            for_each = try(log_configuration.value.secret_option, [])
+            for_each = log_configuration.value.secret_option != null ? log_configuration.value.secret_option : []
 
             content {
               name       = secret_option.value.name
@@ -342,25 +430,50 @@ resource "aws_ecs_service" "ignore_task_definition" {
         }
       }
 
-      namespace = lookup(service_connect_configuration.value, "namespace", null)
+      namespace = service_connect_configuration.value.namespace
 
       dynamic "service" {
-        for_each = try([service_connect_configuration.value.service], [])
+        for_each = service_connect_configuration.value.service != null ? service_connect_configuration.value.service : []
 
         content {
-
           dynamic "client_alias" {
-            for_each = try([service.value.client_alias], [])
+            for_each = service.value.client_alias != null ? [service.value.client_alias] : []
 
             content {
-              dns_name = try(client_alias.value.dns_name, null)
+              dns_name = client_alias.value.dns_name
               port     = client_alias.value.port
             }
           }
 
-          discovery_name        = try(service.value.discovery_name, null)
-          ingress_port_override = try(service.value.ingress_port_override, null)
+          discovery_name        = service.value.discovery_name
+          ingress_port_override = service.value.ingress_port_override
           port_name             = service.value.port_name
+
+          dynamic "timeout" {
+            for_each = service.value.timeout != null ? [service.value.timeout] : []
+
+            content {
+              idle_timeout_seconds        = timeout.value.idle_timeout_seconds
+              per_request_timeout_seconds = timeout.value.per_request_timeout_seconds
+            }
+          }
+
+          dynamic "tls" {
+            for_each = service.value.tls != null ? [service.value.tls] : []
+
+            content {
+              dynamic "issuer_cert_authority" {
+                for_each = tls.value.issuer_cert_authority
+
+                content {
+                  aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
+                }
+              }
+
+              kms_key  = tls.value.kms_key
+              role_arn = tls.value.role_arn
+            }
+          }
         }
       }
     }
@@ -368,31 +481,80 @@ resource "aws_ecs_service" "ignore_task_definition" {
 
   dynamic "service_registries" {
     # Set by task set if deployment controller is external
-    for_each = length(var.service_registries) > 0 ? [{ for k, v in var.service_registries : k => v if !local.is_external_deployment }] : []
+    for_each = var.service_registries != null && !local.is_external_deployment ? [var.service_registries] : []
 
     content {
-      container_name = try(service_registries.value.container_name, null)
-      container_port = try(service_registries.value.container_port, null)
-      port           = try(service_registries.value.port, null)
+      container_name = service_registries.value.container_name
+      container_port = service_registries.value.container_port
+      port           = service_registries.value.port
       registry_arn   = service_registries.value.registry_arn
     }
   }
 
-  task_definition       = local.task_definition
-  triggers              = var.triggers
+  tags            = merge(var.tags, var.service_tags)
+  task_definition = local.task_definition
+  triggers        = var.triggers
+
+  dynamic "volume_configuration" {
+    for_each = var.volume_configuration != null ? [var.volume_configuration] : []
+
+    content {
+      name = volume_configuration.value.name
+
+      dynamic "managed_ebs_volume" {
+        for_each = [volume_configuration.value.managed_ebs_volume]
+
+        content {
+          encrypted        = managed_ebs_volume.value.encrypted
+          file_system_type = managed_ebs_volume.value.file_system_type
+          iops             = managed_ebs_volume.value.iops
+          kms_key_id       = managed_ebs_volume.value.kms_key_id
+          role_arn         = local.infrastructure_iam_role_arn
+          size_in_gb       = managed_ebs_volume.value.size_in_gb
+          snapshot_id      = managed_ebs_volume.value.snapshot_id
+
+          dynamic "tag_specifications" {
+            for_each = managed_ebs_volume.value.tag_specifications != null ? managed_ebs_volume.value.tag_specifications : []
+
+            content {
+              resource_type  = tag_specifications.value.resource_type
+              propagate_tags = tag_specifications.value.propagate_tags
+              tags           = tag_specifications.value.tags
+            }
+          }
+
+          throughput  = managed_ebs_volume.value.throughput
+          volume_type = managed_ebs_volume.value.volume_type
+        }
+      }
+    }
+  }
+
+  dynamic "vpc_lattice_configurations" {
+    for_each = var.vpc_lattice_configurations != null ? [var.vpc_lattice_configurations] : []
+
+    content {
+      role_arn         = local.infrastructure_iam_role_arn
+      target_group_arn = vpc_lattice_configurations.value.target_group_arn
+      port_name        = vpc_lattice_configurations.value.port_name
+    }
+  }
+
   wait_for_steady_state = var.wait_for_steady_state
 
-  propagate_tags = var.propagate_tags
-  tags           = merge(var.tags, var.service_tags)
+  dynamic "timeouts" {
+    for_each = var.timeouts != null ? [var.timeouts] : []
 
-  timeouts {
-    create = try(var.timeouts.create, null)
-    update = try(var.timeouts.update, null)
-    delete = try(var.timeouts.delete, null)
+    content {
+      create = timeouts.value.create
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.service
+    aws_iam_role_policy_attachment.service,
+    aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
   ]
 
   lifecycle {
@@ -410,7 +572,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
 
 locals {
   # Role is not required if task definition uses `awsvpc` network mode or if a load balancer is not used
-  needs_iam_role  = var.network_mode != "awsvpc" && length(var.load_balancer) > 0
+  needs_iam_role  = var.network_mode != "awsvpc" && var.load_balancer != null
   create_iam_role = var.create && var.create_iam_role && local.needs_iam_role
   iam_role_arn    = local.needs_iam_role ? try(aws_iam_role.service[0].arn, var.iam_role_arn) : null
 
@@ -464,18 +626,18 @@ data "aws_iam_policy_document" "service" {
   }
 
   dynamic "statement" {
-    for_each = var.iam_role_statements
+    for_each = var.iam_role_statements != null ? var.iam_role_statements : []
 
     content {
-      sid           = try(statement.value.sid, null)
-      actions       = try(statement.value.actions, null)
-      not_actions   = try(statement.value.not_actions, null)
-      effect        = try(statement.value.effect, null)
-      resources     = try(statement.value.resources, null)
-      not_resources = try(statement.value.not_resources, null)
+      sid           = statement.value.sid
+      actions       = statement.value.actions
+      not_actions   = statement.value.not_actions
+      effect        = statement.value.effect
+      resources     = statement.value.resources
+      not_resources = statement.value.not_resources
 
       dynamic "principals" {
-        for_each = try(statement.value.principals, [])
+        for_each = statement.value.principals != null ? statement.value.principals : []
 
         content {
           type        = principals.value.type
@@ -484,7 +646,7 @@ data "aws_iam_policy_document" "service" {
       }
 
       dynamic "not_principals" {
-        for_each = try(statement.value.not_principals, [])
+        for_each = statement.value.not_principals != null ? statement.value.not_principals : []
 
         content {
           type        = not_principals.value.type
@@ -493,7 +655,7 @@ data "aws_iam_policy_document" "service" {
       }
 
       dynamic "condition" {
-        for_each = try(statement.value.conditions, [])
+        for_each = statement.value.conditions != null ? statement.value.conditions : []
 
         content {
           test     = condition.value.test
@@ -535,46 +697,47 @@ module "container_definition" {
   operating_system_family = try(var.runtime_platform.operating_system_family, "LINUX")
 
   # Container Definition
-  command                  = try(each.value.command, var.container_definition_defaults.command, [])
-  cpu                      = try(each.value.cpu, var.container_definition_defaults.cpu, null)
-  dependencies             = try(each.value.dependencies, var.container_definition_defaults.dependencies, []) # depends_on is a reserved word
-  disable_networking       = try(each.value.disable_networking, var.container_definition_defaults.disable_networking, null)
-  dns_search_domains       = try(each.value.dns_search_domains, var.container_definition_defaults.dns_search_domains, [])
-  dns_servers              = try(each.value.dns_servers, var.container_definition_defaults.dns_servers, [])
-  docker_labels            = try(each.value.docker_labels, var.container_definition_defaults.docker_labels, {})
-  docker_security_options  = try(each.value.docker_security_options, var.container_definition_defaults.docker_security_options, [])
-  enable_execute_command   = try(each.value.enable_execute_command, var.container_definition_defaults.enable_execute_command, var.enable_execute_command)
-  entrypoint               = try(each.value.entrypoint, var.container_definition_defaults.entrypoint, [])
-  environment              = try(each.value.environment, var.container_definition_defaults.environment, [])
-  environment_files        = try(each.value.environment_files, var.container_definition_defaults.environment_files, [])
-  essential                = try(each.value.essential, var.container_definition_defaults.essential, null)
-  extra_hosts              = try(each.value.extra_hosts, var.container_definition_defaults.extra_hosts, [])
-  firelens_configuration   = try(each.value.firelens_configuration, var.container_definition_defaults.firelens_configuration, {})
-  health_check             = try(each.value.health_check, var.container_definition_defaults.health_check, {})
-  hostname                 = try(each.value.hostname, var.container_definition_defaults.hostname, null)
-  image                    = try(each.value.image, var.container_definition_defaults.image, null)
-  interactive              = try(each.value.interactive, var.container_definition_defaults.interactive, false)
-  links                    = try(each.value.links, var.container_definition_defaults.links, [])
-  linux_parameters         = try(each.value.linux_parameters, var.container_definition_defaults.linux_parameters, {})
-  log_configuration        = try(each.value.log_configuration, var.container_definition_defaults.log_configuration, {})
-  memory                   = try(each.value.memory, var.container_definition_defaults.memory, null)
-  memory_reservation       = try(each.value.memory_reservation, var.container_definition_defaults.memory_reservation, null)
-  mount_points             = try(each.value.mount_points, var.container_definition_defaults.mount_points, [])
-  name                     = try(each.value.name, each.key)
-  port_mappings            = try(each.value.port_mappings, var.container_definition_defaults.port_mappings, [])
-  privileged               = try(each.value.privileged, var.container_definition_defaults.privileged, false)
-  pseudo_terminal          = try(each.value.pseudo_terminal, var.container_definition_defaults.pseudo_terminal, false)
-  readonly_root_filesystem = try(each.value.readonly_root_filesystem, var.container_definition_defaults.readonly_root_filesystem, true)
-  repository_credentials   = try(each.value.repository_credentials, var.container_definition_defaults.repository_credentials, {})
-  resource_requirements    = try(each.value.resource_requirements, var.container_definition_defaults.resource_requirements, [])
-  secrets                  = try(each.value.secrets, var.container_definition_defaults.secrets, [])
-  start_timeout            = try(each.value.start_timeout, var.container_definition_defaults.start_timeout, 30)
-  stop_timeout             = try(each.value.stop_timeout, var.container_definition_defaults.stop_timeout, 120)
-  system_controls          = try(each.value.system_controls, var.container_definition_defaults.system_controls, [])
-  ulimits                  = try(each.value.ulimits, var.container_definition_defaults.ulimits, [])
-  user                     = try(each.value.user, var.container_definition_defaults.user, 0)
-  volumes_from             = try(each.value.volumes_from, var.container_definition_defaults.volumes_from, [])
-  working_directory        = try(each.value.working_directory, var.container_definition_defaults.working_directory, null)
+  command                = try(each.value.command, var.container_definition_defaults.command, null)
+  cpu                    = try(each.value.cpu, var.container_definition_defaults.cpu, null)
+  dependsOn              = try(each.value.dependsOn, var.container_definition_defaults.dependsOn, null)
+  disableNetworking      = try(each.value.disableNetworking, var.container_definition_defaults.disableNetworking, null)
+  dnsSearchDomains       = try(each.value.dnsSearchDomains, var.container_definition_defaults.dnsSearchDomains, null)
+  dnsServers             = try(each.value.dnsServers, var.container_definition_defaults.dnsServers, null)
+  dockerLabels           = try(each.value.dockerLabels, var.container_definition_defaults.dockerLabels, null)
+  dockerSecurityOptions  = try(each.value.dockerSecurityOptions, var.container_definition_defaults.dockerSecurityOptions, null)
+  enable_execute_command = try(each.value.enable_execute_command, var.container_definition_defaults.enable_execute_command, var.enable_execute_command)
+  entrypoint             = try(each.value.entrypoint, var.container_definition_defaults.entrypoint, null)
+  environment            = try(each.value.environment, var.container_definition_defaults.environment, null)
+  environmentFiles       = try(each.value.environmentFiles, var.container_definition_defaults.environmentFiles, null)
+  essential              = try(each.value.essential, var.container_definition_defaults.essential, null)
+  extraHosts             = try(each.value.extraHosts, var.container_definition_defaults.extraHosts, null)
+  firelensConfiguration  = try(each.value.firelensConfiguration, var.container_definition_defaults.firelensConfiguration, null)
+  healthCheck            = try(each.value.healthCheck, var.container_definition_defaults.healthCheck, null)
+  hostname               = try(each.value.hostname, var.container_definition_defaults.hostname, null)
+  image                  = try(each.value.image, var.container_definition_defaults.image, null)
+  interactive            = try(each.value.interactive, var.container_definition_defaults.interactive, false)
+  links                  = try(each.value.links, var.container_definition_defaults.links, null)
+  linuxParameters        = try(each.value.linuxParameters, var.container_definition_defaults.linuxParameters, { initProcessEnabled = false })
+  logConfiguration       = try(each.value.logConfiguration, var.container_definition_defaults.logConfiguration, {})
+  memory                 = try(each.value.memory, var.container_definition_defaults.memory, null)
+  memoryReservation      = try(each.value.memory_reservation, var.container_definition_defaults.memoryReservation, null)
+  mountPoints            = try(each.value.mount_points, var.container_definition_defaults.mountPoints, null)
+  name                   = try(each.value.name, each.key)
+  portMappings           = try(each.value.port_mappings, var.container_definition_defaults.portMappings, null)
+  privileged             = try(each.value.privileged, var.container_definition_defaults.privileged, false)
+  pseudoTerminal         = try(each.value.pseudoTerminal, var.container_definition_defaults.pseudoTerminal, false)
+  readonlyRootFilesystem = try(each.value.readonlyRootFilesystem, var.container_definition_defaults.readonlyRootFilesystem, true)
+  repositoryCredentials  = try(each.value.repositoryCredentials, var.container_definition_defaults.repositoryCredentials, null)
+  resourceRequirements   = try(each.value.resourceRequirements, var.container_definition_defaults.resourceRequirements, null)
+  restartPolicy          = try(each.value.restartPolicy, var.container_definition_defaults.restartPolicy, { enabled = true })
+  secrets                = try(each.value.secrets, var.container_definition_defaults.secrets, null)
+  startTimeout           = try(each.value.startTimeout, var.container_definition_defaults.startTimeout, 30)
+  stopTimeout            = try(each.value.stopTimeout, var.container_definition_defaults.stopTimeout, 120)
+  systemControls         = try(each.value.systemControls, var.container_definition_defaults.systemControls, null)
+  ulimits                = try(each.value.ulimits, var.container_definition_defaults.ulimits, null)
+  user                   = try(each.value.user, var.container_definition_defaults.user, null)
+  volumesFrom            = try(each.value.volumesFrom, var.container_definition_defaults.volumesFrom, null)
+  workingDirectory       = try(each.value.workingDirectory, var.container_definition_defaults.workingDirectory, null)
 
   # CloudWatch Log Group
   service                                = var.name
@@ -582,6 +745,7 @@ module "container_definition" {
   create_cloudwatch_log_group            = try(each.value.create_cloudwatch_log_group, var.container_definition_defaults.create_cloudwatch_log_group, true)
   cloudwatch_log_group_name              = try(each.value.cloudwatch_log_group_name, var.container_definition_defaults.cloudwatch_log_group_name, null)
   cloudwatch_log_group_use_name_prefix   = try(each.value.cloudwatch_log_group_use_name_prefix, var.container_definition_defaults.cloudwatch_log_group_use_name_prefix, false)
+  cloudwatch_log_group_class             = try(each.value.cloudwatch_log_group_class, var.container_definition_defaults.cloudwatch_log_group_class, null)
   cloudwatch_log_group_retention_in_days = try(each.value.cloudwatch_log_group_retention_in_days, var.container_definition_defaults.cloudwatch_log_group_retention_in_days, 14)
   cloudwatch_log_group_kms_key_id        = try(each.value.cloudwatch_log_group_kms_key_id, var.container_definition_defaults.cloudwatch_log_group_kms_key_id, null)
 
@@ -594,37 +758,19 @@ module "container_definition" {
 
 locals {
   create_task_definition = var.create && var.create_task_definition
-
-  # This allows us to query both the existing as well as Terraform's state and get
-  # and get the max version of either source, useful for when external resources
-  # update the container definition
-  max_task_def_revision = local.create_task_definition ? max(aws_ecs_task_definition.this[0].revision, data.aws_ecs_task_definition.this[0].revision) : 0
-  task_definition       = local.create_task_definition ? "${aws_ecs_task_definition.this[0].family}:${local.max_task_def_revision}" : var.task_definition_arn
-}
-
-# This allows us to query both the existing as well as Terraform's state and get
-# and get the max version of either source, useful for when external resources
-# update the container definition
-data "aws_ecs_task_definition" "this" {
-  count = local.create_task_definition ? 1 : 0
-
-  task_definition = aws_ecs_task_definition.this[0].family
-
-  depends_on = [
-    # Needs to exist first on first deployment
-    aws_ecs_task_definition.this
-  ]
+  task_definition        = local.create_task_definition ? aws_ecs_task_definition.this[0].arn : var.task_definition_arn
 }
 
 resource "aws_ecs_task_definition" "this" {
   count = local.create_task_definition ? 1 : 0
 
   # Convert map of maps to array of maps before JSON encoding
-  container_definitions = jsonencode([for k, v in module.container_definition : v.container_definition])
-  cpu                   = var.cpu
+  container_definitions  = jsonencode([for k, v in module.container_definition : v.container_definition])
+  cpu                    = var.cpu
+  enable_fault_injection = var.enable_fault_injection
 
   dynamic "ephemeral_storage" {
-    for_each = length(var.ephemeral_storage) > 0 ? [var.ephemeral_storage] : []
+    for_each = var.ephemeral_storage != null ? [var.ephemeral_storage] : []
 
     content {
       size_in_gib = ephemeral_storage.value.size_in_gib
@@ -634,95 +780,89 @@ resource "aws_ecs_task_definition" "this" {
   execution_role_arn = try(aws_iam_role.task_exec[0].arn, var.task_exec_iam_role_arn)
   family             = coalesce(var.family, var.name)
 
-  dynamic "inference_accelerator" {
-    for_each = var.inference_accelerator
-
-    content {
-      device_name = inference_accelerator.value.device_name
-      device_type = inference_accelerator.value.device_type
-    }
-  }
-
   ipc_mode     = var.ipc_mode
   memory       = var.memory
   network_mode = var.network_mode
   pid_mode     = var.pid_mode
 
   dynamic "placement_constraints" {
-    for_each = var.task_definition_placement_constraints
+    for_each = var.task_definition_placement_constraints != null ? var.task_definition_placement_constraints : {}
 
     content {
-      expression = try(placement_constraints.value.expression, null)
+      expression = placement_constraints.value.expression
       type       = placement_constraints.value.type
     }
   }
 
   dynamic "proxy_configuration" {
-    for_each = length(var.proxy_configuration) > 0 ? [var.proxy_configuration] : []
+    for_each = var.proxy_configuration != null ? [var.proxy_configuration] : []
 
     content {
       container_name = proxy_configuration.value.container_name
-      properties     = try(proxy_configuration.value.properties, null)
-      type           = try(proxy_configuration.value.type, null)
+      properties     = proxy_configuration.value.properties
+      type           = proxy_configuration.value.type
     }
   }
 
   requires_compatibilities = var.requires_compatibilities
 
   dynamic "runtime_platform" {
-    for_each = length(var.runtime_platform) > 0 ? [var.runtime_platform] : []
+    for_each = var.runtime_platform != null ? [var.runtime_platform] : []
 
     content {
-      cpu_architecture        = try(runtime_platform.value.cpu_architecture, null)
-      operating_system_family = try(runtime_platform.value.operating_system_family, null)
+      cpu_architecture        = runtime_platform.value.cpu_architecture
+      operating_system_family = runtime_platform.value.operating_system_family
     }
   }
 
   skip_destroy  = var.skip_destroy
   task_role_arn = try(aws_iam_role.tasks[0].arn, var.tasks_iam_role_arn)
+  track_latest  = var.track_latest
 
   dynamic "volume" {
-    for_each = var.volume
+    for_each = var.volume != null ? var.volume : {}
 
     content {
+      configure_at_launch = volume.value.configure_at_launch
+
       dynamic "docker_volume_configuration" {
-        for_each = try([volume.value.docker_volume_configuration], [])
+        for_each = volume.value.docker_volume_configuration != null ? [volume.value.docker_volume_configuration] : []
 
         content {
-          autoprovision = try(docker_volume_configuration.value.autoprovision, null)
-          driver        = try(docker_volume_configuration.value.driver, null)
-          driver_opts   = try(docker_volume_configuration.value.driver_opts, null)
-          labels        = try(docker_volume_configuration.value.labels, null)
-          scope         = try(docker_volume_configuration.value.scope, null)
+          autoprovision = docker_volume_configuration.value.autoprovision
+          driver        = docker_volume_configuration.value.driver
+          driver_opts   = docker_volume_configuration.value.driver_opts
+          labels        = docker_volume_configuration.value.labels
+          scope         = docker_volume_configuration.value.scope
         }
       }
 
       dynamic "efs_volume_configuration" {
-        for_each = try([volume.value.efs_volume_configuration], [])
+        for_each = volume.value.efs_volume_configuration != null ? [volume.value.efs_volume_configuration] : []
 
         content {
           dynamic "authorization_config" {
-            for_each = try([efs_volume_configuration.value.authorization_config], [])
+            for_each = efs_volume_configuration.value.authorization_config != null ? [efs_volume_configuration.value.authorization_config] : []
 
             content {
-              access_point_id = try(authorization_config.value.access_point_id, null)
-              iam             = try(authorization_config.value.iam, null)
+              access_point_id = authorization_config.value.access_point_id
+              iam             = authorization_config.value.iam
             }
           }
 
           file_system_id          = efs_volume_configuration.value.file_system_id
-          root_directory          = try(efs_volume_configuration.value.root_directory, null)
-          transit_encryption      = try(efs_volume_configuration.value.transit_encryption, null)
-          transit_encryption_port = try(efs_volume_configuration.value.transit_encryption_port, null)
+          root_directory          = efs_volume_configuration.value.root_directory
+          transit_encryption      = efs_volume_configuration.value.transit_encryption
+          transit_encryption_port = efs_volume_configuration.value.transit_encryption_port
         }
       }
 
       dynamic "fsx_windows_file_server_volume_configuration" {
-        for_each = try([volume.value.fsx_windows_file_server_volume_configuration], [])
+        for_each = volume.value.fsx_windows_file_server_volume_configuration != null ? [volume.value.fsx_windows_file_server_volume_configuration] : []
 
         content {
           dynamic "authorization_config" {
-            for_each = try([fsx_windows_file_server_volume_configuration.value.authorization_config], [])
+            for_each = fsx_windows_file_server_volume_configuration.value.authorization_config != null ? [fsx_windows_file_server_volume_configuration.value.authorization_config] : []
 
             content {
               credentials_parameter = authorization_config.value.credentials_parameter
@@ -735,8 +875,8 @@ resource "aws_ecs_task_definition" "this" {
         }
       }
 
-      host_path = try(volume.value.host_path, null)
-      name      = try(volume.value.name, volume.key)
+      host_path = volume.value.host_path
+      name      = coalesce(volume.value.name, volume.key)
     }
   }
 
@@ -848,18 +988,18 @@ data "aws_iam_policy_document" "task_exec" {
   }
 
   dynamic "statement" {
-    for_each = var.task_exec_iam_statements
+    for_each = var.task_exec_iam_statements != null ? var.task_exec_iam_statements : []
 
     content {
-      sid           = try(statement.value.sid, null)
-      actions       = try(statement.value.actions, null)
-      not_actions   = try(statement.value.not_actions, null)
-      effect        = try(statement.value.effect, null)
-      resources     = try(statement.value.resources, null)
-      not_resources = try(statement.value.not_resources, null)
+      sid           = statement.value.sid
+      actions       = statement.value.actions
+      not_actions   = statement.value.not_actions
+      effect        = statement.value.effect
+      resources     = statement.value.resources
+      not_resources = statement.value.not_resources
 
       dynamic "principals" {
-        for_each = try(statement.value.principals, [])
+        for_each = statement.value.principals != null ? statement.value.principals : []
 
         content {
           type        = principals.value.type
@@ -868,7 +1008,7 @@ data "aws_iam_policy_document" "task_exec" {
       }
 
       dynamic "not_principals" {
-        for_each = try(statement.value.not_principals, [])
+        for_each = statement.value.not_principals != null ? statement.value.not_principals : []
 
         content {
           type        = not_principals.value.type
@@ -877,7 +1017,7 @@ data "aws_iam_policy_document" "task_exec" {
       }
 
       dynamic "condition" {
-        for_each = try(statement.value.conditions, [])
+        for_each = statement.value.conditions != null ? statement.value.conditions : []
 
         content {
           test     = condition.value.test
@@ -959,15 +1099,8 @@ resource "aws_iam_role" "tasks" {
   tags = merge(var.tags, var.tasks_iam_role_tags)
 }
 
-resource "aws_iam_role_policy_attachment" "tasks" {
-  for_each = { for k, v in var.tasks_iam_role_policies : k => v if local.create_tasks_iam_role }
-
-  role       = aws_iam_role.tasks[0].name
-  policy_arn = each.value
-}
-
 data "aws_iam_policy_document" "tasks" {
-  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
+  count = local.create_tasks_iam_role && (var.tasks_iam_role_statements != null || var.enable_execute_command) ? 1 : 0
 
   dynamic "statement" {
     for_each = var.enable_execute_command ? [1] : []
@@ -985,18 +1118,18 @@ data "aws_iam_policy_document" "tasks" {
   }
 
   dynamic "statement" {
-    for_each = var.tasks_iam_role_statements
+    for_each = var.tasks_iam_role_statements != null ? var.tasks_iam_role_statements : []
 
     content {
-      sid           = try(statement.value.sid, null)
-      actions       = try(statement.value.actions, null)
-      not_actions   = try(statement.value.not_actions, null)
-      effect        = try(statement.value.effect, null)
-      resources     = try(statement.value.resources, null)
-      not_resources = try(statement.value.not_resources, null)
+      sid           = statement.value.sid
+      actions       = statement.value.actions
+      not_actions   = statement.value.not_actions
+      effect        = statement.value.effect
+      resources     = statement.value.resources
+      not_resources = statement.value.not_resources
 
       dynamic "principals" {
-        for_each = try(statement.value.principals, [])
+        for_each = statement.value.principals != null ? statement.value.principals : []
 
         content {
           type        = principals.value.type
@@ -1005,7 +1138,7 @@ data "aws_iam_policy_document" "tasks" {
       }
 
       dynamic "not_principals" {
-        for_each = try(statement.value.not_principals, [])
+        for_each = statement.value.not_principals != null ? statement.value.not_principals : []
 
         content {
           type        = not_principals.value.type
@@ -1014,7 +1147,7 @@ data "aws_iam_policy_document" "tasks" {
       }
 
       dynamic "condition" {
-        for_each = try(statement.value.conditions, [])
+        for_each = statement.value.conditions != null ? statement.value.conditions : []
 
         content {
           test     = condition.value.test
@@ -1026,13 +1159,29 @@ data "aws_iam_policy_document" "tasks" {
   }
 }
 
-resource "aws_iam_role_policy" "tasks" {
-  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
+resource "aws_iam_policy" "tasks" {
+  count = local.create_tasks_iam_role && (var.tasks_iam_role_statements != null || var.enable_execute_command) ? 1 : 0
 
   name        = var.tasks_iam_role_use_name_prefix ? null : local.tasks_iam_role_name
   name_prefix = var.tasks_iam_role_use_name_prefix ? "${local.tasks_iam_role_name}-" : null
+  description = coalesce(var.tasks_iam_role_description, "Task role IAM policy")
   policy      = data.aws_iam_policy_document.tasks[0].json
-  role        = aws_iam_role.tasks[0].id
+  path        = var.tasks_iam_role_path
+  tags        = merge(var.tags, var.tasks_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "tasks" {
+  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
+
+  role       = aws_iam_role.tasks[0].name
+  policy_arn = aws_iam_policy.tasks[0].arn
+}
+
+resource "aws_iam_role_policy_attachment" "tasks_additional" {
+  for_each = { for k, v in var.tasks_iam_role_policies : k => v if local.create_tasks_iam_role }
+
+  role       = aws_iam_role.tasks[0].name
+  policy_arn = each.value
 }
 
 ################################################################################
@@ -1059,47 +1208,47 @@ resource "aws_ecs_task_set" "this" {
   }
 
   dynamic "load_balancer" {
-    for_each = var.load_balancer
+    for_each = var.load_balancer != null ? var.load_balancer : {}
 
     content {
-      load_balancer_name = try(load_balancer.value.load_balancer_name, null)
-      target_group_arn   = try(load_balancer.value.target_group_arn, null)
+      load_balancer_name = load_balancer.value.load_balancer_name
+      target_group_arn   = load_balancer.value.target_group_arn
       container_name     = load_balancer.value.container_name
-      container_port     = try(load_balancer.value.container_port, null)
+      container_port     = load_balancer.value.container_port
     }
   }
 
   dynamic "service_registries" {
-    for_each = length(var.service_registries) > 0 ? [var.service_registries] : []
+    for_each = var.service_registries != null ? [var.service_registries] : []
 
     content {
-      container_name = try(service_registries.value.container_name, null)
-      container_port = try(service_registries.value.container_port, null)
-      port           = try(service_registries.value.port, null)
+      container_name = service_registries.value.container_name
+      container_port = service_registries.value.container_port
+      port           = service_registries.value.port
       registry_arn   = service_registries.value.registry_arn
     }
   }
 
-  launch_type = length(var.capacity_provider_strategy) > 0 ? null : var.launch_type
+  launch_type = var.capacity_provider_strategy != null ? null : var.launch_type
 
   dynamic "capacity_provider_strategy" {
-    for_each = var.capacity_provider_strategy
+    for_each = var.capacity_provider_strategy != null ? var.capacity_provider_strategy : {}
 
     content {
-      base              = try(capacity_provider_strategy.value.base, null)
+      base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider_strategy.value.weight, null)
+      weight            = capacity_provider_strategy.value.weight
     }
   }
 
   platform_version = local.is_fargate ? var.platform_version : null
 
   dynamic "scale" {
-    for_each = length(var.scale) > 0 ? [var.scale] : []
+    for_each = var.scale != null ? [var.scale] : []
 
     content {
-      unit  = try(scale.value.unit, null)
-      value = try(scale.value.value, null)
+      unit  = scale.value.unit
+      value = scale.value.value
     }
   }
 
@@ -1140,47 +1289,47 @@ resource "aws_ecs_task_set" "ignore_task_definition" {
   }
 
   dynamic "load_balancer" {
-    for_each = var.load_balancer
+    for_each = var.load_balancer != null ? var.load_balancer : {}
 
     content {
-      load_balancer_name = try(load_balancer.value.load_balancer_name, null)
-      target_group_arn   = try(load_balancer.value.target_group_arn, null)
+      load_balancer_name = load_balancer.value.load_balancer_name
+      target_group_arn   = load_balancer.value.target_group_arn
       container_name     = load_balancer.value.container_name
-      container_port     = try(load_balancer.value.container_port, null)
+      container_port     = load_balancer.value.container_port
     }
   }
 
   dynamic "service_registries" {
-    for_each = length(var.service_registries) > 0 ? [var.service_registries] : []
+    for_each = var.service_registries != null ? [var.service_registries] : []
 
     content {
-      container_name = try(service_registries.value.container_name, null)
-      container_port = try(service_registries.value.container_port, null)
-      port           = try(service_registries.value.port, null)
+      container_name = service_registries.value.container_name
+      container_port = service_registries.value.container_port
+      port           = service_registries.value.port
       registry_arn   = service_registries.value.registry_arn
     }
   }
 
-  launch_type = length(var.capacity_provider_strategy) > 0 ? null : var.launch_type
+  launch_type = var.capacity_provider_strategy != null ? null : var.launch_type
 
   dynamic "capacity_provider_strategy" {
-    for_each = var.capacity_provider_strategy
+    for_each = var.capacity_provider_strategy != null ? var.capacity_provider_strategy : {}
 
     content {
-      base              = try(capacity_provider_strategy.value.base, null)
+      base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = try(capacity_provider_strategy.value.weight, null)
+      weight            = capacity_provider_strategy.value.weight
     }
   }
 
   platform_version = local.is_fargate ? var.platform_version : null
 
   dynamic "scale" {
-    for_each = length(var.scale) > 0 ? [var.scale] : []
+    for_each = var.scale != null ? [var.scale] : []
 
     content {
-      unit  = try(scale.value.unit, null)
-      value = try(scale.value.value, null)
+      unit  = scale.value.unit
+      value = scale.value.value
     }
   }
 
@@ -1259,6 +1408,37 @@ resource "aws_appautoscaling_policy" "this" {
         for_each = try([target_tracking_scaling_policy_configuration.value.customized_metric_specification], [])
 
         content {
+          dynamic "metrics" {
+            for_each = try(customized_metric_specification.value.metrics, [])
+            content {
+              id          = metrics.value.id
+              label       = try(metrics.value.label, null)
+              return_data = try(metrics.value.return_data, true)
+              expression  = try(metrics.value.expression, null)
+
+
+              dynamic "metric_stat" {
+                for_each = try([metrics.value.metric_stat], [])
+                content {
+                  stat = metric_stat.value.stat
+                  dynamic "metric" {
+                    for_each = try([metric_stat.value.metric], [])
+                    content {
+                      namespace   = metric.value.namespace
+                      metric_name = metric.value.metric_name
+                      dynamic "dimensions" {
+                        for_each = try(metric.value.dimensions, [])
+                        content {
+                          name  = dimensions.value.name
+                          value = dimensions.value.value
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
           dynamic "dimensions" {
             for_each = try(customized_metric_specification.value.dimensions, [])
 
@@ -1268,9 +1448,9 @@ resource "aws_appautoscaling_policy" "this" {
             }
           }
 
-          metric_name = customized_metric_specification.value.metric_name
-          namespace   = customized_metric_specification.value.namespace
-          statistic   = customized_metric_specification.value.statistic
+          metric_name = try(customized_metric_specification.value.metric_name, null)
+          namespace   = try(customized_metric_specification.value.namespace, null)
+          statistic   = try(customized_metric_specification.value.statistic, null)
           unit        = try(customized_metric_specification.value.unit, null)
         }
       }
@@ -1294,7 +1474,7 @@ resource "aws_appautoscaling_policy" "this" {
 }
 
 resource "aws_appautoscaling_scheduled_action" "this" {
-  for_each = { for k, v in var.autoscaling_scheduled_actions : k => v if local.enable_autoscaling }
+  for_each = local.enable_autoscaling && var.autoscaling_scheduled_actions != null ? var.autoscaling_scheduled_actions : {}
 
   name               = try(each.value.name, each.key)
   service_namespace  = aws_appautoscaling_target.this[0].service_namespace
@@ -1307,9 +1487,9 @@ resource "aws_appautoscaling_scheduled_action" "this" {
   }
 
   schedule   = each.value.schedule
-  start_time = try(each.value.start_time, null)
-  end_time   = try(each.value.end_time, null)
-  timezone   = try(each.value.timezone, null)
+  start_time = each.value.start_time
+  end_time   = each.value.end_time
+  timezone   = each.value.timezone
 }
 
 ################################################################################
@@ -1346,21 +1526,97 @@ resource "aws_security_group" "this" {
   }
 }
 
-resource "aws_security_group_rule" "this" {
-  for_each = { for k, v in var.security_group_rules : k => v if local.create_security_group }
+resource "aws_vpc_security_group_ingress_rule" "this" {
+  for_each = { for k, v in var.security_group_ingress_rules : k => v if var.security_group_ingress_rules != null && local.create_security_group }
 
-  # Required
-  security_group_id = aws_security_group.this[0].id
-  protocol          = each.value.protocol
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  type              = each.value.type
+  cidr_ipv4                    = each.value.cidr_ipv4
+  cidr_ipv6                    = each.value.cidr_ipv6
+  description                  = each.value.description
+  from_port                    = each.value.from_port
+  ip_protocol                  = each.value.ip_protocol
+  prefix_list_id               = each.value.prefix_list_id
+  referenced_security_group_id = each.value.referenced_security_group_id
+  security_group_id            = aws_security_group.this[0].id
+  tags = merge(
+    var.tags,
+    var.security_group_tags,
+    { "Name" = try(each.value.name, "${local.security_group_name}-${each.key}") },
+    each.value.tags
+  )
+  to_port = try(coalesce(each.value.to_port, each.value.from_port), null)
+}
 
-  # Optional
-  description              = lookup(each.value, "description", null)
-  cidr_blocks              = lookup(each.value, "cidr_blocks", null)
-  ipv6_cidr_blocks         = lookup(each.value, "ipv6_cidr_blocks", null)
-  prefix_list_ids          = lookup(each.value, "prefix_list_ids", null)
-  self                     = lookup(each.value, "self", null)
-  source_security_group_id = lookup(each.value, "source_security_group_id", null)
+resource "aws_vpc_security_group_egress_rule" "this" {
+  for_each = { for k, v in var.security_group_egress_rules : k => v if var.security_group_egress_rules != null && local.create_security_group }
+
+  cidr_ipv4                    = each.value.cidr_ipv4
+  cidr_ipv6                    = each.value.cidr_ipv6
+  description                  = each.value.description
+  from_port                    = try(coalesce(each.value.from_port, each.value.to_port), null)
+  ip_protocol                  = each.value.ip_protocol
+  prefix_list_id               = each.value.prefix_list_id
+  referenced_security_group_id = each.value.referenced_security_group_id
+  security_group_id            = aws_security_group.this[0].id
+  tags = merge(
+    var.tags,
+    var.security_group_tags,
+    { "Name" = try(each.value.name, "${local.security_group_name}-${each.key}") },
+    each.value.tags
+  )
+  to_port = each.value.to_port
+}
+
+############################################################################################
+# ECS infrastructure IAM role
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html
+############################################################################################
+
+locals {
+  needs_infrastructure_iam_role  = var.volume_configuration != null || var.vpc_lattice_configurations != null
+  create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.needs_infrastructure_iam_role
+  infrastructure_iam_role_arn    = local.needs_infrastructure_iam_role ? try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn) : null
+  infrastructure_iam_role_name   = try(coalesce(var.infrastructure_iam_role_name, var.name), "")
+}
+
+data "aws_iam_policy_document" "infrastructure_iam_role" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  statement {
+    sid     = "ECSServiceAssumeRole"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "infrastructure_iam_role" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  name        = var.infrastructure_iam_role_use_name_prefix ? null : local.infrastructure_iam_role_name
+  name_prefix = var.infrastructure_iam_role_use_name_prefix ? "${local.infrastructure_iam_role_name}-" : null
+  path        = var.infrastructure_iam_role_path
+  description = coalesce(var.infrastructure_iam_role_description, "Amazon ECS infrastructure IAM role that is used to manage your infrastructure")
+
+  assume_role_policy    = data.aws_iam_policy_document.infrastructure_iam_role[0].json
+  permissions_boundary  = var.infrastructure_iam_role_permissions_boundary
+  force_detach_policies = true
+
+  tags = merge(var.tags, var.infrastructure_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_ebs_policy" {
+  count = local.create_infrastructure_iam_role && var.volume_configuration != null ? 1 : 0
+
+  role       = aws_iam_role.infrastructure_iam_role[0].name
+  policy_arn = "arn:${local.partition}:iam::aws:policy/service-role/AmazonECSInfrastructureRolePolicyForVolumes"
+}
+
+resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_vpc_lattice_policy" {
+  count = local.create_infrastructure_iam_role && var.vpc_lattice_configurations != null ? 1 : 0
+
+  role       = aws_iam_role.infrastructure_iam_role[0].name
+  policy_arn = "arn:${local.partition}:iam::aws:policy/service-role/AmazonECSInfrastructureRolePolicyForVpcLattice"
 }

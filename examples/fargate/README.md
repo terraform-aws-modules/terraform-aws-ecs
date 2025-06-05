@@ -26,14 +26,14 @@ Note that this example may create resources which will incur monetary charges on
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.66.1 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.10 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.93 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.66.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.93 |
 
 ## Modules
 
@@ -78,7 +78,6 @@ No inputs.
 | <a name="output_service_security_group_id"></a> [service\_security\_group\_id](#output\_service\_security\_group\_id) | ID of the security group |
 | <a name="output_service_task_definition_arn"></a> [service\_task\_definition\_arn](#output\_service\_task\_definition\_arn) | Full ARN of the Task Definition (including both `family` and `revision`) |
 | <a name="output_service_task_definition_family"></a> [service\_task\_definition\_family](#output\_service\_task\_definition\_family) | The unique name of the task definition |
-| <a name="output_service_task_definition_family_revision"></a> [service\_task\_definition\_family\_revision](#output\_service\_task\_definition\_family\_revision) | The family and revision (family:revision) of the task definition |
 | <a name="output_service_task_definition_revision"></a> [service\_task\_definition\_revision](#output\_service\_task\_definition\_revision) | Revision of the task in a particular family |
 | <a name="output_service_task_exec_iam_role_arn"></a> [service\_task\_exec\_iam\_role\_arn](#output\_service\_task\_exec\_iam\_role\_arn) | Task execution IAM role ARN |
 | <a name="output_service_task_exec_iam_role_name"></a> [service\_task\_exec\_iam\_role\_name](#output\_service\_task\_exec\_iam\_role\_name) | Task execution IAM role name |

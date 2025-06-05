@@ -28,7 +28,7 @@ locals {
 module "ecs_cluster" {
   source = "../../modules/cluster"
 
-  cluster_name = local.name
+  name = local.name
 
   # Capacity provider - autoscaling groups
   default_capacity_provider_use_fargate = false
@@ -36,6 +36,7 @@ module "ecs_cluster" {
     # On-demand instances
     ex_1 = {
       auto_scaling_group_arn         = module.autoscaling["ex_1"].autoscaling_group_arn
+      managed_draining               = "ENABLED"
       managed_termination_protection = "ENABLED"
 
       managed_scaling = {
@@ -53,6 +54,7 @@ module "ecs_cluster" {
     # Spot instances
     ex_2 = {
       auto_scaling_group_arn         = module.autoscaling["ex_2"].autoscaling_group_arn
+      managed_draining               = "ENABLED"
       managed_termination_protection = "ENABLED"
 
       managed_scaling = {
@@ -93,8 +95,22 @@ module "ecs_service" {
     }
   }
 
+  volume_configuration = {
+    name = "ebs-volume"
+    managed_ebs_volume = {
+      encrypted        = true
+      file_system_type = "xfs"
+      size_in_gb       = 5
+      volume_type      = "gp3"
+    }
+  }
+
   volume = {
-    my-vol = {}
+    my-vol = {},
+    ebs-volume = {
+      name                = "ebs-volume"
+      configure_at_launch = true
+    }
   }
 
   # Container definition(s)
@@ -113,6 +129,10 @@ module "ecs_service" {
         {
           sourceVolume  = "my-vol",
           containerPath = "/var/www/my-vol"
+        },
+        {
+          containerPath = "/ebs/data"
+          sourceVolume  = "ebs-volume"
         }
       ]
 
@@ -141,11 +161,9 @@ module "ecs_service" {
   }
 
   subnet_ids = module.vpc.private_subnets
-  security_group_rules = {
+  security_group_ingress_rules = {
     alb_http_ingress = {
-      type                     = "ingress"
       from_port                = local.container_port
-      to_port                  = local.container_port
       protocol                 = "tcp"
       description              = "Service port"
       source_security_group_id = module.alb.security_group_id

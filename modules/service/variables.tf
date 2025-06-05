@@ -28,14 +28,28 @@ variable "ignore_task_definition_changes" {
 
 variable "alarms" {
   description = "Information about the CloudWatch alarms"
-  type        = any
-  default     = {}
+  type = object({
+    alarm_names = list(string)
+    enable      = optional(bool, true)
+    rollback    = optional(bool, true)
+  })
+  default = null
+}
+
+variable "availability_zone_rebalancing" {
+  description = "ECS automatically redistributes tasks within a service across Availability Zones (AZs) to mitigate the risk of impaired application availability due to underlying infrastructure failures and task lifecycle activities. The valid values are `ENABLED` and `DISABLED`. Defaults to `DISABLED`"
+  type        = string
+  default     = null
 }
 
 variable "capacity_provider_strategy" {
   description = "Capacity provider strategies to use for the service. Can be one or more"
-  type        = any
-  default     = {}
+  type = map(object({
+    base              = optional(number)
+    capacity_provider = string
+    weight            = optional(number)
+  }))
+  default = null
 }
 
 variable "cluster_arn" {
@@ -46,26 +60,31 @@ variable "cluster_arn" {
 
 variable "deployment_circuit_breaker" {
   description = "Configuration block for deployment circuit breaker"
-  type        = any
-  default     = {}
+  type = object({
+    enable   = bool
+    rollback = bool
+  })
+  default = null
 }
 
 variable "deployment_controller" {
   description = "Configuration block for deployment controller configuration"
-  type        = any
-  default     = {}
+  type = object({
+    type = optional(string)
+  })
+  default = null
 }
 
 variable "deployment_maximum_percent" {
   description = "Upper limit (as a percentage of the service's `desired_count`) of the number of running tasks that can be running in a service during a deployment"
   type        = number
-  default     = 200
+  default     = null
 }
 
 variable "deployment_minimum_healthy_percent" {
   description = "Lower limit (as a percentage of the service's `desired_count`) of the number of running tasks that must remain running and healthy in a service during a deployment"
   type        = number
-  default     = 66
+  default     = null
 }
 
 variable "desired_count" {
@@ -84,6 +103,12 @@ variable "enable_execute_command" {
   description = "Specifies whether to enable Amazon ECS Exec for the tasks within the service"
   type        = bool
   default     = false
+}
+
+variable "force_delete" {
+  description = "Enable to delete a service even if it wasn't scaled down to zero tasks. It's only necessary to use this if the service uses the `REPLICA` scheduling strategy"
+  type        = bool
+  default     = null
 }
 
 variable "force_new_deployment" {
@@ -106,8 +131,13 @@ variable "launch_type" {
 
 variable "load_balancer" {
   description = "Configuration block for load balancers"
-  type        = any
-  default     = {}
+  type = map(object({
+    container_name   = string
+    container_port   = number
+    elb_name         = optional(string)
+    target_group_arn = optional(string)
+  }))
+  default = null
 }
 
 variable "name" {
@@ -136,14 +166,20 @@ variable "subnet_ids" {
 
 variable "ordered_placement_strategy" {
   description = "Service level strategy rules that are taken into consideration during task placement. List from top to bottom in order of precedence"
-  type        = any
-  default     = {}
+  type = map(object({
+    field = optional(string)
+    type  = string
+  }))
+  default = null
 }
 
 variable "placement_constraints" {
   description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10). This is set at the service, see `task_definition_placement_constraints` for setting at the task definition"
-  type        = any
-  default     = {}
+  type = map(object({
+    expression = optional(string)
+    type       = string
+  }))
+  default = null
 }
 
 variable "platform_version" {
@@ -166,32 +202,105 @@ variable "scheduling_strategy" {
 
 variable "service_connect_configuration" {
   description = "The ECS Service Connect configuration for this service to discover and connect to services, and be discovered by, and connected from, other services within a namespace"
-  type        = any
-  default     = {}
+  type = object({
+    enabled = optional(bool, true)
+    log_configuration = optional(object({
+      log_driver = string
+      options    = optional(map(string))
+      secret_option = optional(list(object({
+        name       = string
+        value_from = string
+      })))
+    }))
+    namespace = optional(string)
+    service = optional(list(object({
+      client_alias = optional(object({
+        dns_name = optional(string)
+        port     = number
+      }))
+      discovery_name        = optional(string)
+      ingress_port_override = optional(number)
+      port_name             = string
+      timeout = optional(object({
+        idle_timeout_seconds        = optional(number)
+        per_request_timeout_seconds = optional(number)
+      }))
+      tls = optional(object({
+        issuer_cert_authority = object({
+          aws_pca_authority_arn = string
+        })
+        kms_key  = optional(string)
+        role_arn = optional(string)
+      }))
+    })))
+  })
+  default = null
 }
 
 variable "service_registries" {
   description = "Service discovery registries for the service"
-  type        = any
-  default     = {}
+  type = object({
+    container_name = optional(string)
+    container_port = optional(number)
+    port           = optional(number)
+    registry_arn   = string
+  })
+  default = null
 }
 
 variable "timeouts" {
   description = "Create, update, and delete timeout configurations for the service"
-  type        = map(string)
-  default     = {}
+  type = object({
+    create = optional(string)
+    update = optional(string)
+    delete = optional(string)
+  })
+  default = null
 }
 
 variable "triggers" {
-  description = "Map of arbitrary keys and values that, when changed, will trigger an in-place update (redeployment). Useful with `plantimestamp()`"
-  type        = any
-  default     = {}
+  description = "Map of arbitrary keys and values that, when changed, will trigger an in-place update (redeployment). Useful with `timestamp()`"
+  type        = map(string)
+  default     = null
 }
 
 variable "wait_for_steady_state" {
   description = "If true, Terraform will wait for the service to reach a steady state before continuing. Default is `false`"
   type        = bool
   default     = null
+}
+
+variable "volume_configuration" {
+  description = "Configuration for a volume specified in the task definition as a volume that is configured at launch time"
+  type = object({
+    name = string
+    managed_ebs_volume = object({
+      encrypted        = optional(bool)
+      file_system_type = optional(string)
+      iops             = optional(number)
+      kms_key_id       = optional(string)
+      size_in_gb       = optional(number)
+      snapshot_id      = optional(string)
+      tag_specifications = optional(list(object({
+        propagate_tags = optional(string, "TASK_DEFINITION")
+        resource_type  = string
+        tags           = optional(map(string))
+      })))
+      throughput  = optional(number)
+      volume_type = optional(string)
+    })
+  })
+  default = null
+}
+
+variable "vpc_lattice_configurations" {
+  description = "The VPC Lattice configuration for your service that allows Lattice to connect, secure, and monitor your service across multiple accounts and VPCs"
+  type = object({
+    role_arn         = string
+    target_group_arn = string
+    port_name        = string
+  })
+  default = null
 }
 
 variable "service_tags" {
@@ -254,8 +363,28 @@ variable "iam_role_tags" {
 
 variable "iam_role_statements" {
   description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
-  type        = any
-  default     = {}
+  type = list(object({
+    sid           = optional(string)
+    actions       = optional(list(string))
+    not_actions   = optional(list(string))
+    effect        = optional(string)
+    resources     = optional(list(string))
+    not_resources = optional(list(string))
+    principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    not_principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    condition = optional(list(object({
+      test     = string
+      values   = list(string)
+      variable = string
+    })))
+  }))
+  default = null
 }
 
 ################################################################################
@@ -292,22 +421,24 @@ variable "cpu" {
   default     = 1024
 }
 
+variable "enable_fault_injection" {
+  description = "Enables fault injection and allows for fault injection requests to be accepted from the task's containers. Default is `false`"
+  type        = bool
+  default     = null
+}
+
 variable "ephemeral_storage" {
   description = "The amount of ephemeral storage to allocate for the task. This parameter is used to expand the total amount of ephemeral storage available, beyond the default amount, for tasks hosted on AWS Fargate"
-  type        = any
-  default     = {}
+  type = object({
+    size_in_gib = number
+  })
+  default = null
 }
 
 variable "family" {
   description = "A unique name for your task definition"
   type        = string
   default     = null
-}
-
-variable "inference_accelerator" {
-  description = "Configuration block(s) with Inference Accelerators settings"
-  type        = any
-  default     = {}
 }
 
 variable "ipc_mode" {
@@ -336,14 +467,21 @@ variable "pid_mode" {
 
 variable "task_definition_placement_constraints" {
   description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10). This is set at the task definition, see `placement_constraints` for setting at the service"
-  type        = any
-  default     = {}
+  type = map(object({
+    expression = optional(string)
+    type       = string
+  }))
+  default = null
 }
 
 variable "proxy_configuration" {
   description = "Configuration block for the App Mesh proxy"
-  type        = any
-  default     = {}
+  type = object({
+    container_name = string
+    properties     = optional(map(string))
+    type           = optional(string)
+  })
+  default = null
 }
 
 variable "requires_compatibilities" {
@@ -354,7 +492,10 @@ variable "requires_compatibilities" {
 
 variable "runtime_platform" {
   description = "Configuration block for `runtime_platform` that containers in your task may use"
-  type        = any
+  type = object({
+    cpu_architecture        = optional(string, "X86_64")
+    operating_system_family = optional(string, "LINUX")
+  })
   default = {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
@@ -367,10 +508,45 @@ variable "skip_destroy" {
   default     = null
 }
 
+variable "track_latest" {
+  description = "Whether should track latest `ACTIVE` task definition on AWS or the one created with the resource stored in state. Default is `false`. Useful in the event the task definition is modified outside of this resource"
+  type        = bool
+  default     = true
+}
+
 variable "volume" {
   description = "Configuration block for volumes that containers in your task may use"
-  type        = any
-  default     = {}
+  type = map(object({
+    configure_at_launch = optional(bool)
+    docker_volume_configuration = optional(object({
+      autoprovision = optional(bool)
+      driver        = optional(string)
+      driver_opts   = optional(map(string))
+      labels        = optional(map(string))
+      scope         = optional(string)
+    }))
+    efs_volume_configuration = optional(object({
+      authorization_config = optional(object({
+        access_point_id = optional(string)
+        iam             = optional(string)
+      }))
+      file_system_id          = string
+      root_directory          = optional(string)
+      transit_encryption      = optional(string)
+      transit_encryption_port = optional(number)
+    }))
+    fsx_windows_file_server_volume_configuration = optional(object({
+      authorization_config = optional(object({
+        credentials_parameter = string
+        domain                = string
+      }))
+      file_system_id = string
+      root_directory = string
+    }))
+    host_path = optional(string)
+    name      = optional(string)
+  }))
+  default = null
 }
 
 variable "task_tags" {
@@ -464,8 +640,28 @@ variable "task_exec_secret_arns" {
 
 variable "task_exec_iam_statements" {
   description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
-  type        = any
-  default     = {}
+  type = list(object({
+    sid           = optional(string)
+    actions       = optional(list(string))
+    not_actions   = optional(list(string))
+    effect        = optional(string)
+    resources     = optional(list(string))
+    not_resources = optional(list(string))
+    principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    not_principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    condition = optional(list(object({
+      test     = string
+      values   = list(string)
+      variable = string
+    })))
+  }))
+  default = null
 }
 
 variable "task_exec_iam_policy_path" {
@@ -528,15 +724,35 @@ variable "tasks_iam_role_tags" {
 }
 
 variable "tasks_iam_role_policies" {
-  description = "Map of IAM role policy ARNs to attach to the IAM role"
+  description = "Map of additioanl IAM role policy ARNs to attach to the IAM role"
   type        = map(string)
   default     = {}
 }
 
 variable "tasks_iam_role_statements" {
   description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
-  type        = any
-  default     = {}
+  type = list(object({
+    sid           = optional(string)
+    actions       = optional(list(string))
+    not_actions   = optional(list(string))
+    effect        = optional(string)
+    resources     = optional(list(string))
+    not_resources = optional(list(string))
+    principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    not_principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    condition = optional(list(object({
+      test     = string
+      values   = list(string)
+      variable = string
+    })))
+  }))
+  default = null
 }
 
 ################################################################################
@@ -551,14 +767,11 @@ variable "external_id" {
 
 variable "scale" {
   description = "A floating-point percentage of the desired number of tasks to place and keep running in the task set"
-  type        = any
-  default     = {}
-}
-
-variable "force_delete" {
-  description = "Whether to allow deleting the task set without waiting for scaling down to 0"
-  type        = bool
-  default     = null
+  type = object({
+    unit  = optional(string)
+    value = optional(number)
+  })
+  default = null
 }
 
 variable "wait_until_stable" {
@@ -622,8 +835,16 @@ variable "autoscaling_policies" {
 
 variable "autoscaling_scheduled_actions" {
   description = "Map of autoscaling scheduled actions to create for the service"
-  type        = any
-  default     = {}
+  type = map(object({
+    name         = optional(string)
+    min_capacity = number
+    max_capacity = number
+    schedule     = string
+    start_time   = optional(string)
+    end_time     = optional(string)
+    timezone     = optional(string)
+  }))
+  default = null
 }
 
 ################################################################################
@@ -654,14 +875,92 @@ variable "security_group_description" {
   default     = null
 }
 
-variable "security_group_rules" {
-  description = "Security group rules to add to the security group created"
-  type        = any
-  default     = {}
+variable "security_group_ingress_rules" {
+  description = "Security group ingress rules to add to the security group created"
+  type = map(object({
+    cidr_ipv4                    = optional(string)
+    cidr_ipv6                    = optional(string)
+    description                  = optional(string)
+    from_port                    = optional(string)
+    ip_protocol                  = optional(string)
+    prefix_list_id               = optional(string)
+    referenced_security_group_id = optional(string)
+    tags                         = optional(map(string), {})
+    to_port                      = optional(string)
+  }))
+  default = null
+}
+
+variable "security_group_egress_rules" {
+  description = "Security group egress rules to add to the security group created"
+  type = map(object({
+    cidr_ipv4                    = optional(string)
+    cidr_ipv6                    = optional(string)
+    description                  = optional(string)
+    from_port                    = optional(string)
+    ip_protocol                  = optional(string)
+    prefix_list_id               = optional(string)
+    referenced_security_group_id = optional(string)
+    tags                         = optional(map(string), {})
+    to_port                      = optional(string)
+  }))
+  default = null
 }
 
 variable "security_group_tags" {
   description = "A map of additional tags to add to the security group created"
+  type        = map(string)
+  default     = {}
+}
+
+############################################################################################
+# ECS infrastructure IAM role
+############################################################################################
+
+variable "create_infrastructure_iam_role" {
+  description = "Determines whether the ECS infrastructure IAM role should be created"
+  type        = bool
+  default     = true
+}
+
+variable "infrastructure_iam_role_arn" {
+  description = "Existing IAM role ARN"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_name" {
+  description = "Name to use on IAM role created"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_use_name_prefix" {
+  description = "Determines whether the IAM role name (`iam_role_name`) is used as a prefix"
+  type        = bool
+  default     = true
+}
+
+variable "infrastructure_iam_role_path" {
+  description = "IAM role path"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_description" {
+  description = "Description of the role"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_permissions_boundary" {
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_tags" {
+  description = "A map of additional tags to add to the IAM role created"
   type        = map(string)
   default     = {}
 }
