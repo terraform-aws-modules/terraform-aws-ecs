@@ -254,7 +254,7 @@ module "alb" {
 
 module "autoscaling" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 6.5"
+  version = "~> 9.0"
 
   for_each = {
     # On-demand instances
@@ -370,7 +370,7 @@ module "autoscaling_sg" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.0"
+  version = "~> 6.0"
 
   name = local.name
   cidr = local.vpc_cidr
