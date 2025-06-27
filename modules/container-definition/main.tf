@@ -1,4 +1,6 @@
-data "aws_region" "current" {}
+data "aws_region" "current" {
+  region = var.region
+}
 
 locals {
   is_not_windows = contains(["LINUX"], var.operating_system_family)
@@ -6,14 +8,14 @@ locals {
   log_group_name = try(coalesce(var.cloudwatch_log_group_name, "/aws/ecs/${var.service}/${var.name}"), "")
 
   logConfiguration = merge(
-    { for k, v in {
+    {
       logDriver = "awslogs",
       options = {
         awslogs-region        = data.aws_region.current.region,
         awslogs-group         = try(aws_cloudwatch_log_group.this[0].name, ""),
         awslogs-stream-prefix = "ecs"
       },
-    } : k => v if var.enable_cloudwatch_logging },
+    },
     var.logConfiguration
   )
 
@@ -40,7 +42,7 @@ locals {
     interactive            = var.interactive
     links                  = local.is_not_windows ? var.links : null
     linuxParameters        = local.is_not_windows ? local.linuxParameters : null
-    logConfiguration       = length(local.logConfiguration) > 0 ? local.logConfiguration : null
+    logConfiguration       = var.create_cloudwatch_log_group ? local.logConfiguration : var.logConfiguration
     memory                 = var.memory
     memoryReservation      = var.memoryReservation
     mountPoints            = var.mountPoints
@@ -58,6 +60,7 @@ locals {
     systemControls         = var.systemControls
     ulimits                = local.is_not_windows ? var.ulimits : null
     user                   = local.is_not_windows ? var.user : null
+    versionConsistency     = var.versionConsistency
     volumesFrom            = var.volumesFrom
     workingDirectory       = var.workingDirectory
   }
@@ -68,6 +71,8 @@ locals {
 
 resource "aws_cloudwatch_log_group" "this" {
   count = var.create_cloudwatch_log_group && var.enable_cloudwatch_logging ? 1 : 0
+
+  region = var.region
 
   name              = var.cloudwatch_log_group_use_name_prefix ? null : local.log_group_name
   name_prefix       = var.cloudwatch_log_group_use_name_prefix ? "${local.log_group_name}-" : null

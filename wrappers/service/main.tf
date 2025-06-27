@@ -86,6 +86,7 @@ module "wrapper" {
   platform_version                             = try(each.value.platform_version, var.defaults.platform_version, null)
   propagate_tags                               = try(each.value.propagate_tags, var.defaults.propagate_tags, null)
   proxy_configuration                          = try(each.value.proxy_configuration, var.defaults.proxy_configuration, null)
+  region                                       = try(each.value.region, var.defaults.region, null)
   requires_compatibilities                     = try(each.value.requires_compatibilities, var.defaults.requires_compatibilities, ["FARGATE"])
   runtime_platform = try(each.value.runtime_platform, var.defaults.runtime_platform, {
     operating_system_family = "LINUX"

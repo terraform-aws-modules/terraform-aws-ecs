@@ -1,7 +1,19 @@
+variable "region" {
+  description = "Region where the resource(s) will be managed. Defaults to the Region set in the provider configuration"
+  type        = string
+  default     = null
+}
+
 variable "operating_system_family" {
   description = "The OS family for task"
   type        = string
   default     = "LINUX"
+}
+
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type        = map(string)
+  default     = {}
 }
 
 ################################################################################
@@ -178,15 +190,14 @@ variable "linuxParameters" {
 
 variable "logConfiguration" {
   description = "The log configuration for the container. For more information see [LogConfiguration](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LogConfiguration.html)"
-  # type = object({
-  #   logDriver = optional(string)
-  #   options   = optional(map(string))
-  #   secretOptions = optional(list(object({
-  #     name      = string
-  #     valueFrom = string
-  #   })))
-  # })
-  type    = any
+  type = object({
+    logDriver = optional(string)
+    options   = optional(map(string))
+    secretOptions = optional(list(object({
+      name      = string
+      valueFrom = string
+    })))
+  })
   default = {}
 }
 
@@ -204,8 +215,12 @@ variable "memoryReservation" {
 
 variable "mountPoints" {
   description = "The mount points for data volumes in your container"
-  type        = list(any)
-  default     = null
+  type = list(object({
+    containerPath = optional(string)
+    readOnly      = optional(bool)
+    sourceVolume  = optional(string)
+  }))
+  default = null
 }
 
 variable "name" {
@@ -217,11 +232,12 @@ variable "name" {
 variable "portMappings" {
   description = "The list of port mappings for the container. Port mappings allow containers to access ports on the host container instance to send or receive traffic. For task definitions that use the awsvpc network mode, only specify the containerPort. The hostPort can be left blank or it must be the same value as the containerPort"
   type = list(object({
-    appProtocol   = optional(string)
-    containerPort = number
-    hostPort      = optional(number)
-    name          = string
-    protocol      = optional(string)
+    appProtocol        = optional(string)
+    containerPort      = optional(number)
+    containerPortRange = optional(string)
+    hostPort           = optional(number)
+    name               = optional(string)
+    protocol           = optional(string)
   }))
   default = null
 }
@@ -246,8 +262,10 @@ variable "readonlyRootFilesystem" {
 
 variable "repositoryCredentials" {
   description = "Container repository credentials; required when using a private repo.  This map currently supports a single key; \"credentialsParameter\", which should be the ARN of a Secrets Manager's secret holding the credentials"
-  type        = map(string)
-  default     = null
+  type = object({
+    credentialsParameter = optional(string)
+  })
+  default = null
 }
 
 variable "resourceRequirements" {
@@ -294,8 +312,11 @@ variable "stopTimeout" {
 
 variable "systemControls" {
   description = "A list of namespaced kernel parameters to set in the container"
-  type        = list(map(string))
-  default     = null
+  type = list(object({
+    namespace = optional(string)
+    value     = optional(string)
+  }))
+  default = null
 }
 
 variable "ulimits" {
@@ -314,11 +335,17 @@ variable "user" {
   default     = null
 }
 
+variable "versionConsistency" {
+  description = "Specifies whether Amazon ECS will resolve the container image tag provided in the container definition to an image digest"
+  type        = string
+  default     = "disabled"
+}
+
 variable "volumesFrom" {
   description = "Data volumes to mount from another container"
   type = list(object({
-    readOnly        = bool
-    sourceContainer = string
+    readOnly        = optional(bool)
+    sourceContainer = optional(string)
   }))
   default = null
 }
@@ -379,10 +406,4 @@ variable "cloudwatch_log_group_kms_key_id" {
   description = "If a KMS Key ARN is set, this key will be used to encrypt the corresponding log group. Please be sure that the KMS Key has an appropriate key policy (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html)"
   type        = string
   default     = null
-}
-
-variable "tags" {
-  description = "A map of tags to add to all resources"
-  type        = map(string)
-  default     = {}
 }

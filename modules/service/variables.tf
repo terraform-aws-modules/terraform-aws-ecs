@@ -10,6 +10,12 @@ variable "create_service" {
   default     = true
 }
 
+variable "region" {
+  description = "Region where the resource(s) will be managed. Defaults to the Region set in the provider configuration"
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
@@ -405,14 +411,290 @@ variable "task_definition_arn" {
 
 variable "container_definitions" {
   description = "A map of valid [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html). Please note that you should only provide values that are part of the container definition document"
-  type        = any
-  default     = {}
+  type = map(object({
+    region                  = optional(string)
+    enable_execute_command  = optional(bool, false)
+    operating_system_family = optional(string, "LINUX")
+    tags                    = optional(map(string), {})
+
+    # Container definition
+    command = optional(list(string))
+    cpu     = optional(number)
+    depends_on = optional(list(object({
+      condition      = string
+      container_name = string
+    })))
+    disable_networking    = optional(bool)
+    dnsSearchDomains      = optional(list(string))
+    dnsServers            = optional(list(string))
+    dockerLabels          = optional(map(string))
+    dockerSecurityOptions = optional(list(string))
+    entrypoint            = optional(list(string))
+    environment = optional(list(object({
+      name  = string
+      value = string
+    })))
+    environmentFiles = optional(list(object({
+      type  = string
+      value = string
+    })))
+    essential = optional(bool)
+    extraHosts = optional(list(object({
+      hostname  = string
+      ipAddress = string
+    })))
+    firelensConfiguration = optional(object({
+      options = optional(map(string), {})
+      type    = optional(string)
+    }))
+    healthCheck = optional(object({
+      command     = optional(list(string), [])
+      interval    = optional(number, 30)
+      retries     = optional(number, 3)
+      startPeriod = optional(number)
+      timeout     = optional(number, 5)
+    }))
+    hostname    = optional(string)
+    image       = optional(string)
+    interactive = optional(bool, false)
+    links       = optional(list(string))
+    linuxParameters = optional(object({
+      capabilities = optional(object({
+        add  = optional(list(string))
+        drop = optional(list(string))
+      }))
+      devices = optional(list(object({
+        containerPath = optional(string)
+        hostPath      = optional(string)
+        permissions   = optional(list(string))
+      })))
+      initProcessEnabled = optional(bool, false)
+      maxSwap            = optional(number)
+      sharedMemorySize   = optional(number)
+      swappiness         = optional(number)
+      tmpfs = optional(list(object({
+        containerPath = string
+        mountOptions  = optional(list(string))
+        size          = number
+      })))
+    }))
+    logConfiguration = optional(object({
+      logDriver = optional(string)
+      options   = optional(map(string))
+      secretOptions = optional(list(object({
+        name      = string
+        valueFrom = string
+      })))
+    }))
+    memory            = optional(number)
+    memoryReservation = optional(number)
+    mountPoints = optional(list(object({
+      containerPath = optional(string)
+      readOnly      = optional(bool)
+      sourceVolume  = optional(string)
+    })))
+    name = optional(string)
+    portMappings = optional(list(object({
+      appProtocol        = optional(string)
+      containerPort      = optional(number)
+      containerPortRange = optional(string)
+      hostPort           = optional(number)
+      name               = optional(string)
+      protocol           = optional(string)
+    })))
+    privileged             = optional(bool, false)
+    pseudoTerminal         = optional(bool, false)
+    readonlyRootFilesystem = optional(bool, true)
+    repositoryCredentials = optional(object({
+      credentialsParameter = optional(string)
+    }))
+    resourceRequirements = optional(list(object({
+      type  = string
+      value = string
+    })))
+    restartPolicy = optional(object({
+      enabled              = optional(bool, true)
+      ignoredExitCodes     = optional(list(number))
+      restartAttemptPeriod = optional(number)
+    }))
+    secrets = optional(list(object({
+      name      = string
+      valueFrom = string
+    })))
+    startTimeout = optional(number, 30)
+    stopTimeout  = optional(number, 120)
+    systemControls = optional(list(object({
+      namespace = optional(string)
+      value     = optional(string)
+    })))
+    ulimits = optional(list(object({
+      hardLimit = number
+      name      = string
+      softLimit = number
+    })))
+    user               = optional(string)
+    versionConsistency = optional(string, "disabled")
+    volumesFrom = optional(list(object({
+      readOnly        = optional(bool)
+      sourceContainer = optional(string)
+    })))
+    workingDirectory = optional(string)
+
+    # Cloudwatch Log Group
+    service                                = optional(string)
+    enable_cloudwatch_logging              = optional(bool, true)
+    create_cloudwatch_log_group            = optional(bool, true)
+    cloudwatch_log_group_name              = optional(string)
+    cloudwatch_log_group_use_name_prefix   = optional(bool, false)
+    cloudwatch_log_group_class             = optional(string)
+    cloudwatch_log_group_retention_in_days = optional(number, 30)
+    cloudwatch_log_group_kms_key_id        = optional(string)
+  }))
+  default = {}
 }
 
 variable "container_definition_defaults" {
   description = "A map of default values for [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html) created by `container_definitions`"
-  type        = any
-  default     = {}
+  type = map(object({
+    region                  = optional(string)
+    enable_execute_command  = optional(bool, false)
+    operating_system_family = optional(string, "LINUX")
+    tags                    = optional(map(string), {})
+
+    # Container definition
+    command = optional(list(string))
+    cpu     = optional(number)
+    depends_on = optional(list(object({
+      condition      = string
+      container_name = string
+    })))
+    disable_networking    = optional(bool)
+    dnsSearchDomains      = optional(list(string))
+    dnsServers            = optional(list(string))
+    dockerLabels          = optional(map(string))
+    dockerSecurityOptions = optional(list(string))
+    entrypoint            = optional(list(string))
+    environment = optional(list(object({
+      name  = string
+      value = string
+    })))
+    environmentFiles = optional(list(object({
+      type  = string
+      value = string
+    })))
+    essential = optional(bool)
+    extraHosts = optional(list(object({
+      hostname  = string
+      ipAddress = string
+    })))
+    firelensConfiguration = optional(object({
+      options = optional(map(string), {})
+      type    = optional(string)
+    }))
+    healthCheck = optional(object({
+      command     = optional(list(string), [])
+      interval    = optional(number, 30)
+      retries     = optional(number, 3)
+      startPeriod = optional(number)
+      timeout     = optional(number, 5)
+    }))
+    hostname    = optional(string)
+    image       = optional(string)
+    interactive = optional(bool, false)
+    links       = optional(list(string))
+    linuxParameters = optional(object({
+      capabilities = optional(object({
+        add  = optional(list(string))
+        drop = optional(list(string))
+      }))
+      devices = optional(list(object({
+        containerPath = optional(string)
+        hostPath      = optional(string)
+        permissions   = optional(list(string))
+      })))
+      initProcessEnabled = optional(bool, false)
+      maxSwap            = optional(number)
+      sharedMemorySize   = optional(number)
+      swappiness         = optional(number)
+      tmpfs = optional(list(object({
+        containerPath = string
+        mountOptions  = optional(list(string))
+        size          = number
+      })))
+    }))
+    logConfiguration = optional(object({
+      logDriver = optional(string)
+      options   = optional(map(string))
+      secretOptions = optional(list(object({
+        name      = string
+        valueFrom = string
+      })))
+    }))
+    memory            = optional(number)
+    memoryReservation = optional(number)
+    mountPoints = optional(list(object({
+      containerPath = optional(string)
+      readOnly      = optional(bool)
+      sourceVolume  = optional(string)
+    })))
+    name = optional(string)
+    portMappings = optional(list(object({
+      appProtocol        = optional(string)
+      containerPort      = optional(number)
+      containerPortRange = optional(string)
+      hostPort           = optional(number)
+      name               = optional(string)
+      protocol           = optional(string)
+    })))
+    privileged             = optional(bool, false)
+    pseudoTerminal         = optional(bool, false)
+    readonlyRootFilesystem = optional(bool, true)
+    repositoryCredentials = optional(object({
+      credentialsParameter = optional(string)
+    }))
+    resourceRequirements = optional(list(object({
+      type  = string
+      value = string
+    })))
+    restartPolicy = optional(object({
+      enabled              = optional(bool, true)
+      ignoredExitCodes     = optional(list(number))
+      restartAttemptPeriod = optional(number)
+    }))
+    secrets = optional(list(object({
+      name      = string
+      valueFrom = string
+    })))
+    startTimeout = optional(number, 30)
+    stopTimeout  = optional(number, 120)
+    systemControls = optional(list(object({
+      namespace = optional(string)
+      value     = optional(string)
+    })))
+    ulimits = optional(list(object({
+      hardLimit = number
+      name      = string
+      softLimit = number
+    })))
+    user               = optional(string)
+    versionConsistency = optional(string, "disabled")
+    volumesFrom = optional(list(object({
+      readOnly        = optional(bool)
+      sourceContainer = optional(string)
+    })))
+    workingDirectory = optional(string)
+
+    # Cloudwatch Log Group
+    service                                = optional(string)
+    enable_cloudwatch_logging              = optional(bool, true)
+    create_cloudwatch_log_group            = optional(bool, true)
+    cloudwatch_log_group_name              = optional(string)
+    cloudwatch_log_group_use_name_prefix   = optional(bool, false)
+    cloudwatch_log_group_class             = optional(string)
+    cloudwatch_log_group_retention_in_days = optional(number, 30)
+    cloudwatch_log_group_kms_key_id        = optional(string)
+  }))
+  default = {}
 }
 
 variable "cpu" {

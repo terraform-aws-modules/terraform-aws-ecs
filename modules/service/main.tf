@@ -37,6 +37,8 @@ locals {
 resource "aws_ecs_service" "this" {
   count = local.create_service && !var.ignore_task_definition_changes ? 1 : 0
 
+  region = var.region
+
   dynamic "alarms" {
     for_each = var.alarms != null ? [var.alarms] : []
 
@@ -302,6 +304,8 @@ resource "aws_ecs_service" "this" {
 
 resource "aws_ecs_service" "ignore_task_definition" {
   count = local.create_service && var.ignore_task_definition_changes ? 1 : 0
+
+  region = var.region
 
   dynamic "alarms" {
     for_each = var.alarms != null ? [var.alarms] : []
@@ -690,8 +694,11 @@ resource "aws_iam_role_policy_attachment" "service" {
 module "container_definition" {
   source = "../container-definition"
 
+  region = var.region
+
   for_each = { for k, v in var.container_definitions : k => v if local.create_task_definition && try(v.create, true) }
 
+  enable_execute_command  = try(each.value.enable_execute_command, var.container_definition_defaults.enable_execute_command, var.enable_execute_command)
   operating_system_family = try(var.runtime_platform.operating_system_family, "LINUX")
 
   # Container Definition
@@ -703,7 +710,6 @@ module "container_definition" {
   dnsServers             = try(each.value.dnsServers, var.container_definition_defaults.dnsServers, null)
   dockerLabels           = try(each.value.dockerLabels, var.container_definition_defaults.dockerLabels, null)
   dockerSecurityOptions  = try(each.value.dockerSecurityOptions, var.container_definition_defaults.dockerSecurityOptions, null)
-  enable_execute_command = try(each.value.enable_execute_command, var.container_definition_defaults.enable_execute_command, var.enable_execute_command)
   entrypoint             = try(each.value.entrypoint, var.container_definition_defaults.entrypoint, null)
   environment            = try(each.value.environment, var.container_definition_defaults.environment, null)
   environmentFiles       = try(each.value.environmentFiles, var.container_definition_defaults.environmentFiles, null)
@@ -761,6 +767,8 @@ locals {
 
 resource "aws_ecs_task_definition" "this" {
   count = local.create_task_definition ? 1 : 0
+
+  region = var.region
 
   # Convert map of maps to array of maps before JSON encoding
   container_definitions  = jsonencode([for k, v in module.container_definition : v.container_definition])
@@ -1190,6 +1198,8 @@ resource "aws_ecs_task_set" "this" {
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskset.html
   count = local.create_task_definition && local.is_external_deployment && !var.ignore_task_definition_changes ? 1 : 0
 
+  region = var.region
+
   service         = try(aws_ecs_service.this[0].id, aws_ecs_service.ignore_task_definition[0].id)
   cluster         = var.cluster_arn
   external_id     = var.external_id
@@ -1270,6 +1280,8 @@ resource "aws_ecs_task_set" "this" {
 resource "aws_ecs_task_set" "ignore_task_definition" {
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskset.html
   count = local.create_task_definition && local.is_external_deployment && var.ignore_task_definition_changes ? 1 : 0
+
+  region = var.region
 
   service         = try(aws_ecs_service.this[0].id, aws_ecs_service.ignore_task_definition[0].id)
   cluster         = var.cluster_arn
@@ -1358,6 +1370,8 @@ locals {
 resource "aws_appautoscaling_target" "this" {
   count = local.enable_autoscaling ? 1 : 0
 
+  region = var.region
+
   # Desired needs to be between or equal to min/max
   min_capacity = min(var.autoscaling_min_capacity, var.desired_count)
   max_capacity = max(var.autoscaling_max_capacity, var.desired_count)
@@ -1370,6 +1384,8 @@ resource "aws_appautoscaling_target" "this" {
 
 resource "aws_appautoscaling_policy" "this" {
   for_each = { for k, v in var.autoscaling_policies : k => v if local.enable_autoscaling }
+
+  region = var.region
 
   name               = try(each.value.name, each.key)
   policy_type        = try(each.value.policy_type, "TargetTrackingScaling")
@@ -1474,6 +1490,8 @@ resource "aws_appautoscaling_policy" "this" {
 resource "aws_appautoscaling_scheduled_action" "this" {
   for_each = local.enable_autoscaling && var.autoscaling_scheduled_actions != null ? var.autoscaling_scheduled_actions : {}
 
+  region = var.region
+
   name               = try(each.value.name, each.key)
   service_namespace  = aws_appautoscaling_target.this[0].service_namespace
   resource_id        = aws_appautoscaling_target.this[0].resource_id
@@ -1502,11 +1520,15 @@ locals {
 data "aws_subnet" "this" {
   count = local.create_security_group ? 1 : 0
 
+  region = var.region
+
   id = element(var.subnet_ids, 0)
 }
 
 resource "aws_security_group" "this" {
   count = local.create_security_group ? 1 : 0
+
+  region = var.region
 
   name        = var.security_group_use_name_prefix ? null : local.security_group_name
   name_prefix = var.security_group_use_name_prefix ? "${local.security_group_name}-" : null
@@ -1527,6 +1549,8 @@ resource "aws_security_group" "this" {
 resource "aws_vpc_security_group_ingress_rule" "this" {
   for_each = { for k, v in var.security_group_ingress_rules : k => v if var.security_group_ingress_rules != null && local.create_security_group }
 
+  region = var.region
+
   cidr_ipv4                    = each.value.cidr_ipv4
   cidr_ipv6                    = each.value.cidr_ipv6
   description                  = each.value.description
@@ -1546,6 +1570,8 @@ resource "aws_vpc_security_group_ingress_rule" "this" {
 
 resource "aws_vpc_security_group_egress_rule" "this" {
   for_each = { for k, v in var.security_group_egress_rules : k => v if var.security_group_egress_rules != null && local.create_security_group }
+
+  region = var.region
 
   cidr_ipv4                    = each.value.cidr_ipv4
   cidr_ipv6                    = each.value.cidr_ipv6
