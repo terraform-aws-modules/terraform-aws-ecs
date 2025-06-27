@@ -30,8 +30,17 @@ module "ecs_cluster" {
 
   name = local.name
 
-  # Capacity provider - autoscaling groups
-  default_capacity_provider_use_fargate = false
+  # Cluster capacity providers
+  default_capacity_provider_strategy = {
+    ex_1 = {
+      weight = 60
+      base   = 20
+    }
+    ex_2 = {
+      weight = 40
+    }
+  }
+
   autoscaling_capacity_providers = {
     # On-demand instances
     ex_1 = {
@@ -45,11 +54,6 @@ module "ecs_cluster" {
         status                    = "ENABLED"
         target_capacity           = 60
       }
-
-      default_capacity_provider_strategy = {
-        weight = 60
-        base   = 20
-      }
     }
     # Spot instances
     ex_2 = {
@@ -62,10 +66,6 @@ module "ecs_cluster" {
         minimum_scaling_step_size = 5
         status                    = "ENABLED"
         target_capacity           = 90
-      }
-
-      default_capacity_provider_strategy = {
-        weight = 40
       }
     }
   }
@@ -179,7 +179,7 @@ module "ecs_service" {
 
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html#ecs-optimized-ami-linux
 data "aws_ssm_parameter" "ecs_optimized_ami" {
-  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended"
 }
 
 module "alb" {

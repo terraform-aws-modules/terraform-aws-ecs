@@ -4,6 +4,12 @@ variable "create" {
   default     = true
 }
 
+variable "region" {
+  description = "Region where the resource(s) will be managed. Defaults to the Region set in the provider configuration"
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
@@ -13,12 +19,6 @@ variable "tags" {
 ################################################################################
 # Cluster
 ################################################################################
-
-variable "name" {
-  description = "Name of the cluster (up to 255 letters, numbers, hyphens, and underscores)"
-  type        = string
-  default     = ""
-}
 
 variable "configuration" {
   description = "The execute command configuration for the cluster"
@@ -48,6 +48,12 @@ variable "configuration" {
   }
 }
 
+variable "name" {
+  description = "Name of the cluster (up to 255 letters, numbers, hyphens, and underscores)"
+  type        = string
+  default     = ""
+}
+
 variable "service_connect_defaults" {
   description = "Configures a default Service Connect namespace"
   type = object({
@@ -56,7 +62,7 @@ variable "service_connect_defaults" {
   default = null
 }
 
-variable "settings" {
+variable "setting" {
   description = "List of configuration block(s) with cluster settings. For example, this can be used to enable CloudWatch Container Insights for a cluster"
   type = list(object({
     name  = string
@@ -98,6 +104,12 @@ variable "cloudwatch_log_group_kms_key_id" {
   default     = null
 }
 
+variable "cloudwatch_log_group_class" {
+  description = "Specified the log class of the log group. Possible values are: `STANDARD` or `INFREQUENT_ACCESS`"
+  type        = string
+  default     = null
+}
+
 variable "cloudwatch_log_group_tags" {
   description = "A map of additional tags to add to the log group created"
   type        = map(string)
@@ -108,22 +120,33 @@ variable "cloudwatch_log_group_tags" {
 # Capacity Providers
 ################################################################################
 
-variable "default_capacity_provider_use_fargate" {
-  description = "Determines whether to use Fargate or autoscaling for default capacity provider strategy"
-  type        = bool
-  default     = true
-}
-
-variable "fargate_capacity_providers" {
-  description = "Map of Fargate capacity provider definitions to use for the cluster"
-  type        = any
-  default     = {}
-}
-
 variable "autoscaling_capacity_providers" {
   description = "Map of autoscaling capacity provider definitions to create for the cluster"
-  type        = any
-  default     = {}
+  type = map(object({
+    auto_scaling_group_arn = string
+    managed_draining       = optional(string, "ENABLED")
+    managed_scaling = optional(object({
+      instance_warmup_period    = optional(number)
+      maximum_scaling_step_size = optional(number)
+      minimum_scaling_step_size = optional(number)
+      status                    = optional(string)
+      target_capacity           = optional(number)
+    }))
+    managed_termination_protection = optional(string)
+    name                           = optional(string) # Will fall back to use map key if not set
+    tags                           = optional(map(string), {})
+  }))
+  default = null
+}
+
+variable "default_capacity_provider_strategy" {
+  description = "Map of default capacity provider strategy definitions to use for the cluster"
+  type = map(object({
+    base   = optional(number)
+    name   = optional(string) # Will fall back to use map key if not set
+    weight = optional(number)
+  }))
+  default = null
 }
 
 ################################################################################
@@ -188,17 +211,37 @@ variable "create_task_exec_policy" {
 variable "task_exec_ssm_param_arns" {
   description = "List of SSM parameter ARNs the task execution role will be permitted to get/read"
   type        = list(string)
-  default     = ["arn:aws:ssm:*:*:parameter/*"]
+  default     = []
 }
 
 variable "task_exec_secret_arns" {
   description = "List of SecretsManager secret ARNs the task execution role will be permitted to get/read"
   type        = list(string)
-  default     = ["arn:aws:secretsmanager:*:*:secret:*"]
+  default     = []
 }
 
 variable "task_exec_iam_statements" {
   description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
-  type        = any
-  default     = {}
+  type = map(object({
+    sid           = optional(string)
+    actions       = optional(list(string))
+    not_actions   = optional(list(string))
+    effect        = optional(string, "Allow")
+    resources     = optional(list(string))
+    not_resources = optional(list(string))
+    principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    not_principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    condition = optional(map(object({
+      test     = string
+      variable = string
+      values   = list(string)
+    })))
+  }))
+  default = null
 }

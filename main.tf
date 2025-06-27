@@ -6,11 +6,12 @@ module "cluster" {
   source = "./modules/cluster"
 
   create = var.create
+  region = var.region
 
   # Cluster
   name                     = var.cluster_name
   configuration            = var.cluster_configuration
-  settings                 = var.cluster_settings
+  setting                  = var.cluster_setting
   service_connect_defaults = var.cluster_service_connect_defaults
 
   # Cluster Cloudwatch log group
@@ -18,12 +19,12 @@ module "cluster" {
   cloudwatch_log_group_name              = var.cloudwatch_log_group_name
   cloudwatch_log_group_retention_in_days = var.cloudwatch_log_group_retention_in_days
   cloudwatch_log_group_kms_key_id        = var.cloudwatch_log_group_kms_key_id
+  cloudwatch_log_group_class             = var.cloudwatch_log_group_class
   cloudwatch_log_group_tags              = var.cloudwatch_log_group_tags
 
   # Cluster capacity providers
-  default_capacity_provider_use_fargate = var.default_capacity_provider_use_fargate
-  fargate_capacity_providers            = var.fargate_capacity_providers
-  autoscaling_capacity_providers        = var.autoscaling_capacity_providers
+  default_capacity_provider_strategy = var.default_capacity_provider_strategy
+  autoscaling_capacity_providers     = var.autoscaling_capacity_providers
 
   # Task execution IAM role
   create_task_exec_iam_role               = var.create_task_exec_iam_role
