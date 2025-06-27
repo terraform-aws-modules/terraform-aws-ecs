@@ -1092,7 +1092,62 @@ variable "autoscaling_max_capacity" {
 
 variable "autoscaling_policies" {
   description = "Map of autoscaling policies to create for the service"
-  type        = any
+  type = map(object({
+    name        = optional(string) # Will fall back to the key name if not provided
+    policy_type = optional(string, "TargetTrackingScaling")
+    step_scaling_policy_configuration = optional(object({
+      adjustment_type          = optional(string)
+      cooldown                 = optional(number)
+      metric_aggregation_type  = optional(string)
+      min_adjustment_magnitude = optional(number)
+      step_adjustments = optional(list(object({
+        metric_interval_lower_bound = optional(string)
+        metric_interval_upper_bound = optional(string)
+        scaling_adjustment          = number
+      })))
+    }))
+    target_tracking_scaling_policy_configuration = optional(object({
+      customized_metric_specification = optional(object({
+        dimensions = optional(list(object({
+          name  = string
+          value = string
+        })))
+        metric_name = optional(string)
+        metrics = optional(list(object({
+          expression = optional(string)
+          id         = string
+          label      = optional(string)
+          metric_stat = optional(object({
+            metric = object({
+              dimensions = optional(list(object({
+                name  = string
+                value = string
+              })))
+              metric_name = string
+              namespace   = string
+            })
+            stat = string
+            unit = optional(string)
+          }))
+          return_data = optional(bool)
+        })))
+        namespace = optional(string)
+        statistic = optional(string)
+        unit      = optional(string)
+      }))
+    }))
+    disable_scale_in = optional(bool)
+    predefined_metric_specification = optional(object({
+      predefined_metric_type = string
+      resource_label         = optional(string)
+    }))
+    scale_in_cooldown  = optional(number, 300)
+    scale_out_cooldown = optional(number, 60)
+    target_value       = optional(number, 75)
+  }))
+
+
+
   default = {
     cpu = {
       policy_type = "TargetTrackingScaling"
