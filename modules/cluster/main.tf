@@ -40,6 +40,15 @@ resource "aws_ecs_cluster" "this" {
           }
         }
       }
+
+      dynamic "managed_storage_configuration" {
+        for_each = try([configuration.value.managed_storage_configuration], [{}])
+
+        content {
+          fargate_ephemeral_storage_kms_key_id = try(managed_storage_configuration.value.fargate_ephemeral_storage_kms_key_id, null)
+          kms_key_id                           = try(managed_storage_configuration.value.kms_key_id, null)
+        }
+      }
     }
   }
 
@@ -65,6 +74,15 @@ resource "aws_ecs_cluster" "this" {
               s3_key_prefix                  = try(log_configuration.value.s3_key_prefix, null)
             }
           }
+        }
+      }
+
+      dynamic "managed_storage_configuration" {
+        for_each = try([configuration.value.managed_storage_configuration], [{}])
+
+        content {
+          fargate_ephemeral_storage_kms_key_id = try(managed_storage_configuration.value.fargate_ephemeral_storage_kms_key_id, null)
+          kms_key_id                           = try(managed_storage_configuration.value.kms_key_id, null)
         }
       }
     }
