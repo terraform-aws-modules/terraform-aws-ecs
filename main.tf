@@ -9,10 +9,10 @@ module "cluster" {
   region = var.region
 
   # Cluster
-  name                     = var.cluster_name
   configuration            = var.cluster_configuration
-  setting                  = var.cluster_setting
+  name                     = var.cluster_name
   service_connect_defaults = var.cluster_service_connect_defaults
+  setting                  = var.cluster_setting
 
   # Cluster Cloudwatch log group
   create_cloudwatch_log_group            = var.create_cloudwatch_log_group
@@ -23,8 +23,8 @@ module "cluster" {
   cloudwatch_log_group_tags              = var.cloudwatch_log_group_tags
 
   # Cluster capacity providers
-  default_capacity_provider_strategy = var.default_capacity_provider_strategy
   autoscaling_capacity_providers     = var.autoscaling_capacity_providers
+  default_capacity_provider_strategy = var.default_capacity_provider_strategy
 
   # Task execution IAM role
   create_task_exec_iam_role               = var.create_task_exec_iam_role
@@ -52,158 +52,143 @@ module "cluster" {
 module "service" {
   source = "./modules/service"
 
-  for_each = { for k, v in var.services : k => v if var.create }
+  for_each = var.create && var.services != null ? var.services : {}
 
-  create         = try(each.value.create, true)
-  create_service = try(each.value.create_service, true)
+  create         = each.value.create
+  create_service = each.value.create_service
+  region         = var.region
 
   # Service
-  ignore_task_definition_changes     = try(each.value.ignore_task_definition_changes, false)
-  alarms                             = try(each.value.alarms, {})
-  availability_zone_rebalancing      = try(each.value.availability_zone_rebalancing, null)
-  capacity_provider_strategy         = try(each.value.capacity_provider_strategy, {})
+  ignore_task_definition_changes     = each.value.ignore_task_definition_changes
+  alarms                             = each.value.alarms
+  availability_zone_rebalancing      = each.value.availability_zone_rebalancing
+  capacity_provider_strategy         = each.value.capacity_provider_strategy
   cluster_arn                        = module.cluster.arn
-  deployment_circuit_breaker         = try(each.value.deployment_circuit_breaker, {})
-  deployment_controller              = try(each.value.deployment_controller, {})
-  deployment_maximum_percent         = try(each.value.deployment_maximum_percent, 200)
-  deployment_minimum_healthy_percent = try(each.value.deployment_minimum_healthy_percent, 66)
-  desired_count                      = try(each.value.desired_count, 1)
-  enable_ecs_managed_tags            = try(each.value.enable_ecs_managed_tags, true)
-  enable_execute_command             = try(each.value.enable_execute_command, false)
-  force_new_deployment               = try(each.value.force_new_deployment, true)
-  health_check_grace_period_seconds  = try(each.value.health_check_grace_period_seconds, null)
-  launch_type                        = try(each.value.launch_type, "FARGATE")
-  load_balancer                      = lookup(each.value, "load_balancer", {})
-  name                               = try(each.value.name, each.key)
-  assign_public_ip                   = try(each.value.assign_public_ip, false)
-  security_group_ids                 = lookup(each.value, "security_group_ids", [])
-  subnet_ids                         = lookup(each.value, "subnet_ids", [])
-  ordered_placement_strategy         = try(each.value.ordered_placement_strategy, {})
-  placement_constraints              = try(each.value.placement_constraints, {})
-  platform_version                   = try(each.value.platform_version, null)
-  propagate_tags                     = try(each.value.propagate_tags, null)
-  scheduling_strategy                = try(each.value.scheduling_strategy, null)
-  service_connect_configuration      = lookup(each.value, "service_connect_configuration", {})
-  service_registries                 = lookup(each.value, "service_registries", {})
-  timeouts                           = try(each.value.timeouts, {})
-  triggers                           = try(each.value.triggers, {})
-  volume_configuration               = try(each.value.volume_configuration, {})
-  wait_for_steady_state              = try(each.value.wait_for_steady_state, null)
+  deployment_circuit_breaker         = each.value.deployment_circuit_breaker
+  deployment_controller              = each.value.deployment_controller
+  deployment_maximum_percent         = each.value.deployment_maximum_percent
+  deployment_minimum_healthy_percent = each.value.deployment_minimum_healthy_percent
+  desired_count                      = each.value.desired_count
+  enable_ecs_managed_tags            = each.value.enable_ecs_managed_tags
+  enable_execute_command             = each.value.enable_execute_command
+  force_delete                       = each.value.force_delete
+  force_new_deployment               = each.value.force_new_deployment
+  health_check_grace_period_seconds  = each.value.health_check_grace_period_seconds
+  launch_type                        = each.value.launch_type
+  load_balancer                      = each.value.load_balancer
+  name                               = coalesce(each.value.name, each.key)
+  assign_public_ip                   = each.value.assign_public_ip
+  security_group_ids                 = each.value.security_group_ids
+  subnet_ids                         = each.value.subnet_ids
+  ordered_placement_strategy         = each.value.ordered_placement_strategy
+  placement_constraints              = each.value.placement_constraints
+  platform_version                   = each.value.platform_version
+  propagate_tags                     = each.value.propagate_tags
+  scheduling_strategy                = each.value.scheduling_strategy
+  service_connect_configuration      = each.value.service_connect_configuration
+  service_registries                 = each.value.service_registries
+  timeouts                           = each.value.timeouts
+  triggers                           = each.value.triggers
+  volume_configuration               = each.value.volume_configuration
+  vpc_lattice_configurations         = each.value.vpc_lattice_configurations
+  wait_for_steady_state              = each.value.wait_for_steady_state
+  service_tags                       = each.value.service_tags
 
   # Service IAM role
-  create_iam_role               = try(each.value.create_iam_role, true)
-  iam_role_arn                  = lookup(each.value, "iam_role_arn", null)
-  iam_role_name                 = try(each.value.iam_role_name, null)
-  iam_role_use_name_prefix      = try(each.value.iam_role_use_name_prefix, true)
-  iam_role_path                 = try(each.value.iam_role_path, null)
-  iam_role_description          = try(each.value.iam_role_description, null)
-  iam_role_permissions_boundary = try(each.value.iam_role_permissions_boundary, null)
-  iam_role_tags                 = try(each.value.iam_role_tags, {})
-  iam_role_statements           = lookup(each.value, "iam_role_statements", {})
-
-  # ECS infrastructure IAM role
-  create_infrastructure_iam_role               = try(each.value.create_infrastructure_iam_role, true)
-  infrastructure_iam_role_arn                  = try(each.value.infrastructure_iam_role_arn, null)
-  infrastructure_iam_role_name                 = try(each.value.infrastructure_iam_role_name, null)
-  infrastructure_iam_role_use_name_prefix      = try(each.value.infrastructure_iam_role_use_name_prefix, true)
-  infrastructure_iam_role_path                 = try(each.value.infrastructure_iam_role_path, null)
-  infrastructure_iam_role_description          = try(each.value.infrastructure_iam_role_description, null)
-  infrastructure_iam_role_permissions_boundary = try(each.value.infrastructure_iam_role_permissions_boundary, null)
-  infrastructure_iam_role_tags                 = try(each.value.infrastructure_iam_role_tags, {})
+  create_iam_role               = each.value.create_iam_role
+  iam_role_arn                  = each.value.iam_role_arn
+  iam_role_name                 = each.value.iam_role_name
+  iam_role_use_name_prefix      = each.value.iam_role_use_name_prefix
+  iam_role_path                 = each.value.iam_role_path
+  iam_role_description          = each.value.iam_role_description
+  iam_role_permissions_boundary = each.value.iam_role_permissions_boundary
+  iam_role_tags                 = each.value.iam_role_tags
+  iam_role_statements           = each.value.iam_role_statements
 
   # Task definition
-  create_task_definition        = try(each.value.create_task_definition, true)
-  task_definition_arn           = lookup(each.value, "task_definition_arn", null)
-  container_definitions         = try(each.value.container_definitions, {})
-  container_definition_defaults = try(each.value.container_definition_defaults, {})
-  cpu                           = try(each.value.cpu, 1024)
-  ephemeral_storage             = try(each.value.ephemeral_storage, {})
-  family                        = try(each.value.family, null)
-  ipc_mode                      = try(each.value.ipc_mode, null)
-  memory                        = try(each.value.memory, 2048)
-  network_mode                  = try(each.value.network_mode, "awsvpc")
-  pid_mode                      = try(each.value.pid_mode, null)
-  proxy_configuration           = try(each.value.proxy_configuration, {})
-  requires_compatibilities      = try(each.value.requires_compatibilities, ["FARGATE"])
-  runtime_platform = try(each.value.runtime_platform, {
-    operating_system_family = "LINUX"
-    cpu_architecture        = "X86_64"
-  })
-  skip_destroy = try(each.value.skip_destroy, null)
-  volume       = try(each.value.volume, {})
-  task_tags    = try(each.value.task_tags, {})
+  create_task_definition                = each.value.create_task_definition
+  task_definition_arn                   = each.value.task_definition_arn
+  container_definitions                 = each.value.container_definitions
+  container_definition_defaults         = each.value.container_definition_defaults
+  cpu                                   = each.value.cpu
+  enable_fault_injection                = each.value.enable_fault_injection
+  ephemeral_storage                     = each.value.ephemeral_storage
+  family                                = each.value.family
+  ipc_mode                              = each.value.ipc_mode
+  memory                                = each.value.memory
+  network_mode                          = each.value.network_mode
+  pid_mode                              = each.value.pid_mode
+  proxy_configuration                   = each.value.proxy_configuration
+  requires_compatibilities              = each.value.requires_compatibilities
+  runtime_platform                      = each.value.runtime_platform
+  skip_destroy                          = each.value.skip_destroy
+  task_definition_placement_constraints = each.value.task_definition_placement_constraints
+  track_latest                          = each.value.track_latest
+  volume                                = each.value.volume
+  task_tags                             = each.value.task_tags
 
-  # Task execution IAM role
-  create_task_exec_iam_role               = try(each.value.create_task_exec_iam_role, true)
-  task_exec_iam_role_arn                  = lookup(each.value, "task_exec_iam_role_arn", null)
-  task_exec_iam_role_name                 = try(each.value.task_exec_iam_role_name, null)
-  task_exec_iam_role_use_name_prefix      = try(each.value.task_exec_iam_role_use_name_prefix, true)
-  task_exec_iam_role_path                 = try(each.value.task_exec_iam_role_path, null)
-  task_exec_iam_role_description          = try(each.value.task_exec_iam_role_description, null)
-  task_exec_iam_role_permissions_boundary = try(each.value.task_exec_iam_role_permissions_boundary, null)
-  task_exec_iam_role_tags                 = try(each.value.task_exec_iam_role_tags, {})
-  task_exec_iam_role_policies             = try(each.value.task_exec_iam_role_policies, {})
-  task_exec_iam_role_max_session_duration = try(each.value.task_exec_iam_role_max_session_duration, null)
+  # Task Execution IAM role
+  create_task_exec_iam_role               = each.value.create_task_exec_iam_role
+  task_exec_iam_role_arn                  = try(each.value.task_exec_iam_role_arn, module.cluster.task_exec_iam_role_arn)
+  task_exec_iam_role_name                 = each.value.task_exec_iam_role_name
+  task_exec_iam_role_use_name_prefix      = each.value.task_exec_iam_role_use_name_prefix
+  task_exec_iam_role_path                 = each.value.task_exec_iam_role_path
+  task_exec_iam_role_description          = each.value.task_exec_iam_role_description
+  task_exec_iam_role_permissions_boundary = each.value.task_exec_iam_role_permissions_boundary
+  task_exec_iam_role_tags                 = each.value.task_exec_iam_role_tags
+  task_exec_iam_role_policies             = each.value.task_exec_iam_role_policies
+  task_exec_iam_role_max_session_duration = each.value.task_exec_iam_role_max_session_duration
 
   # Task execution IAM role policy
-  create_task_exec_policy  = try(each.value.create_task_exec_policy, true)
-  task_exec_ssm_param_arns = lookup(each.value, "task_exec_ssm_param_arns", ["arn:aws:ssm:*:*:parameter/*"])
-  task_exec_secret_arns    = lookup(each.value, "task_exec_secret_arns", ["arn:aws:secretsmanager:*:*:secret:*"])
-  task_exec_iam_statements = lookup(each.value, "task_exec_iam_statements", {})
+  create_task_exec_policy   = each.value.create_task_exec_policy
+  task_exec_ssm_param_arns  = each.value.task_exec_ssm_param_arns
+  task_exec_secret_arns     = each.value.task_exec_secret_arns
+  task_exec_iam_statements  = each.value.task_exec_iam_statements
+  task_exec_iam_policy_path = each.value.task_exec_iam_policy_path
 
   # Tasks - IAM role
-  create_tasks_iam_role               = try(each.value.create_tasks_iam_role, true)
-  tasks_iam_role_arn                  = lookup(each.value, "tasks_iam_role_arn", null)
-  tasks_iam_role_name                 = try(each.value.tasks_iam_role_name, null)
-  tasks_iam_role_use_name_prefix      = try(each.value.tasks_iam_role_use_name_prefix, true)
-  tasks_iam_role_path                 = try(each.value.tasks_iam_role_path, null)
-  tasks_iam_role_description          = try(each.value.tasks_iam_role_description, null)
-  tasks_iam_role_permissions_boundary = try(each.value.tasks_iam_role_permissions_boundary, null)
-  tasks_iam_role_tags                 = try(each.value.tasks_iam_role_tags, {})
-  tasks_iam_role_policies             = lookup(each.value, "tasks_iam_role_policies", {})
-  tasks_iam_role_statements           = lookup(each.value, "tasks_iam_role_statements", {})
+  create_tasks_iam_role               = each.value.create_tasks_iam_role
+  tasks_iam_role_arn                  = each.value.tasks_iam_role_arn
+  tasks_iam_role_name                 = each.value.tasks_iam_role_name
+  tasks_iam_role_use_name_prefix      = each.value.tasks_iam_role_use_name_prefix
+  tasks_iam_role_path                 = each.value.tasks_iam_role_path
+  tasks_iam_role_description          = each.value.tasks_iam_role_description
+  tasks_iam_role_permissions_boundary = each.value.tasks_iam_role_permissions_boundary
+  tasks_iam_role_tags                 = each.value.tasks_iam_role_tags
+  tasks_iam_role_policies             = each.value.tasks_iam_role_policies
+  tasks_iam_role_statements           = each.value.tasks_iam_role_statements
 
   # Task set
-  external_id               = try(each.value.external_id, null)
-  scale                     = try(each.value.scale, {})
-  force_delete              = try(each.value.force_delete, null)
-  wait_until_stable         = try(each.value.wait_until_stable, null)
-  wait_until_stable_timeout = try(each.value.wait_until_stable_timeout, null)
+  external_id               = each.value.external_id
+  scale                     = each.value.scale
+  wait_until_stable         = each.value.wait_until_stable
+  wait_until_stable_timeout = each.value.wait_until_stable_timeout
 
   # Autoscaling
-  enable_autoscaling       = try(each.value.enable_autoscaling, true)
-  autoscaling_min_capacity = try(each.value.autoscaling_min_capacity, 1)
-  autoscaling_max_capacity = try(each.value.autoscaling_max_capacity, 10)
-  autoscaling_policies = try(each.value.autoscaling_policies, {
-    cpu = {
-      policy_type = "TargetTrackingScaling"
-
-      target_tracking_scaling_policy_configuration = {
-        predefined_metric_specification = {
-          predefined_metric_type = "ECSServiceAverageCPUUtilization"
-        }
-      }
-    }
-    memory = {
-      policy_type = "TargetTrackingScaling"
-
-      target_tracking_scaling_policy_configuration = {
-        predefined_metric_specification = {
-          predefined_metric_type = "ECSServiceAverageMemoryUtilization"
-        }
-      }
-    }
-  })
-  autoscaling_scheduled_actions = try(each.value.autoscaling_scheduled_actions, {})
+  enable_autoscaling            = each.value.enable_autoscaling
+  autoscaling_min_capacity      = each.value.autoscaling_min_capacity
+  autoscaling_max_capacity      = each.value.autoscaling_max_capacity
+  autoscaling_policies          = each.value.autoscaling_policies
+  autoscaling_scheduled_actions = each.value.autoscaling_scheduled_actions
 
   # Security Group
-  create_security_group          = try(each.value.create_security_group, true)
-  security_group_name            = try(each.value.security_group_name, null)
-  security_group_use_name_prefix = try(each.value.security_group_use_name_prefix, true)
-  security_group_description     = try(each.value.security_group_description, null)
-  security_group_ingress_rules   = try(each.value.security_group_ingress_rules, null)
-  security_group_egress_rules    = try(each.value.security_group_egress_rules, null)
-  security_group_tags            = try(each.value.security_group_tags, {})
+  create_security_group          = each.value.create_security_group
+  security_group_name            = each.value.security_group_name
+  security_group_use_name_prefix = each.value.security_group_use_name_prefix
+  security_group_description     = each.value.security_group_description
+  security_group_ingress_rules   = each.value.security_group_ingress_rules
+  security_group_egress_rules    = each.value.security_group_egress_rules
+  security_group_tags            = each.value.security_group_tags
 
-  tags = merge(var.tags, try(each.value.tags, {}))
+  # ECS infrastructure IAM role
+  create_infrastructure_iam_role               = each.value.create_infrastructure_iam_role
+  infrastructure_iam_role_arn                  = each.value.infrastructure_iam_role_arn
+  infrastructure_iam_role_name                 = each.value.infrastructure_iam_role_name
+  infrastructure_iam_role_use_name_prefix      = each.value.infrastructure_iam_role_use_name_prefix
+  infrastructure_iam_role_path                 = each.value.infrastructure_iam_role_path
+  infrastructure_iam_role_description          = each.value.infrastructure_iam_role_description
+  infrastructure_iam_role_permissions_boundary = each.value.infrastructure_iam_role_permissions_boundary
+  infrastructure_iam_role_tags                 = each.value.infrastructure_iam_role_tags
+
+  tags = merge(var.tags, each.value.tags)
 }

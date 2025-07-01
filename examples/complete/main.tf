@@ -73,10 +73,10 @@ module "ecs" {
           memory    = 1024
           essential = true
           image     = nonsensitive(data.aws_ssm_parameter.fluentbit.value)
-          firelens_configuration = {
+          firelensConfiguration = {
             type = "fluentbit"
           }
-          memory_reservation = 50
+          memoryReservation = 50
         }
 
         (local.container_name) = {
@@ -85,11 +85,11 @@ module "ecs" {
           essential = true
           image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
 
-          health_check = {
+          healthCheck = {
             command = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/health || exit 1"]
           }
 
-          port_mappings = [
+          portPappings = [
             {
               name          = local.container_name
               containerPort = local.container_port
@@ -99,15 +99,15 @@ module "ecs" {
           ]
 
           # Example image used requires access to write to root filesystem
-          readonly_root_filesystem = false
+          readonlyRootFilesystem = false
 
           dependencies = [{
             containerName = "fluent-bit"
             condition     = "START"
           }]
 
-          enable_cloudwatch_logging = false
-          log_configuration = {
+          enableCloudwatchLogging = false
+          logConfiguration = {
             logDriver = "awsfirelens"
             options = {
               Name                    = "firehose"
@@ -116,9 +116,9 @@ module "ecs" {
               log-driver-buffer-limit = "2097152"
             }
           }
-          memory_reservation = 100
+          memoryReservation = 100
 
-          restart_policy = {
+          restartPolicy = {
             enabled              = true
             ignoredExitCodes     = [1]
             restartAttemptPeriod = 60

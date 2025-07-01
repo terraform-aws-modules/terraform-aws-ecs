@@ -1153,7 +1153,7 @@ data "aws_iam_policy_document" "tasks" {
       }
 
       dynamic "condition" {
-        for_each = statement.value.conditions != null ? statement.value.conditions : []
+        for_each = statement.value.condition != null ? statement.value.condition : []
 
         content {
           test     = condition.value.test
@@ -1177,7 +1177,7 @@ resource "aws_iam_policy" "tasks" {
 }
 
 resource "aws_iam_role_policy_attachment" "tasks" {
-  count = local.create_tasks_iam_role && (length(var.tasks_iam_role_statements) > 0 || var.enable_execute_command) ? 1 : 0
+  count = local.create_tasks_iam_role && (var.tasks_iam_role_statements != null || var.enable_execute_command) ? 1 : 0
 
   role       = aws_iam_role.tasks[0].name
   policy_arn = aws_iam_policy.tasks[0].arn

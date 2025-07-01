@@ -270,12 +270,6 @@ variable "triggers" {
   default     = null
 }
 
-variable "wait_for_steady_state" {
-  description = "If true, Terraform will wait for the service to reach a steady state before continuing. Default is `false`"
-  type        = bool
-  default     = null
-}
-
 variable "volume_configuration" {
   description = "Configuration for a volume specified in the task definition as a volume that is configured at launch time"
   type = object({
@@ -307,6 +301,12 @@ variable "vpc_lattice_configurations" {
     port_name        = string
   })
   default = null
+}
+
+variable "wait_for_steady_state" {
+  description = "If true, Terraform will wait for the service to reach a steady state before continuing. Default is `false`"
+  type        = bool
+  default     = null
 }
 
 variable "service_tags" {
@@ -412,7 +412,6 @@ variable "task_definition_arn" {
 variable "container_definitions" {
   description = "A map of valid [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html). Please note that you should only provide values that are part of the container definition document"
   type = map(object({
-    region                  = optional(string)
     enable_execute_command  = optional(bool, false)
     operating_system_family = optional(string, "LINUX")
     tags                    = optional(map(string), {})
@@ -556,7 +555,6 @@ variable "container_definitions" {
 variable "container_definition_defaults" {
   description = "A map of default values for [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html) created by `container_definitions`"
   type = map(object({
-    region                  = optional(string)
     enable_execute_command  = optional(bool, false)
     operating_system_family = optional(string, "LINUX")
     tags                    = optional(map(string), {})
@@ -747,15 +745,6 @@ variable "pid_mode" {
   default     = null
 }
 
-variable "task_definition_placement_constraints" {
-  description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10). This is set at the task definition, see `placement_constraints` for setting at the service"
-  type = map(object({
-    expression = optional(string)
-    type       = string
-  }))
-  default = null
-}
-
 variable "proxy_configuration" {
   description = "Configuration block for the App Mesh proxy"
   type = object({
@@ -788,6 +777,15 @@ variable "skip_destroy" {
   description = "If true, the task is not deleted when the service is deleted"
   type        = bool
   default     = null
+}
+
+variable "task_definition_placement_constraints" {
+  description = "Configuration block for rules that are taken into consideration during task placement (up to max of 10). This is set at the task definition, see `placement_constraints` for setting at the service"
+  type = map(object({
+    expression = optional(string)
+    type       = string
+  }))
+  default = null
 }
 
 variable "track_latest" {
@@ -911,13 +909,13 @@ variable "create_task_exec_policy" {
 variable "task_exec_ssm_param_arns" {
   description = "List of SSM parameter ARNs the task execution role will be permitted to get/read"
   type        = list(string)
-  default     = ["arn:aws:ssm:*:*:parameter/*"]
+  default     = []
 }
 
 variable "task_exec_secret_arns" {
   description = "List of SecretsManager secret ARNs the task execution role will be permitted to get/read"
   type        = list(string)
-  default     = ["arn:aws:secretsmanager:*:*:secret:*"]
+  default     = []
 }
 
 variable "task_exec_iam_statements" {
@@ -1145,9 +1143,6 @@ variable "autoscaling_policies" {
     scale_out_cooldown = optional(number, 60)
     target_value       = optional(number, 75)
   }))
-
-
-
   default = {
     cpu = {
       policy_type = "TargetTrackingScaling"
@@ -1225,7 +1220,7 @@ variable "security_group_ingress_rules" {
     tags                         = optional(map(string), {})
     to_port                      = optional(string)
   }))
-  default = null
+  default = {}
 }
 
 variable "security_group_egress_rules" {
@@ -1241,7 +1236,7 @@ variable "security_group_egress_rules" {
     tags                         = optional(map(string), {})
     to_port                      = optional(string)
   }))
-  default = null
+  default = {}
 }
 
 variable "security_group_tags" {
@@ -1251,7 +1246,7 @@ variable "security_group_tags" {
 }
 
 ############################################################################################
-# ECS infrastructure IAM role
+# ECS Infrastructure IAM role
 ############################################################################################
 
 variable "create_infrastructure_iam_role" {
