@@ -89,7 +89,7 @@ module "ecs" {
             command = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/health || exit 1"]
           }
 
-          portPappings = [
+          portMappings = [
             {
               name          = local.container_name
               containerPort = local.container_port
@@ -101,12 +101,12 @@ module "ecs" {
           # Example image used requires access to write to root filesystem
           readonlyRootFilesystem = false
 
-          dependencies = [{
+          dependsOn = [{
             containerName = "fluent-bit"
             condition     = "START"
           }]
 
-          enableCloudwatchLogging = false
+          enable_cloudwatch_logging = false
           logConfiguration = {
             logDriver = "awsfirelens"
             options = {
@@ -168,21 +168,18 @@ module "ecs" {
 
       subnet_ids                    = module.vpc.private_subnets
       availability_zone_rebalancing = "ENABLED"
-      security_group_rules = {
-        alb_ingress_3000 = {
-          type                     = "ingress"
-          from_port                = local.container_port
-          to_port                  = local.container_port
-          protocol                 = "tcp"
-          description              = "Service port"
-          source_security_group_id = module.alb.security_group_id
+      security_group_ingress_rules = {
+        alb_3000 = {
+          from_port                    = local.container_port
+          description                  = "Service port"
+          referenced_security_group_id = module.alb.security_group_id
         }
-        egress_all = {
-          type        = "egress"
-          from_port   = 0
+      }
+      security_group_egress_rules = {
+        all = {
+          cidr_ipv4   = "0.0.0.0/0"
           to_port     = 0
-          protocol    = "-1"
-          cidr_blocks = ["0.0.0.0/0"]
+          ip_protocol = "-1"
         }
       }
     }

@@ -696,62 +696,62 @@ module "container_definition" {
 
   region = var.region
 
-  for_each = { for k, v in var.container_definitions : k => v if local.create_task_definition && try(v.create, true) }
+  for_each = { for k, v in var.container_definitions : k => v if local.create_task_definition && v.create }
 
-  enable_execute_command  = try(each.value.enable_execute_command, var.container_definition_defaults.enable_execute_command, var.enable_execute_command)
-  operating_system_family = try(var.runtime_platform.operating_system_family, "LINUX")
+  enable_execute_command  = var.enable_execute_command
+  operating_system_family = var.runtime_platform.operating_system_family
 
   # Container Definition
-  command                = try(each.value.command, var.container_definition_defaults.command, null)
-  cpu                    = try(each.value.cpu, var.container_definition_defaults.cpu, null)
-  dependsOn              = try(each.value.dependsOn, var.container_definition_defaults.dependsOn, null)
-  disableNetworking      = try(each.value.disableNetworking, var.container_definition_defaults.disableNetworking, null)
-  dnsSearchDomains       = try(each.value.dnsSearchDomains, var.container_definition_defaults.dnsSearchDomains, null)
-  dnsServers             = try(each.value.dnsServers, var.container_definition_defaults.dnsServers, null)
-  dockerLabels           = try(each.value.dockerLabels, var.container_definition_defaults.dockerLabels, null)
-  dockerSecurityOptions  = try(each.value.dockerSecurityOptions, var.container_definition_defaults.dockerSecurityOptions, null)
-  entrypoint             = try(each.value.entrypoint, var.container_definition_defaults.entrypoint, null)
-  environment            = try(each.value.environment, var.container_definition_defaults.environment, null)
-  environmentFiles       = try(each.value.environmentFiles, var.container_definition_defaults.environmentFiles, null)
-  essential              = try(each.value.essential, var.container_definition_defaults.essential, null)
-  extraHosts             = try(each.value.extraHosts, var.container_definition_defaults.extraHosts, null)
-  firelensConfiguration  = try(each.value.firelensConfiguration, var.container_definition_defaults.firelensConfiguration, null)
-  healthCheck            = try(each.value.healthCheck, var.container_definition_defaults.healthCheck, null)
-  hostname               = try(each.value.hostname, var.container_definition_defaults.hostname, null)
-  image                  = try(each.value.image, var.container_definition_defaults.image, null)
-  interactive            = try(each.value.interactive, var.container_definition_defaults.interactive, false)
-  links                  = try(each.value.links, var.container_definition_defaults.links, null)
-  linuxParameters        = try(each.value.linuxParameters, var.container_definition_defaults.linuxParameters, { initProcessEnabled = false })
-  logConfiguration       = try(each.value.logConfiguration, var.container_definition_defaults.logConfiguration, {})
-  memory                 = try(each.value.memory, var.container_definition_defaults.memory, null)
-  memoryReservation      = try(each.value.memory_reservation, var.container_definition_defaults.memoryReservation, null)
-  mountPoints            = try(each.value.mount_points, var.container_definition_defaults.mountPoints, null)
-  name                   = try(each.value.name, each.key)
-  portMappings           = try(each.value.port_mappings, var.container_definition_defaults.portMappings, null)
-  privileged             = try(each.value.privileged, var.container_definition_defaults.privileged, false)
-  pseudoTerminal         = try(each.value.pseudoTerminal, var.container_definition_defaults.pseudoTerminal, false)
-  readonlyRootFilesystem = try(each.value.readonlyRootFilesystem, var.container_definition_defaults.readonlyRootFilesystem, true)
-  repositoryCredentials  = try(each.value.repositoryCredentials, var.container_definition_defaults.repositoryCredentials, null)
-  resourceRequirements   = try(each.value.resourceRequirements, var.container_definition_defaults.resourceRequirements, null)
-  restartPolicy          = try(each.value.restartPolicy, var.container_definition_defaults.restartPolicy, { enabled = true })
-  secrets                = try(each.value.secrets, var.container_definition_defaults.secrets, null)
-  startTimeout           = try(each.value.startTimeout, var.container_definition_defaults.startTimeout, 30)
-  stopTimeout            = try(each.value.stopTimeout, var.container_definition_defaults.stopTimeout, 120)
-  systemControls         = try(each.value.systemControls, var.container_definition_defaults.systemControls, null)
-  ulimits                = try(each.value.ulimits, var.container_definition_defaults.ulimits, null)
-  user                   = try(each.value.user, var.container_definition_defaults.user, null)
-  volumesFrom            = try(each.value.volumesFrom, var.container_definition_defaults.volumesFrom, null)
-  workingDirectory       = try(each.value.workingDirectory, var.container_definition_defaults.workingDirectory, null)
+  command                = try(coalesce(each.value.command, var.container_definition_defaults.command), null)
+  cpu                    = try(coalesce(each.value.cpu, var.container_definition_defaults.cpu), null)
+  dependsOn              = try(coalesce(each.value.dependsOn, var.container_definition_defaults.dependsOn), null)
+  disableNetworking      = try(coalesce(each.value.disableNetworking, var.container_definition_defaults.disableNetworking), null)
+  dnsSearchDomains       = try(coalesce(each.value.dnsSearchDomains, var.container_definition_defaults.dnsSearchDomains), null)
+  dnsServers             = try(coalesce(each.value.dnsServers, var.container_definition_defaults.dnsServers), null)
+  dockerLabels           = try(coalesce(each.value.dockerLabels, var.container_definition_defaults.dockerLabels), null)
+  dockerSecurityOptions  = try(coalesce(each.value.dockerSecurityOptions, var.container_definition_defaults.dockerSecurityOptions), null)
+  entrypoint             = try(coalesce(each.value.entrypoint, var.container_definition_defaults.entrypoint), null)
+  environment            = try(coalesce(each.value.environment, var.container_definition_defaults.environment), null)
+  environmentFiles       = try(coalesce(each.value.environmentFiles, var.container_definition_defaults.environmentFiles), null)
+  essential              = try(coalesce(each.value.essential, var.container_definition_defaults.essential), null)
+  extraHosts             = try(coalesce(each.value.extraHosts, var.container_definition_defaults.extraHosts), null)
+  firelensConfiguration  = try(coalesce(each.value.firelensConfiguration, var.container_definition_defaults.firelensConfiguration), null)
+  healthCheck            = try(coalesce(each.value.healthCheck, var.container_definition_defaults.healthCheck), null)
+  hostname               = try(coalesce(each.value.hostname, var.container_definition_defaults.hostname), null)
+  image                  = try(coalesce(each.value.image, var.container_definition_defaults.image), null)
+  interactive            = try(coalesce(each.value.interactive, var.container_definition_defaults.interactive), null)
+  links                  = try(coalesce(each.value.links, var.container_definition_defaults.links), null)
+  linuxParameters        = try(coalesce(each.value.linuxParameters, var.container_definition_defaults.linuxParameters), null)
+  logConfiguration       = try(coalesce(each.value.logConfiguration, var.container_definition_defaults.logConfiguration), null)
+  memory                 = try(coalesce(each.value.memory, var.container_definition_defaults.memory), null)
+  memoryReservation      = try(coalesce(each.value.memoryReservation, var.container_definition_defaults.memoryReservation), null)
+  mountPoints            = try(coalesce(each.value.mountPoints, var.container_definition_defaults.mountPoints), null)
+  name                   = coalesce(each.value.name, each.key)
+  portMappings           = try(coalesce(each.value.portMappings, var.container_definition_defaults.portMappings), null)
+  privileged             = try(coalesce(each.value.privileged, var.container_definition_defaults.privileged), null)
+  pseudoTerminal         = try(coalesce(each.value.pseudoTerminal, var.container_definition_defaults.pseudoTerminal), null)
+  readonlyRootFilesystem = try(coalesce(each.value.readonlyRootFilesystem, var.container_definition_defaults.readonlyRootFilesystem), null)
+  repositoryCredentials  = try(coalesce(each.value.repositoryCredentials, var.container_definition_defaults.repositoryCredentials), null)
+  resourceRequirements   = try(coalesce(each.value.resourceRequirements, var.container_definition_defaults.resourceRequirements), null)
+  restartPolicy          = try(coalesce(each.value.restartPolicy, var.container_definition_defaults.restartPolicy), null)
+  secrets                = try(coalesce(each.value.secrets, var.container_definition_defaults.secrets), null)
+  startTimeout           = try(coalesce(each.value.startTimeout, var.container_definition_defaults.startTimeout), null)
+  stopTimeout            = try(coalesce(each.value.stopTimeout, var.container_definition_defaults.stopTimeout), null)
+  systemControls         = try(coalesce(each.value.systemControls, var.container_definition_defaults.systemControls), null)
+  ulimits                = try(coalesce(each.value.ulimits, var.container_definition_defaults.ulimits), null)
+  user                   = try(coalesce(each.value.user, var.container_definition_defaults.user), null)
+  volumesFrom            = try(coalesce(each.value.volumesFrom, var.container_definition_defaults.volumesFrom), null)
+  workingDirectory       = try(coalesce(each.value.workingDirectory, var.container_definition_defaults.workingDirectory), null)
 
   # CloudWatch Log Group
   service                                = var.name
-  enable_cloudwatch_logging              = try(each.value.enable_cloudwatch_logging, var.container_definition_defaults.enable_cloudwatch_logging, true)
-  create_cloudwatch_log_group            = try(each.value.create_cloudwatch_log_group, var.container_definition_defaults.create_cloudwatch_log_group, true)
-  cloudwatch_log_group_name              = try(each.value.cloudwatch_log_group_name, var.container_definition_defaults.cloudwatch_log_group_name, null)
-  cloudwatch_log_group_use_name_prefix   = try(each.value.cloudwatch_log_group_use_name_prefix, var.container_definition_defaults.cloudwatch_log_group_use_name_prefix, false)
-  cloudwatch_log_group_class             = try(each.value.cloudwatch_log_group_class, var.container_definition_defaults.cloudwatch_log_group_class, null)
-  cloudwatch_log_group_retention_in_days = try(each.value.cloudwatch_log_group_retention_in_days, var.container_definition_defaults.cloudwatch_log_group_retention_in_days, 14)
-  cloudwatch_log_group_kms_key_id        = try(each.value.cloudwatch_log_group_kms_key_id, var.container_definition_defaults.cloudwatch_log_group_kms_key_id, null)
+  enable_cloudwatch_logging              = try(coalesce(each.value.enable_cloudwatch_logging, var.container_definition_defaults.enable_cloudwatch_logging), null)
+  create_cloudwatch_log_group            = try(coalesce(each.value.create_cloudwatch_log_group, var.container_definition_defaults.create_cloudwatch_log_group), null)
+  cloudwatch_log_group_name              = try(coalesce(each.value.cloudwatch_log_group_name, var.container_definition_defaults.cloudwatch_log_group_name), null)
+  cloudwatch_log_group_use_name_prefix   = try(coalesce(each.value.cloudwatch_log_group_use_name_prefix, var.container_definition_defaults.cloudwatch_log_group_use_name_prefix), null)
+  cloudwatch_log_group_class             = try(coalesce(each.value.cloudwatch_log_group_class, var.container_definition_defaults.cloudwatch_log_group_class), null)
+  cloudwatch_log_group_retention_in_days = try(coalesce(each.value.cloudwatch_log_group_retention_in_days, var.container_definition_defaults.cloudwatch_log_group_retention_in_days), null)
+  cloudwatch_log_group_kms_key_id        = try(coalesce(each.value.cloudwatch_log_group_kms_key_id, var.container_definition_defaults.cloudwatch_log_group_kms_key_id), null)
 
   tags = var.tags
 }
@@ -905,7 +905,7 @@ resource "aws_ecs_task_definition" "this" {
 ################################################################################
 
 locals {
-  task_exec_iam_role_name = try(coalesce(var.task_exec_iam_role_name, var.name), "")
+  task_exec_iam_role_name = coalesce(var.task_exec_iam_role_name, var.name, "NotProvided")
 
   create_task_exec_iam_role = local.create_task_definition && var.create_task_exec_iam_role
   create_task_exec_policy   = local.create_task_exec_iam_role && var.create_task_exec_policy
@@ -1059,7 +1059,7 @@ resource "aws_iam_role_policy_attachment" "task_exec" {
 ################################################################################
 
 locals {
-  tasks_iam_role_name   = try(coalesce(var.tasks_iam_role_name, var.name), "")
+  tasks_iam_role_name   = coalesce(var.tasks_iam_role_name, var.name, "NotProvided")
   create_tasks_iam_role = local.create_task_definition && var.create_tasks_iam_role
 }
 
@@ -1176,14 +1176,14 @@ resource "aws_iam_policy" "tasks" {
   tags        = merge(var.tags, var.tasks_iam_role_tags)
 }
 
-resource "aws_iam_role_policy_attachment" "tasks" {
+resource "aws_iam_role_policy_attachment" "tasks_internal" {
   count = local.create_tasks_iam_role && (var.tasks_iam_role_statements != null || var.enable_execute_command) ? 1 : 0
 
   role       = aws_iam_role.tasks[0].name
   policy_arn = aws_iam_policy.tasks[0].arn
 }
 
-resource "aws_iam_role_policy_attachment" "tasks_additional" {
+resource "aws_iam_role_policy_attachment" "tasks" {
   for_each = { for k, v in var.tasks_iam_role_policies : k => v if local.create_tasks_iam_role }
 
   role       = aws_iam_role.tasks[0].name
@@ -1387,7 +1387,7 @@ resource "aws_appautoscaling_policy" "this" {
 
   region = var.region
 
-  name               = try(coalesce(each.value.name, each.key))
+  name               = coalesce(each.value.name, each.key)
   policy_type        = each.value.policy_type
   resource_id        = aws_appautoscaling_target.this[0].resource_id
   scalable_dimension = aws_appautoscaling_target.this[0].scalable_dimension
@@ -1501,7 +1501,7 @@ resource "aws_appautoscaling_scheduled_action" "this" {
 
   region = var.region
 
-  name               = try(coalesce(each.value.name, each.key))
+  name               = coalesce(each.value.name, each.key)
   service_namespace  = aws_appautoscaling_target.this[0].service_namespace
   resource_id        = aws_appautoscaling_target.this[0].resource_id
   scalable_dimension = aws_appautoscaling_target.this[0].scalable_dimension
@@ -1523,7 +1523,7 @@ resource "aws_appautoscaling_scheduled_action" "this" {
 
 locals {
   create_security_group = var.create && var.create_security_group && var.network_mode == "awsvpc"
-  security_group_name   = try(coalesce(var.security_group_name, var.name), "")
+  security_group_name   = coalesce(var.security_group_name, var.name, "NotProvided")
 }
 
 data "aws_subnet" "this" {
@@ -1571,7 +1571,7 @@ resource "aws_vpc_security_group_ingress_rule" "this" {
   tags = merge(
     var.tags,
     var.security_group_tags,
-    { "Name" = try(each.value.name, "${local.security_group_name}-${each.key}") },
+    { "Name" = coalesce(each.value.name, "${local.security_group_name}-${each.key}") },
     each.value.tags
   )
   to_port = try(coalesce(each.value.to_port, each.value.from_port), null)
@@ -1593,7 +1593,7 @@ resource "aws_vpc_security_group_egress_rule" "this" {
   tags = merge(
     var.tags,
     var.security_group_tags,
-    { "Name" = try(each.value.name, "${local.security_group_name}-${each.key}") },
+    { "Name" = coalesce(each.value.name, "${local.security_group_name}-${each.key}") },
     each.value.tags
   )
   to_port = each.value.to_port
@@ -1608,7 +1608,7 @@ locals {
   needs_infrastructure_iam_role  = var.volume_configuration != null || var.vpc_lattice_configurations != null
   create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.needs_infrastructure_iam_role
   infrastructure_iam_role_arn    = local.needs_infrastructure_iam_role ? try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn) : null
-  infrastructure_iam_role_name   = try(coalesce(var.infrastructure_iam_role_name, var.name), "")
+  infrastructure_iam_role_name   = coalesce(var.infrastructure_iam_role_name, var.name, "NotProvided")
 }
 
 data "aws_iam_policy_document" "infrastructure_iam_role" {

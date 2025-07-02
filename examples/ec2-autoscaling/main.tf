@@ -117,36 +117,37 @@ module "ecs_service" {
   container_definitions = {
     (local.container_name) = {
       image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
-      port_mappings = [
+      portMappings = [
         {
           name          = local.container_name
           containerPort = local.container_port
+          hostPort      = local.container_port
           protocol      = "tcp"
         }
       ]
 
-      mount_points = [
+      mountPoints = [
         {
           sourceVolume  = "my-vol",
           containerPath = "/var/www/my-vol"
         },
         {
-          containerPath = "/ebs/data"
           sourceVolume  = "ebs-volume"
+          containerPath = "/ebs/data"
         }
       ]
 
-      entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+      entryPoint = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 
       # Example image used requires access to write to root filesystem
-      readonly_root_filesystem = false
+      readonlyRootFilesystem = false
 
       enable_cloudwatch_logging              = true
       create_cloudwatch_log_group            = true
       cloudwatch_log_group_name              = "/aws/ecs/${local.name}/${local.container_name}"
       cloudwatch_log_group_retention_in_days = 7
 
-      log_configuration = {
+      logLonfiguration = {
         logDriver = "awslogs"
       }
     }
@@ -162,11 +163,10 @@ module "ecs_service" {
 
   subnet_ids = module.vpc.private_subnets
   security_group_ingress_rules = {
-    alb_http_ingress = {
-      from_port                = local.container_port
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
+    alb_http = {
+      from_port                    = local.container_port
+      description                  = "Service port"
+      referenced_security_group_id = module.alb.security_group_id
     }
   }
 
@@ -261,7 +261,7 @@ module "autoscaling" {
     ex_1 = {
       instance_type              = "t3.large"
       use_mixed_instances_policy = false
-      mixed_instances_policy     = {}
+      mixed_instances_policy     = null
       user_data                  = <<-EOT
         #!/bin/bash
 
@@ -284,16 +284,18 @@ module "autoscaling" {
           spot_allocation_strategy                 = "price-capacity-optimized"
         }
 
-        override = [
-          {
-            instance_type     = "m4.large"
-            weighted_capacity = "2"
-          },
-          {
-            instance_type     = "t3.large"
-            weighted_capacity = "1"
-          },
-        ]
+        launch_template = {
+          override = [
+            {
+              instance_type     = "m4.large"
+              weighted_capacity = "2"
+            },
+            {
+              instance_type     = "t3.large"
+              weighted_capacity = "1"
+            },
+          ]
+        }
       }
       user_data = <<-EOT
         #!/bin/bash

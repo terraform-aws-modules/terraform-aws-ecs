@@ -5,18 +5,20 @@ data "aws_region" "current" {
 locals {
   is_not_windows = contains(["LINUX"], var.operating_system_family)
 
-  log_group_name = try(coalesce(var.cloudwatch_log_group_name, "/aws/ecs/${var.service}/${var.name}"), "")
+  service        = var.service != null ? "/${var.service}" : ""
+  name           = var.name != null ? "/${var.name}" : ""
+  log_group_name = try(coalesce(var.cloudwatch_log_group_name, "/aws/ecs${local.service}${local.name}"), "")
 
   logConfiguration = merge(
-    {
+    { for k, v in {
       logDriver = "awslogs",
       options = {
         awslogs-region        = data.aws_region.current.region,
         awslogs-group         = try(aws_cloudwatch_log_group.this[0].name, ""),
         awslogs-stream-prefix = "ecs"
       },
-    },
-    var.logConfiguration
+    } : k => v if var.create_cloudwatch_log_group },
+    { for k, v in var.logConfiguration : k => v if v != null }
   )
 
   linuxParameters = var.enable_execute_command ? merge(var.linuxParameters, { "initProcessEnabled" : true }) : var.linuxParameters
@@ -35,22 +37,22 @@ locals {
     environmentFiles       = var.environmentFiles
     essential              = var.essential
     extraHosts             = local.is_not_windows ? var.extraHosts : null
-    firelensConfiguration  = var.firelensConfiguration
-    healthCheck            = var.healthCheck
+    firelensConfiguration  = var.firelensConfiguration != null ? { for k, v in var.firelensConfiguration : k => v if v != null } : null
+    healthCheck            = var.healthCheck != null ? { for k, v in var.healthCheck : k => v if v != null } : null
     hostname               = var.hostname
     image                  = var.image
     interactive            = var.interactive
     links                  = local.is_not_windows ? var.links : null
-    linuxParameters        = local.is_not_windows ? local.linuxParameters : null
-    logConfiguration       = var.create_cloudwatch_log_group ? local.logConfiguration : var.logConfiguration
+    linuxParameters        = local.is_not_windows ? { for k, v in local.linuxParameters : k => v if v != null } : null
+    logConfiguration       = local.logConfiguration
     memory                 = var.memory
     memoryReservation      = var.memoryReservation
     mountPoints            = var.mountPoints
     name                   = var.name
-    portMappings           = var.portMappings
+    portMappings           = var.portMappings != null ? [for p in var.portMappings : { for k, v in p : k => v if v != null }] : null
     privileged             = local.is_not_windows ? var.privileged : null
     pseudoTerminal         = var.pseudoTerminal
-    restartPolicy          = var.restartPolicy
+    restartPolicy          = { for k, v in var.restartPolicy : k => v if v != null }
     readonlyRootFilesystem = local.is_not_windows ? var.readonlyRootFilesystem : null
     repositoryCredentials  = var.repositoryCredentials
     resourceRequirements   = var.resourceRequirements

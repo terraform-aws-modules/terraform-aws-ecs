@@ -129,7 +129,7 @@ module "service" {
 
   # Task Execution IAM role
   create_task_exec_iam_role               = each.value.create_task_exec_iam_role
-  task_exec_iam_role_arn                  = try(each.value.task_exec_iam_role_arn, module.cluster.task_exec_iam_role_arn)
+  task_exec_iam_role_arn                  = try(coalesce(each.value.task_exec_iam_role_arn, module.cluster.task_exec_iam_role_arn), null)
   task_exec_iam_role_name                 = each.value.task_exec_iam_role_name
   task_exec_iam_role_use_name_prefix      = each.value.task_exec_iam_role_use_name_prefix
   task_exec_iam_role_path                 = each.value.task_exec_iam_role_path

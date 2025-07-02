@@ -30,16 +30,13 @@ module "ecs_cluster" {
     }
   }
 
-  fargate_capacity_providers = {
+  default_capacity_provider_strategy = {
     FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 50
-      }
+      weight = 50
+      base   = 20
     }
     FARGATE_SPOT = {
-      default_capacity_provider_strategy = {
-        weight = 50
-      }
+      weight = 50
     }
   }
 
@@ -67,6 +64,16 @@ module "ecs_cluster" {
     }
   }
 
+  default_capacity_provider_strategy = {
+    one = {
+      weight = 60
+      base   = 20
+    }
+    two = {
+      weight = 40
+    }
+  }
+
   autoscaling_capacity_providers = {
     one = {
       auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-one-20220603194933774300000011"
@@ -79,11 +86,6 @@ module "ecs_cluster" {
         status                    = "ENABLED"
         target_capacity           = 60
       }
-
-      default_capacity_provider_strategy = {
-        weight = 60
-        base   = 20
-      }
     }
     two = {
       auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-two-20220603194933774300000022"
@@ -95,10 +97,6 @@ module "ecs_cluster" {
         minimum_scaling_step_size = 5
         status                    = "ENABLED"
         target_capacity           = 90
-      }
-
-      default_capacity_provider_strategy = {
-        weight = 40
       }
     }
   }
@@ -174,7 +172,7 @@ No modules.
 | <a name="input_cloudwatch_log_group_name"></a> [cloudwatch\_log\_group\_name](#input\_cloudwatch\_log\_group\_name) | Custom name of CloudWatch Log Group for ECS cluster | `string` | `null` | no |
 | <a name="input_cloudwatch_log_group_retention_in_days"></a> [cloudwatch\_log\_group\_retention\_in\_days](#input\_cloudwatch\_log\_group\_retention\_in\_days) | Number of days to retain log events | `number` | `90` | no |
 | <a name="input_cloudwatch_log_group_tags"></a> [cloudwatch\_log\_group\_tags](#input\_cloudwatch\_log\_group\_tags) | A map of additional tags to add to the log group created | `map(string)` | `{}` | no |
-| <a name="input_configuration"></a> [configuration](#input\_configuration) | The execute command configuration for the cluster | <pre>object({<br/>    execute_command_configuration = optional(object({<br/>      kms_key_id = optional(string)<br/>      log_configuration = optional(object({<br/>        cloud_watch_encryption_enabled = optional(bool)<br/>        cloud_watch_log_group_name     = optional(string)<br/>        s3_bucket_encryption_enabled   = optional(bool)<br/>        s3_bucket_name                 = optional(string)<br/>        s3_kms_key_id                  = optional(string)<br/>      }))<br/>      logging = optional(string, "OVERRIDE")<br/>    }))<br/>    managed_storage_configuration = optional(object({<br/>      fargate_ephemeral_storage_kms_key_id = optional(string)<br/>      kms_key_id                           = optional(string)<br/>    }))<br/>  })</pre> | <pre>{<br/>  "execute_command_configuration": {<br/>    "log_configuration": {<br/>      "cloud_watch_log_group_name": "placeholder"<br/>    }<br/>  }<br/>}</pre> | no |
+| <a name="input_configuration"></a> [configuration](#input\_configuration) | The execute command configuration for the cluster | <pre>object({<br/>    execute_command_configuration = optional(object({<br/>      kms_key_id = optional(string)<br/>      log_configuration = optional(object({<br/>        cloud_watch_encryption_enabled = optional(bool)<br/>        cloud_watch_log_group_name     = optional(string)<br/>        s3_bucket_encryption_enabled   = optional(bool)<br/>        s3_bucket_name                 = optional(string)<br/>        s3_kms_key_id                  = optional(string)<br/>        s3_key_prefix                  = optional(string)<br/>      }))<br/>      logging = optional(string, "OVERRIDE")<br/>    }))<br/>    managed_storage_configuration = optional(object({<br/>      fargate_ephemeral_storage_kms_key_id = optional(string)<br/>      kms_key_id                           = optional(string)<br/>    }))<br/>  })</pre> | <pre>{<br/>  "execute_command_configuration": {<br/>    "log_configuration": {<br/>      "cloud_watch_log_group_name": "placeholder"<br/>    }<br/>  }<br/>}</pre> | no |
 | <a name="input_create"></a> [create](#input\_create) | Determines whether resources will be created (affects all resources) | `bool` | `true` | no |
 | <a name="input_create_cloudwatch_log_group"></a> [create\_cloudwatch\_log\_group](#input\_create\_cloudwatch\_log\_group) | Determines whether a log group is created by this module for the cluster logs. If not, AWS will automatically create one if logging is enabled | `bool` | `true` | no |
 | <a name="input_create_task_exec_iam_role"></a> [create\_task\_exec\_iam\_role](#input\_create\_task\_exec\_iam\_role) | Determines whether the ECS task definition IAM role should be created | `bool` | `false` | no |

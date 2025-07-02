@@ -80,7 +80,7 @@ variable "enable_execute_command" {
 variable "entrypoint" {
   description = "The entry point that is passed to the container"
   type        = list(string)
-  default     = null
+  default     = []
 }
 
 variable "environment" {
@@ -89,7 +89,7 @@ variable "environment" {
     name  = string
     value = string
   }))
-  default = null
+  default = []
 }
 
 variable "environmentFiles" {
@@ -98,7 +98,7 @@ variable "environmentFiles" {
     value = string
     type  = string
   }))
-  default = null
+  default = []
 }
 
 variable "essential" {
@@ -119,7 +119,7 @@ variable "extraHosts" {
 variable "firelensConfiguration" {
   description = "The FireLens configuration for the container. This is used to specify and configure a log router for container logs. For more information, see [Custom Log Routing](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html) in the Amazon Elastic Container Service Developer Guide"
   type = object({
-    options = optional(map(string), {})
+    options = optional(map(string))
     type    = optional(string)
   })
   default = null
@@ -220,7 +220,7 @@ variable "mountPoints" {
     readOnly      = optional(bool)
     sourceVolume  = optional(string)
   }))
-  default = null
+  default = []
 }
 
 variable "name" {
@@ -281,7 +281,7 @@ variable "restartPolicy" {
   description = "Container restart policy; helps overcome transient failures faster and maintain task availability"
   type = object({
     enabled              = optional(bool, true)
-    ignoredExitCodes     = optional(list(number))
+    ignoredExitCodes     = optional(list(number), [])
     restartAttemptPeriod = optional(number)
   })
   default = {
@@ -316,7 +316,7 @@ variable "systemControls" {
     namespace = optional(string)
     value     = optional(string)
   }))
-  default = null
+  default = []
 }
 
 variable "ulimits" {
@@ -347,7 +347,7 @@ variable "volumesFrom" {
     readOnly        = optional(bool)
     sourceContainer = optional(string)
   }))
-  default = null
+  default = []
 }
 
 variable "workingDirectory" {
@@ -361,9 +361,9 @@ variable "workingDirectory" {
 ################################################################################
 
 variable "service" {
-  description = "The name of the service that the container definition is associated with"
+  description = "The name of the service that the container definition is associated with. Used in CloudWatch log group default name (if one is not provided)"
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "enable_cloudwatch_logging" {
@@ -399,7 +399,7 @@ variable "cloudwatch_log_group_class" {
 variable "cloudwatch_log_group_retention_in_days" {
   description = "Number of days to retain log events. Default is 30 days"
   type        = number
-  default     = 30
+  default     = 14
 }
 
 variable "cloudwatch_log_group_kms_key_id" {

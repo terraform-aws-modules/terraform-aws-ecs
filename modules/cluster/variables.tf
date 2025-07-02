@@ -31,6 +31,7 @@ variable "configuration" {
         s3_bucket_encryption_enabled   = optional(bool)
         s3_bucket_name                 = optional(string)
         s3_kms_key_id                  = optional(string)
+        s3_key_prefix                  = optional(string)
       }))
       logging = optional(string, "OVERRIDE")
     }))

@@ -68,11 +68,11 @@ module "ecs_service" {
       memory    = 1024
       essential = true
       image     = nonsensitive(data.aws_ssm_parameter.fluentbit.value)
-      firelens_configuration = {
+      firelensConfiguration = {
         type = "fluentbit"
       }
-      memory_reservation = 50
-      user               = "0"
+      memoryReservation = 50
+      user              = "0"
     }
 
     (local.container_name) = {
@@ -80,7 +80,7 @@ module "ecs_service" {
       memory    = 1024
       essential = true
       image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
-      port_mappings = [
+      portMappings = [
         {
           name          = local.container_name
           containerPort = local.container_port
@@ -90,15 +90,15 @@ module "ecs_service" {
       ]
 
       # Example image used requires access to write to root filesystem
-      readonly_root_filesystem = false
+      readonlyRootFilesystem = false
 
-      dependencies = [{
+      dependsOn = [{
         containerName = "fluent-bit"
         condition     = "START"
       }]
 
       enable_cloudwatch_logging = false
-      log_configuration = {
+      logConfiguration = {
         logDriver = "awsfirelens"
         options = {
           Name                    = "firehose"
@@ -108,7 +108,7 @@ module "ecs_service" {
         }
       }
 
-      linux_parameters = {
+      linuxParameters = {
         capabilities = {
           add = []
           drop = [
@@ -117,19 +117,19 @@ module "ecs_service" {
         }
       }
 
-      restart_policy = {
+      restartPolicy = {
         enabled              = true
         ignoredExitCodes     = [1]
         restartAttemptPeriod = 60
       }
 
       # Not required for fluent-bit, just an example
-      volumes_from = [{
+      volumesFrom = [{
         sourceContainer = "fluent-bit"
         readOnly        = false
       }]
 
-      memory_reservation = 100
+      memoryReservation = 100
     }
   }
 
@@ -157,7 +157,7 @@ module "ecs_service" {
 
   subnet_ids = module.vpc.private_subnets
   security_group_ingress_rules = {
-    alb_ingress_3000 = {
+    alb_3000 = {
       description                  = "Service port"
       from_port                    = local.container_port
       ip_protocol                  = "tcp"
@@ -165,7 +165,7 @@ module "ecs_service" {
     }
   }
   security_group_egress_rules = {
-    egress_all = {
+    all = {
       ip_protocol = "-1"
       cidr_ipv4   = "0.0.0.0/0"
     }
@@ -205,7 +205,7 @@ module "ecs_task_definition" {
     al2023 = {
       image = "public.ecr.aws/amazonlinux/amazonlinux:2023-minimal"
 
-      mount_points = [
+      mountPoints = [
         {
           sourceVolume  = "ex-vol",
           containerPath = "/var/www/ex-vol"
@@ -220,7 +220,7 @@ module "ecs_task_definition" {
   subnet_ids = module.vpc.private_subnets
 
   security_group_egress_rules = {
-    egress_all = {
+    all = {
       ip_protocol = "-1"
       cidr_ipv4   = "0.0.0.0/0"
     }

@@ -103,7 +103,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
   cluster_name = aws_ecs_cluster.this[0].name
   capacity_providers = distinct(concat(
     [for k, v in var.default_capacity_provider_strategy : try(coalesce(v.name, k))],
-    [for k, v in var.autoscaling_capacity_providers : try(coalesce(v.name, k))]
+    var.autoscaling_capacity_providers != null ? [for k, v in var.autoscaling_capacity_providers : try(coalesce(v.name, k))] : []
   ))
 
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-capacity-providers.html#capacity-providers-considerations
@@ -112,7 +112,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 
     content {
       base              = default_capacity_provider_strategy.value.base
-      capacity_provider = default_capacity_provider_strategy.value.name
+      capacity_provider = try(coalesce(default_capacity_provider_strategy.value.name, default_capacity_provider_strategy.key))
       weight            = default_capacity_provider_strategy.value.weight
     }
   }
