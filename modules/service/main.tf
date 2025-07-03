@@ -628,15 +628,6 @@ resource "aws_ecs_task_definition" "this" {
   execution_role_arn = try(aws_iam_role.task_exec[0].arn, var.task_exec_iam_role_arn)
   family             = coalesce(var.family, var.name)
 
-  dynamic "inference_accelerator" {
-    for_each = var.inference_accelerator
-
-    content {
-      device_name = inference_accelerator.value.device_name
-      device_type = inference_accelerator.value.device_type
-    }
-  }
-
   ipc_mode     = var.ipc_mode
   memory       = var.memory
   network_mode = var.network_mode
