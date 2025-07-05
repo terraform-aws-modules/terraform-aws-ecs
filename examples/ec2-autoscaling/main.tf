@@ -137,7 +137,7 @@ module "ecs_service" {
         }
       ]
 
-      entryPoint = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+      entrypoint = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 
       # Example image used requires access to write to root filesystem
       readonlyRootFilesystem = false

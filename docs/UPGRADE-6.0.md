@@ -5,14 +5,21 @@ If you find a bug, please open an issue with supporting configuration to reprodu
 
 ## List of backwards incompatible changes
 
-- Terraform v1.5.7 is now minimum supported version
-- AWS provider v6.0.0 is now minimum supported version
+- Terraform `v1.5.7` is now minimum supported version
+- AWS provider `v6.0.0` is now minimum supported version
+- The attributes used to construct the container definition(s) have been changed from HCL's norm of `snake_case` to `camelCase` to match the AWS API. There currently isn't a [resource nor data source for the container definition](https://github.com/hashicorp/terraform-provider-aws/issues/17988), so one is constructed entirely from HCL in the `container-definition` sub-module. This definition is then rendered as JSON when presented to the task definition (or task set) APIs. Previously, the variable names used were `snake_case` and then internally converted to `camelCase`. However, this does not allow for [using the `container-definition` sub-module on its own](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/147) due to the mismatch between casing. Its probably going to trip a few folks up, but hopefully we'll remove this for a data source in the future.
+- `security_group_rules` has been split into `security_group_ingress_rules` and `security_group_egress_rules` to better match the AWS API and allow for more flexibility in defining security group rules.
+- Default permissive permissions for SSM parameter ARNs and Secrets Manager secret ARNs have been removed throughout. While this made it easier for users since it "just worked", it was not secure and could lead to unexpected access to resources. Users should now explicitly define the permissions they need in their IAM policies.
+- The "hack" put in place to track the task definition version when updating outside of the module has been removed. Instead, users should rely on the `track_latest` variable to ensure that the latest task definition is used when updating the service. Any issues with tracking the task definition version should be reported to the *ECS service team* as it is a limitation of the AWS ECS service/API and not the module itself.
+- The inline policy for the Tasks role of the `service` sub-module has been replaced with a standalone IAM policy. In some organizations, inline policies are not allowed.
+- The default for the `container-definition` `user` has been changed from `0` to `null`.
 
 ## Additional changes
 
 ### Added
 
 - Support for `region` parameter to specify the AWS region for the resources created if different from the provider region.
+- Support for ECS infrastructure IAM role creation in the `service` sub-module. This role is used to manage ECS infrastructure resources https://docs.aws.amazon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html
 
 ### Modified
 
@@ -22,35 +29,148 @@ If you find a bug, please open an issue with supporting configuration to reprodu
 
 1. Removed variables:
 
-    -
+    - `default_capacity_provider_use_fargate`
+    - `fargate_capacity_providers`
+
+    - `cluster` sub-module
+      - `fargate_capacity_providers`; part of `default_capacity_provider_strategy` now
+      - `default_capacity_provider_use_fargate`
+
+    - `container-definition` sub-module
+      - None
+
+    - `service` sub-module
+      - `inference_accelerator`
+
 
 2. Renamed variables:
 
-    -
+    - `cluster_settings` -> `cluster_setting`
+
+    - `cluster` sub-module
+      - `cluster_configuration` - `configuration`
+      - `cluster_settings` - `setting`
+      - `cluster_service_connect_defaults` - `service_connect_defaults`
+
+    - `container-definition` sub-module
+      - `dependencies` - `dependsOn`
+      - `disable_networking` - `disableNetworking`
+      - `dns_search_domains` - `dnsSearchDomains`
+      - `dns_servers` - `dnsServers`
+      - `docker_labels` - `dockerLabels`
+      - `docker_security_options` - `dockerSecurityOptions`
+      - `environment_files` - `environmentFiles`
+      - `extra_hosts` - `extraHosts`
+      - `firelens_configuration` - `firelensConfiguration`
+      - `health_check` - `healthCheck`
+      - `linux_parameters` - `linuxParameters`
+      - `log_configuration` - `logConfiguration`
+      - `memory_reservation` - `memoryReservation`
+      - `mount_points` - `mountPoints`
+      - `port_mappings` - `portMappings`
+      - `psuedo_terminal` - `pseudoTerminal`
+      - `readonly_root_filesystem` - `readonlyRootFilesystem`
+      - `repository_credentials` - `repositoryCredentials`
+      - `start_timeout` - `startTimeout`
+      - `system_controls` - `systemControls`
+      - `volumes_from` - `volumesFrom`
+      - `working_directory` - `workingDirectory`
+
+    - `service` sub-module
+      - None
 
 3. Added variables:
 
-    -
+    - `cloudwatch_log_group_class`
+    - `default_capacity_provider_strategy`
+
+    - `cluster` sub-module
+      - `cloudwatch_log_group_class`
+      - `default_capacity_provider_strategy` - replaces `fargate_capacity_providers` and `default_capacity_provider_use_fargate` functionality
+
+    - `container-definition` sub-module
+      - `log_group_class`
+      - `restartPolicy` - defaults to `enabled = true`
+      - `versionConsistency` - defaults to `"disabled"` https://github.com/aws/containers-roadmap/issues/2394
+
+    - `service` sub-module
+      - `availability_zone_rebalancing`
+      - `volume_configuration`
+      - `vpc_lattice_configurations`
+      - `enable_fault_injection`
+      - `track_latest`
+      - `create_infrastructure_iam_role`
+      - `infrastructure_iam_role_arn`
+      - `infrastructure_iam_role_name`
+      - `infrastructure_iam_role_use_name_prefix`
+      - `infrastructure_iam_role_path`
+      - `infrastructure_iam_role_description`
+      - `infrastructure_iam_role_permissions_boundary`
+      - `infrastructure_iam_role_tags`
 
 4. Removed outputs:
 
-    -
+    - `cluster` sub-module
+      - None
+    - `container-definition` sub-module
+      - None
+    - `service` sub-module
+      - `task_definition_family_revision`
 
 5. Renamed outputs:
 
-    -
+    - `cluster` sub-module
+      - None
+    - `container-definition` sub-module
+      - None
+    - `service` sub-module
+      - None
 
 6. Added outputs:
 
-    -
+    - `cluster` sub-module
+      - None
+    - `container-definition` sub-module
+      - None
+    - `service` sub-module
+      - `infrastructure_iam_role_arn`
+      - `infrastructure_iam_role_name`
 
 ## Upgrade Migrations
 
 ### Before 5.x Example
 
+#### Cluster Sub-Module
+
 ```hcl
-module "ecs" {
-  source  = "terraform-aws-modules/ecs/aws"
+module "ecs_cluster" {
+  source  = "terraform-aws-modules/ecs/aws//modules/cluster"
+  version = "~> 5.0"
+
+  # Truncated for brevity ...
+
+  # Capacity provider
+  fargate_capacity_providers = {
+    FARGATE = {
+      default_capacity_provider_strategy = {
+        weight = 50
+        base   = 20
+      }
+    }
+    FARGATE_SPOT = {
+      default_capacity_provider_strategy = {
+        weight = 50
+      }
+    }
+  }
+}
+```
+
+#### Service Sub-Module
+
+```hcl
+module "ecs_service" {
+  source  = "terraform-aws-modules/ecs/aws//modules/service"
   version = "~> 5.0"
 
   # Truncated for brevity ...
@@ -122,6 +242,18 @@ module "ecs" {
     }
   }
 
+  service_connect_configuration = {
+    namespace = aws_service_discovery_http_namespace.this.arn
+    service = {
+      client_alias = {
+        port     = 3000
+        dns_name = "ecsdemo-frontend"
+      }
+      port_name      = "ecsdemo-frontend"
+      discovery_name = "ecsdemo-frontend"
+    }
+  }
+
   security_group_rules = {
     alb_ingress_3000 = {
       type                     = "ingress"
@@ -142,10 +274,32 @@ module "ecs" {
 
 ### After 6.x Example
 
-#### Service
+#### Cluster Sub-Module
 
 ```hcl
-module "ecs" {
+module "ecs_cluster" {
+  source  = "terraform-aws-modules/ecs/aws//modules/cluster"
+  version = "~> 6.0"
+
+  # Truncated for brevity ...
+
+  # Cluster capacity providers
+  default_capacity_provider_strategy = {
+    FARGATE = {
+      weight = 50
+      base   = 20
+    }
+    FARGATE_SPOT = {
+      weight = 50
+    }
+  }
+}
+```
+
+#### Service Sub-Module
+
+```hcl
+module "ecs_service" {
   source  = "terraform-aws-modules/ecs/aws//modules/service"
   version = "~> 6.0"
 
@@ -224,6 +378,20 @@ module "ecs" {
     }
   }
 
+  service_connect_configuration = {
+    namespace = aws_service_discovery_http_namespace.this.arn
+    service = [
+      {
+        client_alias = {
+          port     = 3000
+          dns_name = "ecsdemo-frontend"
+        }
+        port_name      = "ecsdemo-frontend"
+        discovery_name = "ecsdemo-frontend"
+      }
+    ]
+  }
+
   security_group_ingress_rules = {
     alb_3000 = {
       description                  = "Service port"
@@ -242,7 +410,9 @@ module "ecs" {
 
 ### State Changes
 
-#### Service
+#### Service Sub-Module
+
+Due to the change from `aws_security_group_rule` to `aws_vpc_security_group_ingress_rule` and `aws_vpc_security_group_egress_rule`, the following reference state changes are required to maintain the current security group rules. (Note: these are different resources so they cannot be moved with `terraform mv ...`)
 
 ```sh
 terraform state rm 'module.ecs_service.aws_security_group_rule.this["alb_ingress_3000"]'
@@ -250,7 +420,6 @@ terraform state import 'module.ecs_service.aws_vpc_security_group_ingress_rule.t
 
 terraform state rm 'module.ecs_service.aws_security_group_rule.this["egress_all"]'
 terraform state import 'module.ecs_service.aws_vpc_security_group_egress_rule.this["all"]' 'sg-xxx'
-
 ```
 
 The inline tasks `aws_iam_role_policy` cannot be moved or imported into a standalone `aws_iam_policy`. It must be re-created.
