@@ -32,6 +32,7 @@ variable "cpu" {
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "dependsOn" {
   description = "The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a dependency is defined for container startup, for container shutdown it is reversed. The condition can be one of START, COMPLETE, SUCCESS or HEALTHY"
   type = list(object({
@@ -41,30 +42,35 @@ variable "dependsOn" {
   default = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "disableNetworking" {
   description = "When this parameter is true, networking is disabled within the container"
   type        = bool
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "dnsSearchDomains" {
   description = "Container DNS search domains. A list of DNS search domains that are presented to the container"
   type        = list(string)
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "dnsServers" {
   description = "Container DNS servers. This is a list of strings specifying the IP addresses of the DNS servers"
   type        = list(string)
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "dockerLabels" {
   description = "A key/value map of labels to add to the container"
   type        = map(string)
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "dockerSecurityOptions" {
   description = "A list of strings to provide custom labels for SELinux and AppArmor multi-level security systems. This field isn't valid for containers in tasks using the Fargate launch type"
   type        = list(string)
@@ -92,6 +98,7 @@ variable "environment" {
   default = []
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "environmentFiles" {
   description = "A list of files containing the environment variables to pass to a container"
   type = list(object({
@@ -107,6 +114,7 @@ variable "essential" {
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "extraHosts" {
   description = "A list of hostnames and IP address mappings to append to the `/etc/hosts` file on the container"
   type = list(object({
@@ -116,6 +124,7 @@ variable "extraHosts" {
   default = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "firelensConfiguration" {
   description = "The FireLens configuration for the container. This is used to specify and configure a log router for container logs. For more information, see [Custom Log Routing](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html) in the Amazon Elastic Container Service Developer Guide"
   type = object({
@@ -125,6 +134,7 @@ variable "firelensConfiguration" {
   default = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "healthCheck" {
   description = "The container health check command and associated configuration parameters for the container. See [HealthCheck](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_HealthCheck.html)"
   type = object({
@@ -161,6 +171,7 @@ variable "links" {
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "linuxParameters" {
   description = "Linux-specific modifications that are applied to the container, such as Linux kernel capabilities. For more information see [KernelCapabilities](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html)"
   type = object({
@@ -188,6 +199,7 @@ variable "linuxParameters" {
   }
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "logConfiguration" {
   description = "The log configuration for the container. For more information see [LogConfiguration](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LogConfiguration.html)"
   type = object({
@@ -207,12 +219,14 @@ variable "memory" {
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "memoryReservation" {
   description = "The soft limit (in MiB) of memory to reserve for the container. When system memory is under heavy contention, Docker attempts to keep the container memory to this soft limit. However, your container can consume more memory when it needs to, up to either the hard limit specified with the `memory` parameter (if applicable), or all of the available memory on the container instance"
   type        = number
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "mountPoints" {
   description = "The mount points for data volumes in your container"
   type = list(object({
@@ -229,6 +243,7 @@ variable "name" {
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "portMappings" {
   description = "The list of port mappings for the container. Port mappings allow containers to access ports on the host container instance to send or receive traffic. For task definitions that use the awsvpc network mode, only specify the containerPort. The hostPort can be left blank or it must be the same value as the containerPort"
   type = list(object({
@@ -248,18 +263,21 @@ variable "privileged" {
   default     = false
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "pseudoTerminal" {
   description = "When this parameter is true, a `TTY` is allocated"
   type        = bool
   default     = false
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "readonlyRootFilesystem" {
   description = "When this parameter is true, the container is given read-only access to its root file system"
   type        = bool
   default     = true
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "repositoryCredentials" {
   description = "Container repository credentials; required when using a private repo.  This map currently supports a single key; \"credentialsParameter\", which should be the ARN of a Secrets Manager's secret holding the credentials"
   type = object({
@@ -268,6 +286,7 @@ variable "repositoryCredentials" {
   default = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "resourceRequirements" {
   description = "The type and amount of a resource to assign to a container. The only supported resource is a GPU"
   type = list(object({
@@ -277,6 +296,7 @@ variable "resourceRequirements" {
   default = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "restartPolicy" {
   description = "Container restart policy; helps overcome transient failures faster and maintain task availability"
   type = object({
@@ -298,18 +318,21 @@ variable "secrets" {
   default = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "startTimeout" {
   description = "Time duration (in seconds) to wait before giving up on resolving dependencies for a container"
   type        = number
   default     = 30
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "stopTimeout" {
   description = "Time duration (in seconds) to wait before the container is forcefully killed if it doesn't exit normally on its own"
   type        = number
   default     = 120
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "systemControls" {
   description = "A list of namespaced kernel parameters to set in the container"
   type = list(object({
@@ -335,12 +358,14 @@ variable "user" {
   default     = null
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "versionConsistency" {
   description = "Specifies whether Amazon ECS will resolve the container image tag provided in the container definition to an image digest"
   type        = string
   default     = "disabled"
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "volumesFrom" {
   description = "Data volumes to mount from another container"
   type = list(object({
@@ -350,6 +375,7 @@ variable "volumesFrom" {
   default = []
 }
 
+# tflint-ignore: terraform_naming_convention
 variable "workingDirectory" {
   description = "The working directory to run commands inside the container"
   type        = string

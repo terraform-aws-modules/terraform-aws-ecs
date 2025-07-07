@@ -2,6 +2,7 @@ data "aws_region" "current" {
   region = var.region
 }
 
+
 locals {
   is_not_windows = contains(["LINUX"], var.operating_system_family)
 
@@ -9,6 +10,7 @@ locals {
   name           = var.name != null ? "/${var.name}" : ""
   log_group_name = try(coalesce(var.cloudwatch_log_group_name, "/aws/ecs${local.service}${local.name}"), "")
 
+  # tflint-ignore: terraform_naming_convention
   logConfiguration = merge(
     { for k, v in {
       logDriver = "awslogs",
@@ -21,6 +23,7 @@ locals {
     { for k, v in var.logConfiguration : k => v if v != null }
   )
 
+  # tflint-ignore: terraform_naming_convention
   linuxParameters = var.enable_execute_command ? merge(var.linuxParameters, { "initProcessEnabled" : true }) : var.linuxParameters
 
   definition = {
