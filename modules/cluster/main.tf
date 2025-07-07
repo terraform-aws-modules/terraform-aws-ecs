@@ -282,7 +282,7 @@ data "aws_iam_policy_document" "task_exec" {
       }
 
       dynamic "condition" {
-        for_each = statement.value.conditions != null ? statement.value.conditions : []
+        for_each = statement.value.condition != null ? statement.value.condition : []
 
         content {
           test     = condition.value.test
