@@ -657,7 +657,7 @@ data "aws_iam_policy_document" "service" {
       }
 
       dynamic "condition" {
-        for_each = statement.value.conditions != null ? statement.value.conditions : []
+        for_each = statement.value.condition != null ? statement.value.condition : []
 
         content {
           test     = condition.value.test
@@ -740,6 +740,7 @@ module "container_definition" {
   systemControls         = try(coalesce(each.value.systemControls, var.container_definition_defaults.systemControls), null)
   ulimits                = try(coalesce(each.value.ulimits, var.container_definition_defaults.ulimits), null)
   user                   = try(coalesce(each.value.user, var.container_definition_defaults.user), null)
+  versionConsistency     = try(coalesce(each.value.versionConsistency, var.container_definition_defaults.versionConsistency), null)
   volumesFrom            = try(coalesce(each.value.volumesFrom, var.container_definition_defaults.volumesFrom), null)
   workingDirectory       = try(coalesce(each.value.workingDirectory, var.container_definition_defaults.workingDirectory), null)
 
@@ -1023,7 +1024,7 @@ data "aws_iam_policy_document" "task_exec" {
       }
 
       dynamic "condition" {
-        for_each = statement.value.conditions != null ? statement.value.conditions : []
+        for_each = statement.value.condition != null ? statement.value.condition : []
 
         content {
           test     = condition.value.test

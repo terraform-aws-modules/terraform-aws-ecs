@@ -55,10 +55,10 @@ locals {
     portMappings           = var.portMappings != null ? [for p in var.portMappings : { for k, v in p : k => v if v != null }] : null
     privileged             = local.is_not_windows ? var.privileged : null
     pseudoTerminal         = var.pseudoTerminal
-    restartPolicy          = { for k, v in var.restartPolicy : k => v if v != null }
     readonlyRootFilesystem = local.is_not_windows ? var.readonlyRootFilesystem : null
     repositoryCredentials  = var.repositoryCredentials
     resourceRequirements   = var.resourceRequirements
+    restartPolicy          = { for k, v in var.restartPolicy : k => v if v != null }
     secrets                = var.secrets
     startTimeout           = var.startTimeout
     stopTimeout            = var.stopTimeout
