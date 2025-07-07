@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.0...v6.0.1) (2025-07-07)
+
+
+### Bug Fixes
+
+* Pass missing `versionConsistency` argument, correct `conditions` to `condition` ([#303](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/303)) ([e90f761](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/e90f7617505fce7099b1fec9289841df9369f21f))
+
 ## [6.0.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.12.1...v6.0.0) (2025-07-07)
 
 
