@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.12.1...v6.0.0) (2025-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* Upgrade AWS provider and min required Terraform version to `6.0` and `1.5.7` respectively (#217)
+
+### Features
+
+* Upgrade AWS provider and min required Terraform version to `6.0` and `1.5.7` respectively ([#217](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/217)) ([29b257a](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/29b257a92ea0da04ffe6fd21790ae6d3aa691cde)), closes [#158](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/158)
+
 ## [5.12.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.12.0...v5.12.1) (2025-04-18)
 
 
