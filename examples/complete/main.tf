@@ -30,17 +30,32 @@ module "ecs" {
 
   cluster_name = local.name
 
-  # Capacity provider
-  fargate_capacity_providers = {
+  # Cluster capacity providers
+  default_capacity_provider_strategy = {
     FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 50
-        base   = 20
-      }
+      weight = 50
+      base   = 20
     }
     FARGATE_SPOT = {
-      default_capacity_provider_strategy = {
-        weight = 50
+      weight = 50
+    }
+    ASG = {
+      weight = 50
+      base   = 20
+    }
+  }
+
+  autoscaling_capacity_providers = {
+    ASG = {
+      auto_scaling_group_arn         = module.autoscaling.autoscaling_group_arn
+      managed_draining               = "ENABLED"
+      managed_termination_protection = "ENABLED"
+
+      managed_scaling = {
+        maximum_scaling_step_size = 5
+        minimum_scaling_step_size = 1
+        status                    = "ENABLED"
+        target_capacity           = 60
       }
     }
   }
@@ -58,10 +73,10 @@ module "ecs" {
           memory    = 1024
           essential = true
           image     = nonsensitive(data.aws_ssm_parameter.fluentbit.value)
-          firelens_configuration = {
+          firelensConfiguration = {
             type = "fluentbit"
           }
-          memory_reservation = 50
+          memoryReservation = 50
         }
 
         (local.container_name) = {
@@ -70,11 +85,11 @@ module "ecs" {
           essential = true
           image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
 
-          health_check = {
+          healthCheck = {
             command = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/health || exit 1"]
           }
 
-          port_mappings = [
+          portMappings = [
             {
               name          = local.container_name
               containerPort = local.container_port
@@ -84,15 +99,15 @@ module "ecs" {
           ]
 
           # Example image used requires access to write to root filesystem
-          readonly_root_filesystem = false
+          readonlyRootFilesystem = false
 
-          dependencies = [{
+          dependsOn = [{
             containerName = "fluent-bit"
             condition     = "START"
           }]
 
           enable_cloudwatch_logging = false
-          log_configuration = {
+          logConfiguration = {
             logDriver = "awsfirelens"
             options = {
               Name                    = "firehose"
@@ -101,20 +116,34 @@ module "ecs" {
               log-driver-buffer-limit = "2097152"
             }
           }
-          memory_reservation = 100
+          memoryReservation = 100
+
+          restartPolicy = {
+            enabled              = true
+            ignoredExitCodes     = [1]
+            restartAttemptPeriod = 60
+          }
         }
       }
 
       service_connect_configuration = {
         namespace = aws_service_discovery_http_namespace.this.arn
-        service = {
-          client_alias = {
-            port     = local.container_port
-            dns_name = local.container_name
+        service = [
+          {
+            client_alias = {
+              port     = local.container_port
+              dns_name = local.container_name
+            }
+
+            timeout = {
+              idle_timeout_seconds        = 20
+              per_request_timeout_seconds = 30
+            }
+
+            port_name      = local.container_name
+            discovery_name = local.container_name
           }
-          port_name      = local.container_name
-          discovery_name = local.container_name
-        }
+        ]
       }
 
       load_balancer = {
@@ -137,22 +166,20 @@ module "ecs" {
         }
       ]
 
-      subnet_ids = module.vpc.private_subnets
-      security_group_rules = {
-        alb_ingress_3000 = {
-          type                     = "ingress"
-          from_port                = local.container_port
-          to_port                  = local.container_port
-          protocol                 = "tcp"
-          description              = "Service port"
-          source_security_group_id = module.alb.security_group_id
+      subnet_ids                    = module.vpc.private_subnets
+      availability_zone_rebalancing = "ENABLED"
+      security_group_ingress_rules = {
+        alb_3000 = {
+          from_port                    = local.container_port
+          description                  = "Service port"
+          referenced_security_group_id = module.alb.security_group_id
         }
-        egress_all = {
-          type        = "egress"
-          from_port   = 0
+      }
+      security_group_egress_rules = {
+        all = {
+          cidr_ipv4   = "0.0.0.0/0"
           to_port     = 0
-          protocol    = "-1"
-          cidr_blocks = ["0.0.0.0/0"]
+          ip_protocol = "-1"
         }
       }
     }
@@ -182,6 +209,11 @@ module "service_disabled" {
 ################################################################################
 # Supporting Resources
 ################################################################################
+
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html#ecs-optimized-ami-linux
+data "aws_ssm_parameter" "ecs_optimized_ami" {
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended"
+}
 
 data "aws_ssm_parameter" "fluentbit" {
   name = "/aws/service/aws-for-fluent-bit/stable"
@@ -263,9 +295,78 @@ module "alb" {
   tags = local.tags
 }
 
+module "autoscaling" {
+  source  = "terraform-aws-modules/autoscaling/aws"
+  version = "~> 9.0"
+
+  name = local.name
+
+  image_id      = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
+  instance_type = "t3.large"
+
+  security_groups = [module.autoscaling_sg.security_group_id]
+  user_data = base64encode(<<-EOT
+    #!/bin/bash
+
+    cat <<'EOF' >> /etc/ecs/ecs.config
+    ECS_CLUSTER=${local.name}
+    ECS_LOGLEVEL=debug
+    ECS_CONTAINER_INSTANCE_TAGS=${jsonencode(local.tags)}
+    ECS_ENABLE_TASK_IAM_ROLE=true
+    EOF
+  EOT
+  )
+  ignore_desired_capacity_changes = true
+
+  create_iam_instance_profile = true
+  iam_role_name               = local.name
+  iam_role_description        = "ECS role for ${local.name}"
+  iam_role_policies = {
+    AmazonEC2ContainerServiceforEC2Role = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+    AmazonSSMManagedInstanceCore        = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  }
+
+  vpc_zone_identifier = module.vpc.private_subnets
+  health_check_type   = "EC2"
+  min_size            = 1
+  max_size            = 5
+  desired_capacity    = 2
+
+  # https://github.com/hashicorp/terraform-provider-aws/issues/12582
+  autoscaling_group_tags = {
+    AmazonECSManaged = true
+  }
+
+  # Required for  managed_termination_protection = "ENABLED"
+  protect_from_scale_in = true
+
+  tags = local.tags
+}
+
+module "autoscaling_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "~> 5.0"
+
+  name        = local.name
+  description = "Autoscaling group security group"
+  vpc_id      = module.vpc.vpc_id
+
+  computed_ingress_with_source_security_group_id = [
+    {
+      rule                     = "http-80-tcp"
+      source_security_group_id = module.alb.security_group_id
+    }
+  ]
+  number_of_computed_ingress_with_source_security_group_id = 1
+
+  egress_rules = ["all-all"]
+
+  tags = local.tags
+}
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.0"
+  version = "~> 6.0"
 
   name = local.name
   cidr = local.vpc_cidr

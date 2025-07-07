@@ -28,20 +28,16 @@ locals {
 module "ecs_cluster" {
   source = "../../modules/cluster"
 
-  cluster_name = local.name
+  name = local.name
 
   # Capacity provider
-  fargate_capacity_providers = {
+  default_capacity_provider_strategy = {
     FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 50
-        base   = 20
-      }
+      weight = 50
+      base   = 20
     }
     FARGATE_SPOT = {
-      default_capacity_provider_strategy = {
-        weight = 50
-      }
+      weight = 50
     }
   }
 
@@ -72,11 +68,11 @@ module "ecs_service" {
       memory    = 1024
       essential = true
       image     = nonsensitive(data.aws_ssm_parameter.fluentbit.value)
-      firelens_configuration = {
+      firelensConfiguration = {
         type = "fluentbit"
       }
-      memory_reservation = 50
-      user               = "0"
+      memoryReservation = 50
+      user              = "0"
     }
 
     (local.container_name) = {
@@ -84,7 +80,7 @@ module "ecs_service" {
       memory    = 1024
       essential = true
       image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
-      port_mappings = [
+      portMappings = [
         {
           name          = local.container_name
           containerPort = local.container_port
@@ -94,15 +90,15 @@ module "ecs_service" {
       ]
 
       # Example image used requires access to write to root filesystem
-      readonly_root_filesystem = false
+      readonlyRootFilesystem = false
 
-      dependencies = [{
+      dependsOn = [{
         containerName = "fluent-bit"
         condition     = "START"
       }]
 
       enable_cloudwatch_logging = false
-      log_configuration = {
+      logConfiguration = {
         logDriver = "awsfirelens"
         options = {
           Name                    = "firehose"
@@ -112,7 +108,7 @@ module "ecs_service" {
         }
       }
 
-      linux_parameters = {
+      linuxParameters = {
         capabilities = {
           add = []
           drop = [
@@ -121,26 +117,34 @@ module "ecs_service" {
         }
       }
 
+      restartPolicy = {
+        enabled              = true
+        ignoredExitCodes     = [1]
+        restartAttemptPeriod = 60
+      }
+
       # Not required for fluent-bit, just an example
-      volumes_from = [{
+      volumesFrom = [{
         sourceContainer = "fluent-bit"
         readOnly        = false
       }]
 
-      memory_reservation = 100
+      memoryReservation = 100
     }
   }
 
   service_connect_configuration = {
     namespace = aws_service_discovery_http_namespace.this.arn
-    service = {
-      client_alias = {
-        port     = local.container_port
-        dns_name = local.container_name
+    service = [
+      {
+        client_alias = {
+          port     = local.container_port
+          dns_name = local.container_name
+        }
+        port_name      = local.container_name
+        discovery_name = local.container_name
       }
-      port_name      = local.container_name
-      discovery_name = local.container_name
-    }
+    ]
   }
 
   load_balancer = {
@@ -152,21 +156,18 @@ module "ecs_service" {
   }
 
   subnet_ids = module.vpc.private_subnets
-  security_group_rules = {
-    alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = local.container_port
-      to_port                  = local.container_port
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
+  security_group_ingress_rules = {
+    alb_3000 = {
+      description                  = "Service port"
+      from_port                    = local.container_port
+      ip_protocol                  = "tcp"
+      referenced_security_group_id = module.alb.security_group_id
     }
-    egress_all = {
-      type        = "egress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
+  }
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 
@@ -204,7 +205,7 @@ module "ecs_task_definition" {
     al2023 = {
       image = "public.ecr.aws/amazonlinux/amazonlinux:2023-minimal"
 
-      mount_points = [
+      mountPoints = [
         {
           sourceVolume  = "ex-vol",
           containerPath = "/var/www/ex-vol"
@@ -218,13 +219,10 @@ module "ecs_task_definition" {
 
   subnet_ids = module.vpc.private_subnets
 
-  security_group_rules = {
-    egress_all = {
-      type        = "egress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 
@@ -317,7 +315,7 @@ module "alb" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.0"
+  version = "~> 6.0"
 
   name = local.name
   cidr = local.vpc_cidr

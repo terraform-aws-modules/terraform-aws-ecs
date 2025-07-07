@@ -4,12 +4,17 @@
 
 output "container_definition" {
   description = "Container definition"
-  value       = local.container_definition
+  value       = module.ecs_container_definition.container_definition
 }
 
 output "container_definition_json" {
   description = "Container definition"
-  value       = jsonencode(local.container_definition)
+  value       = module.ecs_container_definition.container_definition_json
+}
+
+resource "local_file" "container_definition_json" {
+  content  = module.ecs_container_definition.container_definition_json
+  filename = "${path.module}/definition.json"
 }
 
 ################################################################################
@@ -18,10 +23,10 @@ output "container_definition_json" {
 
 output "cloudwatch_log_group_name" {
   description = "Name of CloudWatch log group created"
-  value       = try(aws_cloudwatch_log_group.this[0].name, null)
+  value       = module.ecs_container_definition.cloudwatch_log_group_name
 }
 
 output "cloudwatch_log_group_arn" {
   description = "ARN of CloudWatch log group created"
-  value       = try(aws_cloudwatch_log_group.this[0].arn, null)
+  value       = module.ecs_container_definition.cloudwatch_log_group_arn
 }
