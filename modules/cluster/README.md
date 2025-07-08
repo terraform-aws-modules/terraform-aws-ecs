@@ -19,9 +19,9 @@ For more details see the [design doc](https://github.com/terraform-aws-modules/t
 module "ecs_cluster" {
   source = "terraform-aws-modules/ecs/aws//modules/cluster"
 
-  cluster_name = "ecs-fargate"
+  name = "ecs-fargate"
 
-  cluster_configuration = {
+  configuration = {
     execute_command_configuration = {
       logging = "OVERRIDE"
       log_configuration = {
@@ -53,9 +53,9 @@ module "ecs_cluster" {
 module "ecs_cluster" {
   source = "terraform-aws-modules/ecs/aws//modules/cluster"
 
-  cluster_name = "ecs-ec2"
+  name = "ecs-ec2"
 
-  cluster_configuration = {
+  configuration = {
     execute_command_configuration = {
       logging = "OVERRIDE"
       log_configuration = {
