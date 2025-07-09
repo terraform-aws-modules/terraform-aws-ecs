@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.1...v6.0.2) (2025-07-09)
+
+
+### Bug Fixes
+
+* Remove `coalesce()` to ensure value precedence is honored ([#307](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/307)) ([da354d9](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/da354d9a37ca39182f660ac18851ef2bf5396a23))
+
 ## [6.0.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.0...v6.0.1) (2025-07-07)
 
 
