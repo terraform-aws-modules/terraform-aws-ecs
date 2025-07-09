@@ -39,10 +39,6 @@ module "ecs" {
     FARGATE_SPOT = {
       weight = 50
     }
-    ASG = {
-      weight = 50
-      base   = 20
-    }
   }
 
   autoscaling_capacity_providers = {
@@ -77,6 +73,8 @@ module "ecs" {
             type = "fluentbit"
           }
           memoryReservation = 50
+
+          cloudwatch_log_group_retention_in_days = 30
         }
 
         (local.container_name) = {
@@ -97,6 +95,14 @@ module "ecs" {
               protocol      = "tcp"
             }
           ]
+
+          capacity_provider_strategy = {
+            ASG = {
+              base              = 20
+              capacity_provider = "ASG"
+              weight            = 50
+            }
+          }
 
           # Example image used requires access to write to root filesystem
           readonlyRootFilesystem = false
@@ -133,11 +139,6 @@ module "ecs" {
             client_alias = {
               port     = local.container_port
               dns_name = local.container_name
-            }
-
-            timeout = {
-              idle_timeout_seconds        = 20
-              per_request_timeout_seconds = 30
             }
 
             port_name      = local.container_name
@@ -178,7 +179,6 @@ module "ecs" {
       security_group_egress_rules = {
         all = {
           cidr_ipv4   = "0.0.0.0/0"
-          to_port     = 0
           ip_protocol = "-1"
         }
       }
