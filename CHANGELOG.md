@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.2...v6.0.3) (2025-07-10)
+
+
+### Bug Fixes
+
+* Correct variable attribute for `step_adjustment` ([#310](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/310)) ([542616d](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/542616d1aff587a4391075b25b473bede3b259fe))
+
 ## [6.0.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.1...v6.0.2) (2025-07-09)
 
 
