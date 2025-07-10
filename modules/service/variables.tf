@@ -1111,7 +1111,7 @@ variable "autoscaling_policies" {
       cooldown                 = optional(number)
       metric_aggregation_type  = optional(string)
       min_adjustment_magnitude = optional(number)
-      step_adjustments = optional(list(object({
+      step_adjustment = optional(list(object({
         metric_interval_lower_bound = optional(string)
         metric_interval_upper_bound = optional(string)
         scaling_adjustment          = number
