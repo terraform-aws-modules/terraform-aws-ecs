@@ -13,6 +13,7 @@ If you find a bug, please open an issue with supporting configuration to reprodu
 - The "hack" put in place to track the task definition version when updating outside of the module has been removed. Instead, users should rely on the `track_latest` variable to ensure that the latest task definition is used when updating the service. Any issues with tracking the task definition version should be reported to the *ECS service team* as it is a limitation of the AWS ECS service/API and not the module itself.
 - The inline policy for the Tasks role of the `service` sub-module has been replaced with a standalone IAM policy. In some organizations, inline policies are not allowed.
 - The default for the `container-definition` `user` has been changed from `0` to `null`.
+- The `container_definition_defaults` variable has been removed along with its functionality. This pattern no longer works with variable optional attributes.
 
 ## Additional changes
 
@@ -31,6 +32,7 @@ If you find a bug, please open an issue with supporting configuration to reprodu
 
     - `default_capacity_provider_use_fargate`
     - `fargate_capacity_providers`
+    - `container_definition_defaults`
 
     - `cluster` sub-module
       - `fargate_capacity_providers`; part of `default_capacity_provider_strategy` now

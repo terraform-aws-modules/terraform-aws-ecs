@@ -109,7 +109,6 @@ module "service" {
   create_task_definition                = each.value.create_task_definition
   task_definition_arn                   = each.value.task_definition_arn
   container_definitions                 = each.value.container_definitions
-  container_definition_defaults         = each.value.container_definition_defaults
   cpu                                   = each.value.cpu
   enable_fault_injection                = each.value.enable_fault_injection
   ephemeral_storage                     = each.value.ephemeral_storage

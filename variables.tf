@@ -416,8 +416,8 @@ variable "services" {
     create_task_definition = optional(bool, true)
     task_definition_arn    = optional(string)
     container_definitions = optional(map(object({
-      operating_system_family = optional(string, "LINUX")
-      tags                    = optional(map(string), {})
+      operating_system_family = optional(string)
+      tags                    = optional(map(string))
 
       # Container definition
       command = optional(list(string))
@@ -431,12 +431,12 @@ variable "services" {
       dnsServers             = optional(list(string))
       dockerLabels           = optional(map(string))
       dockerSecurityOptions  = optional(list(string))
-      enable_execute_command = optional(bool, false)
+      enable_execute_command = optional(bool)
       entrypoint             = optional(list(string))
       environment = optional(list(object({
         name  = string
         value = string
-      })), [])
+      })))
       environmentFiles = optional(list(object({
         type  = string
         value = string
@@ -451,15 +451,15 @@ variable "services" {
         type    = optional(string)
       }))
       healthCheck = optional(object({
-        command     = optional(list(string), [])
-        interval    = optional(number, 30)
-        retries     = optional(number, 3)
+        command     = optional(list(string))
+        interval    = optional(number)
+        retries     = optional(number)
         startPeriod = optional(number)
-        timeout     = optional(number, 5)
+        timeout     = optional(number)
       }))
       hostname    = optional(string)
       image       = optional(string)
-      interactive = optional(bool, false)
+      interactive = optional(bool)
       links       = optional(list(string))
       linuxParameters = optional(object({
         capabilities = optional(object({
@@ -471,7 +471,7 @@ variable "services" {
           hostPath      = optional(string)
           permissions   = optional(list(string))
         })))
-        initProcessEnabled = optional(bool, false)
+        initProcessEnabled = optional(bool)
         maxSwap            = optional(number)
         sharedMemorySize   = optional(number)
         swappiness         = optional(number)
@@ -480,12 +480,7 @@ variable "services" {
           mountOptions  = optional(list(string))
           size          = number
         })))
-        }),
-        # Default
-        {
-          initProcessEnabled = false
-        }
-      )
+      }))
       logConfiguration = optional(object({
         logDriver = optional(string)
         options   = optional(map(string))
@@ -493,7 +488,7 @@ variable "services" {
           name      = string
           valueFrom = string
         })))
-      }), {})
+      }))
       memory            = optional(number)
       memoryReservation = optional(number)
       mountPoints = optional(list(object({
@@ -510,9 +505,9 @@ variable "services" {
         name               = optional(string)
         protocol           = optional(string)
       })), [])
-      privileged             = optional(bool, false)
-      pseudoTerminal         = optional(bool, false)
-      readonlyRootFilesystem = optional(bool, true)
+      privileged             = optional(bool)
+      pseudoTerminal         = optional(bool)
+      readonlyRootFilesystem = optional(bool)
       repositoryCredentials = optional(object({
         credentialsParameter = optional(string)
       }))
@@ -521,36 +516,31 @@ variable "services" {
         value = string
       })))
       restartPolicy = optional(object({
-        enabled              = optional(bool, true)
+        enabled              = optional(bool)
         ignoredExitCodes     = optional(list(number))
         restartAttemptPeriod = optional(number)
-        }),
-        # Default
-        {
-          enabled = true
-        }
-      )
+      }))
       secrets = optional(list(object({
         name      = string
         valueFrom = string
       })))
-      startTimeout = optional(number, 30)
-      stopTimeout  = optional(number, 120)
+      startTimeout = optional(number)
+      stopTimeout  = optional(number)
       systemControls = optional(list(object({
         namespace = optional(string)
         value     = optional(string)
-      })), [])
+      })))
       ulimits = optional(list(object({
         hardLimit = number
         name      = string
         softLimit = number
       })))
       user               = optional(string)
-      versionConsistency = optional(string, "disabled")
+      versionConsistency = optional(string)
       volumesFrom = optional(list(object({
         readOnly        = optional(bool)
         sourceContainer = optional(string)
-      })), [])
+      })))
       workingDirectory = optional(string)
 
       # Cloudwatch Log Group
@@ -560,163 +550,9 @@ variable "services" {
       cloudwatch_log_group_name              = optional(string)
       cloudwatch_log_group_use_name_prefix   = optional(bool, false)
       cloudwatch_log_group_class             = optional(string)
-      cloudwatch_log_group_retention_in_days = optional(number, 14)
+      cloudwatch_log_group_retention_in_days = optional(number)
       cloudwatch_log_group_kms_key_id        = optional(string)
-      })),
-      # Default
-      {}
-    )
-    container_definition_defaults = optional(object({
-      operating_system_family = optional(string, "LINUX")
-      tags                    = optional(map(string), {})
-
-      # Container definition
-      command = optional(list(string))
-      cpu     = optional(number)
-      dependsOn = optional(list(object({
-        condition     = string
-        containerName = string
-      })))
-      disableNetworking      = optional(bool)
-      dnsSearchDomains       = optional(list(string))
-      dnsServers             = optional(list(string))
-      dockerLabels           = optional(map(string))
-      dockerSecurityOptions  = optional(list(string))
-      enable_execute_command = optional(bool, false)
-      entrypoint             = optional(list(string))
-      environment = optional(list(object({
-        name  = string
-        value = string
-      })), [])
-      environmentFiles = optional(list(object({
-        type  = string
-        value = string
-      })))
-      essential = optional(bool)
-      extraHosts = optional(list(object({
-        hostname  = string
-        ipAddress = string
-      })))
-      firelensConfiguration = optional(object({
-        options = optional(map(string))
-        type    = optional(string)
-      }))
-      healthCheck = optional(object({
-        command     = optional(list(string), [])
-        interval    = optional(number, 30)
-        retries     = optional(number, 3)
-        startPeriod = optional(number)
-        timeout     = optional(number, 5)
-      }))
-      hostname    = optional(string)
-      image       = optional(string)
-      interactive = optional(bool, false)
-      links       = optional(list(string))
-      linuxParameters = optional(object({
-        capabilities = optional(object({
-          add  = optional(list(string))
-          drop = optional(list(string))
-        }))
-        devices = optional(list(object({
-          containerPath = optional(string)
-          hostPath      = optional(string)
-          permissions   = optional(list(string))
-        })))
-        initProcessEnabled = optional(bool, false)
-        maxSwap            = optional(number)
-        sharedMemorySize   = optional(number)
-        swappiness         = optional(number)
-        tmpfs = optional(list(object({
-          containerPath = string
-          mountOptions  = optional(list(string))
-          size          = number
-        })))
-        }),
-        # Default
-        {
-          initProcessEnabled = false
-        }
-      )
-      logConfiguration = optional(object({
-        logDriver = optional(string)
-        options   = optional(map(string))
-        secretOptions = optional(list(object({
-          name      = string
-          valueFrom = string
-        })))
-      }), {})
-      memory            = optional(number)
-      memoryReservation = optional(number)
-      mountPoints = optional(list(object({
-        containerPath = optional(string)
-        readOnly      = optional(bool)
-        sourceVolume  = optional(string)
-      })), [])
-      name = optional(string)
-      portMappings = optional(list(object({
-        appProtocol        = optional(string)
-        containerPort      = optional(number)
-        containerPortRange = optional(string)
-        hostPort           = optional(number)
-        name               = optional(string)
-        protocol           = optional(string)
-      })), [])
-      privileged             = optional(bool, false)
-      pseudoTerminal         = optional(bool, false)
-      readonlyRootFilesystem = optional(bool, true)
-      repositoryCredentials = optional(object({
-        credentialsParameter = optional(string)
-      }))
-      resourceRequirements = optional(list(object({
-        type  = string
-        value = string
-      })))
-      restartPolicy = optional(object({
-        enabled              = optional(bool, true)
-        ignoredExitCodes     = optional(list(number))
-        restartAttemptPeriod = optional(number)
-        }),
-        # Default
-        {
-          enabled = true
-        }
-      )
-      secrets = optional(list(object({
-        name      = string
-        valueFrom = string
-      })))
-      startTimeout = optional(number, 30)
-      stopTimeout  = optional(number, 120)
-      systemControls = optional(list(object({
-        namespace = optional(string)
-        value     = optional(string)
-      })), [])
-      ulimits = optional(list(object({
-        hardLimit = number
-        name      = string
-        softLimit = number
-      })))
-      user               = optional(string)
-      versionConsistency = optional(string, "disabled")
-      volumesFrom = optional(list(object({
-        readOnly        = optional(bool)
-        sourceContainer = optional(string)
-      })), [])
-      workingDirectory = optional(string)
-
-      # Cloudwatch Log Group
-      service                                = optional(string, "")
-      enable_cloudwatch_logging              = optional(bool, true)
-      create_cloudwatch_log_group            = optional(bool, true)
-      cloudwatch_log_group_name              = optional(string)
-      cloudwatch_log_group_use_name_prefix   = optional(bool, false)
-      cloudwatch_log_group_class             = optional(string)
-      cloudwatch_log_group_retention_in_days = optional(number, 14)
-      cloudwatch_log_group_kms_key_id        = optional(string)
-      }),
-      # Default
-      {}
-    )
+    })))
     cpu                    = optional(number, 1024)
     enable_fault_injection = optional(bool)
     ephemeral_storage = optional(object({

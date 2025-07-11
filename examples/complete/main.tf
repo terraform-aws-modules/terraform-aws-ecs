@@ -69,6 +69,7 @@ module "ecs" {
           memory    = 1024
           essential = true
           image     = nonsensitive(data.aws_ssm_parameter.fluentbit.value)
+          user      = "0"
           firelensConfiguration = {
             type = "fluentbit"
           }
