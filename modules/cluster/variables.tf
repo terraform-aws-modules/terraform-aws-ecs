@@ -238,7 +238,7 @@ variable "task_exec_iam_statements" {
       type        = string
       identifiers = list(string)
     })))
-    condition = optional(map(object({
+    condition = optional(list(object({
       test     = string
       variable = string
       values   = list(string)
