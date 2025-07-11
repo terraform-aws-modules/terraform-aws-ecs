@@ -216,6 +216,7 @@ data "aws_iam_policy_document" "task_exec" {
     actions = [
       "logs:CreateLogStream",
       "logs:PutLogEvents",
+      "logs:CreateLogGroup",
     ]
     resources = ["*"]
   }
