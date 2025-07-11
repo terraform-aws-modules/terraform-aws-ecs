@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.5](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.4...v6.0.5) (2025-07-11)
+
+
+### Bug Fixes
+
+* Correct IAM statement `condition` variable type ([#315](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/315)) ([27e9114](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/27e91145c9e1a58ae4b454b8c45ba7dffcff5c94))
+
 ## [6.0.4](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.3...v6.0.4) (2025-07-11)
 
 
