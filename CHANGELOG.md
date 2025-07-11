@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.4](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.3...v6.0.4) (2025-07-11)
+
+
+### Bug Fixes
+
+* Remove non-functional `container_definition_defaults` ([#312](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/312)) ([dcc5ae5](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/dcc5ae58165a64976cc9bb2b49c51d0bceef2733))
+
 ## [6.0.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.2...v6.0.3) (2025-07-10)
 
 
