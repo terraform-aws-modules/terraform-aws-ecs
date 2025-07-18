@@ -24,7 +24,7 @@ locals {
   )
 
   # tflint-ignore: terraform_naming_convention
-  linuxParameters = var.enable_execute_command ? merge(var.linuxParameters, { "initProcessEnabled" : true }) : var.linuxParameters
+  linuxParameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, var.linuxParameters) : merge({ "initProcessEnabled" : false }, var.linuxParameters)
 
   definition = {
     command                = var.command
