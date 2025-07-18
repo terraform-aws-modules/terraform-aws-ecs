@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.6](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.5...v6.0.6) (2025-07-18)
+
+
+### Bug Fixes
+
+* Allow optional `initProcessEnabled` when `enable_execute_command` is `true` ([#319](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/319)) ([99f8edd](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/99f8eddeeb1b2de8754669549fd495f5bb108bb0))
+
 ## [6.0.5](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.4...v6.0.5) (2025-07-11)
 
 
