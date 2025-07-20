@@ -148,6 +148,7 @@ module "ecs" {
 - [ECS Cluster Complete](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete)
 - [ECS Cluster w/ EC2 Autoscaling Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2-autoscaling)
 - [ECS Cluster w/ Fargate Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
+- [ECS Cluster w/ Blue/Green Deployment](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/blue-green)
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
