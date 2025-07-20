@@ -73,6 +73,20 @@ variable "deployment_circuit_breaker" {
   default = null
 }
 
+variable "deployment_configuration" {
+  description = "Configuration block for deployment settings"
+  type = object({
+    strategy             = optional(string)
+    bake_time_in_minutes = optional(string)
+    lifecycle_hook = optional(object({
+      hook_target_arn  = string
+      role_arn         = string
+      lifecycle_stages = string
+    }))
+  })
+  default = null
+}
+
 variable "deployment_controller" {
   description = "Configuration block for deployment controller configuration"
   type = object({
@@ -142,6 +156,12 @@ variable "load_balancer" {
     container_port   = number
     elb_name         = optional(string)
     target_group_arn = optional(string)
+    advanced_configuration = optional(object({
+      alternate_target_group_arn = string
+      production_listener_rule   = string
+      role_arn                   = string
+      test_listener_rule         = optional(string)
+    }))
   }))
   default = null
 }
@@ -223,6 +243,14 @@ variable "service_connect_configuration" {
       client_alias = optional(object({
         dns_name = optional(string)
         port     = number
+        test_traffic_rules = optional(object({
+          header = optional(object({
+            name = string
+            value = object({
+              exact = string
+            })
+          }))
+        }))
       }))
       discovery_name        = optional(string)
       ingress_port_override = optional(number)
