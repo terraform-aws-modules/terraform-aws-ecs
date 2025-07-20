@@ -59,7 +59,7 @@ module "ecs" {
         #    lifecycle_stages = ["POST_SCALE_UP", "POST_TEST_TRAFFIC_SHIFT"]
         #  }
         #  failure = {
-        #    hook_target_arn  = aws_lambda_function.hook_success.arn
+        #    hook_target_arn  = aws_lambda_function.hook_failure.arn
         #    role_arn         = aws_iam_role.global.arn
         #    lifecycle_stages = ["TEST_TRAFFIC_SHIFT", "POST_PRODUCTION_TRAFFIC_SHIFT"]
         #  }
@@ -249,17 +249,17 @@ module "alb" {
       rules = {
         production = {
           priority = 1
-          actions  = [
+          actions = [
             {
-              type          = "weighted-forward"
+              type = "weighted-forward"
               target_groups = [
                 {
                   target_group_key = "ex_ecs"
-                  weight = 100
+                  weight           = 100
                 },
                 {
                   target_group_key = "ex_ecs_alternate"
-                  weight = 0
+                  weight           = 0
                 }
               ]
             }
@@ -274,13 +274,13 @@ module "alb" {
         }
         test = {
           priority = 2
-          actions  = [
+          actions = [
             {
-              type          = "weighted-forward"
+              type = "weighted-forward"
               target_groups = [
                 {
                   target_group_key = "ex_ecs_alternate"
-                  weight = 100
+                  weight           = 100
                 }
               ]
             }
