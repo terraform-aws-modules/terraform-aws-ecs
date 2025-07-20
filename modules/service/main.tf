@@ -81,7 +81,7 @@ resource "aws_ecs_service" "this" {
       bake_time_in_minutes = try(deployment_configuration.value.bake_time_in_minutes, null)
 
       dynamic "lifecycle_hook" {
-        for_each = deployment_configuration.value.lifecycle_hook != null ? [deployment_configuration.value.lifecycle_hook] : []
+        for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}
 
         content {
           hook_target_arn  = lifecycle_hook.value.hook_target_arn
@@ -208,7 +208,7 @@ resource "aws_ecs_service" "this" {
               port     = client_alias.value.port
 
               dynamic "test_traffic_rules" {
-                for_each = client_alias.value.test_traffic_rules != null ? [client_alias.value.test_traffic_rules] : []
+                for_each = client_alias.value.test_traffic_rules != null ? client_alias.value.test_traffic_rules : []
 
                 content {
                   dynamic "header" {
@@ -401,7 +401,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
       bake_time_in_minutes = try(deployment_configuration.value.bake_time_in_minutes, null)
 
       dynamic "lifecycle_hook" {
-        for_each = deployment_configuration.value.lifecycle_hook != null ? [deployment_configuration.value.lifecycle_hook] : []
+        for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}
 
         content {
           hook_target_arn  = lifecycle_hook.value.hook_target_arn
@@ -528,7 +528,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
               port     = client_alias.value.port
 
               dynamic "test_traffic_rules" {
-                for_each = client_alias.value.test_traffic_rules != null ? [client_alias.value.test_traffic_rules] : []
+                for_each = client_alias.value.test_traffic_rules != null ? client_alias.value.test_traffic_rules : []
 
                 content {
                   dynamic "header" {

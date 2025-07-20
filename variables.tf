@@ -283,11 +283,11 @@ variable "services" {
     deployment_configuration = optional(object({
       strategy             = optional(string)
       bake_time_in_minutes = optional(string)
-      lifecycle_hook = optional(object({
+      lifecycle_hook = optional(map(object({
         hook_target_arn  = string
         role_arn         = string
-        lifecycle_stages = string
-      }))
+        lifecycle_stages = list(string)
+      })))
     }))
     deployment_controller = optional(object({
       type = optional(string)
@@ -343,14 +343,14 @@ variable "services" {
         client_alias = optional(object({
           dns_name = optional(string)
           port     = number
-          test_traffic_rules = optional(object({
+          test_traffic_rules = optional(list(object({
             header = optional(object({
               name = string
               value = object({
                 exact = string
               })
             }))
-          }))
+          })))
         }))
         discovery_name        = optional(string)
         ingress_port_override = optional(number)
