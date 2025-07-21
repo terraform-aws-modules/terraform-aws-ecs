@@ -43,6 +43,7 @@ module "wrapper" {
   create_task_exec_policy                      = try(each.value.create_task_exec_policy, var.defaults.create_task_exec_policy, true)
   create_tasks_iam_role                        = try(each.value.create_tasks_iam_role, var.defaults.create_tasks_iam_role, true)
   deployment_circuit_breaker                   = try(each.value.deployment_circuit_breaker, var.defaults.deployment_circuit_breaker, null)
+  deployment_configuration                     = try(each.value.deployment_configuration, var.defaults.deployment_configuration, null)
   deployment_controller                        = try(each.value.deployment_controller, var.defaults.deployment_controller, null)
   deployment_maximum_percent                   = try(each.value.deployment_maximum_percent, var.defaults.deployment_maximum_percent, 200)
   deployment_minimum_healthy_percent           = try(each.value.deployment_minimum_healthy_percent, var.defaults.deployment_minimum_healthy_percent, 66)

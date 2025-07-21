@@ -65,6 +65,7 @@ module "service" {
   capacity_provider_strategy         = each.value.capacity_provider_strategy
   cluster_arn                        = module.cluster.arn
   deployment_circuit_breaker         = each.value.deployment_circuit_breaker
+  deployment_configuration           = each.value.deployment_configuration
   deployment_controller              = each.value.deployment_controller
   deployment_maximum_percent         = each.value.deployment_maximum_percent
   deployment_minimum_healthy_percent = each.value.deployment_minimum_healthy_percent

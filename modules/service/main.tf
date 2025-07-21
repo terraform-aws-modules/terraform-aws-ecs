@@ -73,6 +73,25 @@ resource "aws_ecs_service" "this" {
     }
   }
 
+  dynamic "deployment_configuration" {
+    for_each = var.deployment_configuration != null ? [var.deployment_configuration] : []
+
+    content {
+      strategy             = deployment_configuration.value.strategy
+      bake_time_in_minutes = deployment_configuration.value.bake_time_in_minutes
+
+      dynamic "lifecycle_hook" {
+        for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}
+
+        content {
+          hook_target_arn  = lifecycle_hook.value.hook_target_arn
+          role_arn         = lifecycle_hook.value.role_arn
+          lifecycle_stages = lifecycle_hook.value.lifecycle_stages
+        }
+      }
+    }
+  }
+
   dynamic "deployment_controller" {
     for_each = var.deployment_controller != null ? [var.deployment_controller] : []
 
@@ -101,6 +120,17 @@ resource "aws_ecs_service" "this" {
       container_port   = load_balancer.value.container_port
       elb_name         = load_balancer.value.elb_name
       target_group_arn = load_balancer.value.target_group_arn
+
+      dynamic "advanced_configuration" {
+        for_each = load_balancer.value.advanced_configuration != null ? [load_balancer.value.advanced_configuration] : []
+
+        content {
+          alternate_target_group_arn = advanced_configuration.value.alternate_target_group_arn
+          production_listener_rule   = advanced_configuration.value.production_listener_rule
+          role_arn                   = advanced_configuration.value.role_arn
+          test_listener_rule         = advanced_configuration.value.test_listener_rule
+        }
+      }
     }
   }
 
@@ -176,6 +206,28 @@ resource "aws_ecs_service" "this" {
             content {
               dns_name = client_alias.value.dns_name
               port     = client_alias.value.port
+
+              dynamic "test_traffic_rules" {
+                for_each = client_alias.value.test_traffic_rules != null ? client_alias.value.test_traffic_rules : []
+
+                content {
+                  dynamic "header" {
+                    for_each = test_traffic_rules.value.header != null ? [test_traffic_rules.value.header] : []
+
+                    content {
+                      name = header.value.name
+
+                      dynamic "value" {
+                        for_each = header.value.value != null ? [header.value.value] : []
+
+                        content {
+                          exact = value.value.exact
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
 
@@ -341,6 +393,25 @@ resource "aws_ecs_service" "ignore_task_definition" {
     }
   }
 
+  dynamic "deployment_configuration" {
+    for_each = var.deployment_configuration != null ? [var.deployment_configuration] : []
+
+    content {
+      strategy             = deployment_configuration.value.strategy
+      bake_time_in_minutes = deployment_configuration.value.bake_time_in_minutes
+
+      dynamic "lifecycle_hook" {
+        for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}
+
+        content {
+          hook_target_arn  = lifecycle_hook.value.hook_target_arn
+          role_arn         = lifecycle_hook.value.role_arn
+          lifecycle_stages = lifecycle_hook.value.lifecycle_stages
+        }
+      }
+    }
+  }
+
   dynamic "deployment_controller" {
     for_each = var.deployment_controller != null ? [var.deployment_controller] : []
 
@@ -369,6 +440,17 @@ resource "aws_ecs_service" "ignore_task_definition" {
       container_port   = load_balancer.value.container_port
       elb_name         = load_balancer.value.elb_name
       target_group_arn = load_balancer.value.target_group_arn
+
+      dynamic "advanced_configuration" {
+        for_each = load_balancer.value.advanced_configuration != null ? [load_balancer.value.advanced_configuration] : []
+
+        content {
+          alternate_target_group_arn = advanced_configuration.value.alternate_target_group_arn
+          production_listener_rule   = advanced_configuration.value.production_listener_rule
+          role_arn                   = advanced_configuration.value.role_arn
+          test_listener_rule         = advanced_configuration.value.test_listener_rule
+        }
+      }
     }
   }
 
@@ -444,6 +526,28 @@ resource "aws_ecs_service" "ignore_task_definition" {
             content {
               dns_name = client_alias.value.dns_name
               port     = client_alias.value.port
+
+              dynamic "test_traffic_rules" {
+                for_each = client_alias.value.test_traffic_rules != null ? client_alias.value.test_traffic_rules : []
+
+                content {
+                  dynamic "header" {
+                    for_each = test_traffic_rules.value.header != null ? [test_traffic_rules.value.header] : []
+
+                    content {
+                      name = header.value.name
+
+                      dynamic "value" {
+                        for_each = header.value.value != null ? [header.value.value] : []
+
+                        content {
+                          exact = value.value.exact
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
 
