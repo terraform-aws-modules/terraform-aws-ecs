@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.1.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.6...v6.1.0) (2025-07-21)
+
+
+### Features
+
+* Add support for advanced deployment configurations (i.e. - blue/green deployment) ([#322](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/322)) ([010e581](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/010e581b5cd1d9b04418f6f98591128ea9078a17))
+
 ## [6.0.6](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.5...v6.0.6) (2025-07-18)
 
 
