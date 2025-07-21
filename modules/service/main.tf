@@ -77,8 +77,8 @@ resource "aws_ecs_service" "this" {
     for_each = var.deployment_configuration != null ? [var.deployment_configuration] : []
 
     content {
-      strategy             = try(deployment_configuration.value.strategy, null)
-      bake_time_in_minutes = try(deployment_configuration.value.bake_time_in_minutes, null)
+      strategy             = deployment_configuration.value.strategy
+      bake_time_in_minutes = deployment_configuration.value.bake_time_in_minutes
 
       dynamic "lifecycle_hook" {
         for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}
@@ -128,7 +128,7 @@ resource "aws_ecs_service" "this" {
           alternate_target_group_arn = advanced_configuration.value.alternate_target_group_arn
           production_listener_rule   = advanced_configuration.value.production_listener_rule
           role_arn                   = advanced_configuration.value.role_arn
-          test_listener_rule         = try(advanced_configuration.value.test_listener_rule, null)
+          test_listener_rule         = advanced_configuration.value.test_listener_rule
         }
       }
     }
@@ -397,8 +397,8 @@ resource "aws_ecs_service" "ignore_task_definition" {
     for_each = var.deployment_configuration != null ? [var.deployment_configuration] : []
 
     content {
-      strategy             = try(deployment_configuration.value.strategy, null)
-      bake_time_in_minutes = try(deployment_configuration.value.bake_time_in_minutes, null)
+      strategy             = deployment_configuration.value.strategy
+      bake_time_in_minutes = deployment_configuration.value.bake_time_in_minutes
 
       dynamic "lifecycle_hook" {
         for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}
@@ -448,7 +448,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
           alternate_target_group_arn = advanced_configuration.value.alternate_target_group_arn
           production_listener_rule   = advanced_configuration.value.production_listener_rule
           role_arn                   = advanced_configuration.value.role_arn
-          test_listener_rule         = try(advanced_configuration.value.test_listener_rule, null)
+          test_listener_rule         = advanced_configuration.value.test_listener_rule
         }
       }
     }
