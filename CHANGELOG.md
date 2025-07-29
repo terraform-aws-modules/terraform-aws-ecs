@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.1.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.0...v6.1.1) (2025-07-29)
+
+
+### Bug Fixes
+
+* Use an empty map as default value for `default_capacity_provider_strategy` ([#326](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/326)) ([ea0a160](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/ea0a1604f335dea0ae54f238104590f7377baadf))
+
 ## [6.1.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.6...v6.1.0) (2025-07-21)
 
 

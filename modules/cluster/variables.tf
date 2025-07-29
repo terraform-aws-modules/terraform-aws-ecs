@@ -147,7 +147,8 @@ variable "default_capacity_provider_strategy" {
     name   = optional(string) # Will fall back to use map key if not set
     weight = optional(number)
   }))
-  default = null
+  default  = {}
+  nullable = false
 }
 
 ################################################################################
