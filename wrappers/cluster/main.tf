@@ -20,7 +20,7 @@ module "wrapper" {
   create_cloudwatch_log_group        = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)
   create_task_exec_iam_role          = try(each.value.create_task_exec_iam_role, var.defaults.create_task_exec_iam_role, false)
   create_task_exec_policy            = try(each.value.create_task_exec_policy, var.defaults.create_task_exec_policy, true)
-  default_capacity_provider_strategy = try(each.value.default_capacity_provider_strategy, var.defaults.default_capacity_provider_strategy, null)
+  default_capacity_provider_strategy = try(each.value.default_capacity_provider_strategy, var.defaults.default_capacity_provider_strategy, {})
   name                               = try(each.value.name, var.defaults.name, "")
   region                             = try(each.value.region, var.defaults.region, null)
   service_connect_defaults           = try(each.value.service_connect_defaults, var.defaults.service_connect_defaults, null)

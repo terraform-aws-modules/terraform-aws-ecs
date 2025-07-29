@@ -2,8 +2,8 @@ repos:
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.99.5
     hooks:
-      - id: terraform_fmt
       - id: terraform_wrapper_module_for_each
+      - id: terraform_fmt
       - id: terraform_docs
         args:
           - '--args=--lockfile=false'
