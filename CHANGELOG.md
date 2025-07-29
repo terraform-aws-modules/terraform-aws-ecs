@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.1.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.1...v6.1.2) (2025-07-29)
+
+
+### Bug Fixes
+
+* Set logConfiguration to null if empty to prevent ECS errors ([#323](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/323)) ([da36e2a](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/da36e2a2b357d4bd850df70fb26eac84897aed50))
+
 ## [6.1.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.0...v6.1.1) (2025-07-29)
 
 
