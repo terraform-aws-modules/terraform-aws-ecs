@@ -685,7 +685,7 @@ variable "task_definition_placement_constraints" {
 }
 
 variable "track_latest" {
-  description = "Whether should track latest `ACTIVE` task definition on AWS or the one created with the resource stored in state. Default is `false`. Useful in the event the task definition is modified outside of this resource"
+  description = "Whether should track latest `ACTIVE` task definition on AWS or the one created with the resource stored in state. Useful in the event the task definition is modified outside of this resource"
   type        = bool
   default     = true
 }
