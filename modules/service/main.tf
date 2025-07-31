@@ -1,4 +1,6 @@
 data "aws_region" "current" {
+  region = var.region
+
   count = var.create ? 1 : 0
 }
 data "aws_partition" "current" {
@@ -11,7 +13,7 @@ data "aws_caller_identity" "current" {
 locals {
   account_id = try(data.aws_caller_identity.current[0].account_id, "")
   partition  = try(data.aws_partition.current[0].partition, "")
-  region     = var.region != null ? var.region : try(data.aws_region.current[0].region, "")
+  region     = try(data.aws_region.current[0].region, "")
 }
 
 ################################################################################
