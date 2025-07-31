@@ -11,7 +11,6 @@ data "aws_caller_identity" "current" {
 locals {
   account_id = try(data.aws_caller_identity.current[0].account_id, "")
   partition  = try(data.aws_partition.current[0].partition, "")
-  region     = try(data.aws_region.current[0].region, "")
 }
 
 ################################################################################
@@ -1184,7 +1183,7 @@ data "aws_iam_policy_document" "tasks_assume" {
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = ["arn:${local.partition}:ecs:${local.region}:${local.account_id}:*"]
+      values   = ["arn:${local.partition}:ecs:${var.region}:${local.account_id}:*"]
     }
 
     condition {
