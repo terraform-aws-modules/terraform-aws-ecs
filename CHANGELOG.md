@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.1.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.2...v6.1.3) (2025-07-31)
+
+
+### Bug Fixes
+
+* Ensure `var.region` is passed through `aws_region` data source ([#329](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/329)) ([9a7f9b5](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/9a7f9b5a3cf757b075c98f71af95973a7b2baa35))
+
 ## [6.1.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.1...v6.1.2) (2025-07-29)
 
 
