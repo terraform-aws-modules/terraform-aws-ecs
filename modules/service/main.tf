@@ -1,4 +1,6 @@
 data "aws_region" "current" {
+  region = var.region
+
   count = var.create ? 1 : 0
 }
 data "aws_partition" "current" {
