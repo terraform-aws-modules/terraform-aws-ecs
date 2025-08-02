@@ -184,7 +184,7 @@ variable "linuxParameters" {
       hostPath      = optional(string)
       permissions   = optional(list(string))
     })))
-    initProcessEnabled = optional(bool, false)
+    initProcessEnabled = optional(bool)
     maxSwap            = optional(number)
     sharedMemorySize   = optional(number)
     swappiness         = optional(number)
@@ -194,9 +194,7 @@ variable "linuxParameters" {
       size          = number
     })))
   })
-  default = {
-    initProcessEnabled = false
-  }
+  default = {}
 }
 
 # tflint-ignore: terraform_naming_convention

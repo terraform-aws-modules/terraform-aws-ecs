@@ -496,7 +496,7 @@ variable "container_definitions" {
         hostPath      = optional(string)
         permissions   = optional(list(string))
       })))
-      initProcessEnabled = optional(bool, false)
+      initProcessEnabled = optional(bool)
       maxSwap            = optional(number)
       sharedMemorySize   = optional(number)
       swappiness         = optional(number)
@@ -505,12 +505,7 @@ variable "container_definitions" {
         mountOptions  = optional(list(string))
         size          = number
       })))
-      }),
-      # Default
-      {
-        initProcessEnabled = false
-      }
-    )
+      }), {})
     logConfiguration = optional(object({
       logDriver = optional(string)
       options   = optional(map(string))

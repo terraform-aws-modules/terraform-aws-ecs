@@ -23,8 +23,12 @@ locals {
     { for k, v in var.logConfiguration : k => v if v != null }
   )
 
+  base_linux_parameters = {
+    for k, v in var.linuxParameters : k => v if v != null
+  }
+
   # tflint-ignore: terraform_naming_convention
-  linuxParameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, var.linuxParameters) : merge({ "initProcessEnabled" : false }, var.linuxParameters)
+  linuxParameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, local.base_linux_parameters) : merge({ "initProcessEnabled" : false }, local.base_linux_parameters)
 
   definition = {
     command                = var.command
@@ -46,7 +50,7 @@ locals {
     image                  = var.image
     interactive            = var.interactive
     links                  = local.is_not_windows ? var.links : null
-    linuxParameters        = local.is_not_windows ? { for k, v in local.linuxParameters : k => v if v != null } : null
+    linuxParameters        = local.is_not_windows ? local.linuxParameters : null
     logConfiguration       = length(local.logConfiguration) > 0 ? local.logConfiguration : null
     memory                 = var.memory
     memoryReservation      = var.memoryReservation
