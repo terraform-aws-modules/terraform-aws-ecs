@@ -505,7 +505,7 @@ variable "container_definitions" {
         mountOptions  = optional(list(string))
         size          = number
       })))
-      }), {})
+    }), {})
     logConfiguration = optional(object({
       logDriver = optional(string)
       options   = optional(map(string))
