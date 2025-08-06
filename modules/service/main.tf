@@ -617,7 +617,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
           file_system_type = managed_ebs_volume.value.file_system_type
           iops             = managed_ebs_volume.value.iops
           kms_key_id       = managed_ebs_volume.value.kms_key_id
-          role_arn         = local.infrastructure_iam_role_arn
+          role_arn         = coalesce(managed_ebs_volume.value.role_arn, local.infrastructure_iam_role_arn)
           size_in_gb       = managed_ebs_volume.value.size_in_gb
           snapshot_id      = managed_ebs_volume.value.snapshot_id
 
@@ -1712,7 +1712,7 @@ resource "aws_vpc_security_group_egress_rule" "this" {
 ############################################################################################
 
 locals {
-  needs_infrastructure_iam_role  = var.volume_configuration != null || var.vpc_lattice_configurations != null
+  needs_infrastructure_iam_role  = (var.volume_configuration != null && (!contains(keys(var.volume_configuration.managed_ebs_volume), "role_arn") || var.volume_configuration.managed_ebs_volume.role_arn == null)) || var.vpc_lattice_configurations != null
   create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.needs_infrastructure_iam_role
   infrastructure_iam_role_arn    = local.needs_infrastructure_iam_role ? try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn) : null
   infrastructure_iam_role_name   = coalesce(var.infrastructure_iam_role_name, var.name, "NotProvided")
