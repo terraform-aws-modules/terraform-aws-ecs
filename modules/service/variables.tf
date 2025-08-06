@@ -307,6 +307,7 @@ variable "volume_configuration" {
       file_system_type = optional(string)
       iops             = optional(number)
       kms_key_id       = optional(string)
+      role_arn         = optional(string)
       size_in_gb       = optional(number)
       snapshot_id      = optional(string)
       tag_specifications = optional(list(object({

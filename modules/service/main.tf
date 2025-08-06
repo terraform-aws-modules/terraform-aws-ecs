@@ -297,7 +297,7 @@ resource "aws_ecs_service" "this" {
           file_system_type = managed_ebs_volume.value.file_system_type
           iops             = managed_ebs_volume.value.iops
           kms_key_id       = managed_ebs_volume.value.kms_key_id
-          role_arn         = local.infrastructure_iam_role_arn
+          role_arn         = coalesce(managed_ebs_volume.value.role_arn, local.infrastructure_iam_role_arn)
           size_in_gb       = managed_ebs_volume.value.size_in_gb
           snapshot_id      = managed_ebs_volume.value.snapshot_id
 
