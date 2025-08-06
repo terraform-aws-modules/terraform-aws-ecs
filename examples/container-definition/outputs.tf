@@ -12,14 +12,13 @@ output "container_definition_json" {
   value       = module.ecs_container_definition.container_definition_json
 }
 
-# Need the output pretty-printed and sorted for comparison
 resource "null_resource" "container_definition_json" {
   triggers = {
     container_definition_json = timestamp()
   }
 
   provisioner "local-exec" {
-    # Bootstrap script called with private_ip of each node in the cluster
+    # Need the output pretty-printed and sorted for comparison
     command = "echo '${module.ecs_container_definition.container_definition_json}' | jq -S > ./definition.json"
   }
 }
