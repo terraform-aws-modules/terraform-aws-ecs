@@ -259,16 +259,16 @@ variable "task_exec_iam_statements" {
 variable "services" {
   description = "Map of service definitions to create"
   type = map(object({
-    create         = optional(bool, true)
-    create_service = optional(bool, true)
-    tags           = optional(map(string), {})
+    create         = optional(bool)
+    create_service = optional(bool)
+    tags           = optional(map(string))
 
     # Service
-    ignore_task_definition_changes = optional(bool, false)
+    ignore_task_definition_changes = optional(bool)
     alarms = optional(object({
       alarm_names = list(string)
-      enable      = optional(bool, true)
-      rollback    = optional(bool, true)
+      enable      = optional(bool)
+      rollback    = optional(bool)
     }))
     availability_zone_rebalancing = optional(string)
     capacity_provider_strategy = optional(map(object({
@@ -295,12 +295,12 @@ variable "services" {
     deployment_maximum_percent         = optional(number, 200)
     deployment_minimum_healthy_percent = optional(number, 66)
     desired_count                      = optional(number, 1)
-    enable_ecs_managed_tags            = optional(bool, true)
-    enable_execute_command             = optional(bool, false)
+    enable_ecs_managed_tags            = optional(bool)
+    enable_execute_command             = optional(bool)
     force_delete                       = optional(bool)
-    force_new_deployment               = optional(bool, true)
+    force_new_deployment               = optional(bool)
     health_check_grace_period_seconds  = optional(number)
-    launch_type                        = optional(string, "FARGATE")
+    launch_type                        = optional(string)
     load_balancer = optional(map(object({
       container_name   = string
       container_port   = number
@@ -314,9 +314,9 @@ variable "services" {
       }))
     })))
     name               = optional(string) # Will fall back to use map key if not set
-    assign_public_ip   = optional(bool, false)
-    security_group_ids = optional(list(string), [])
-    subnet_ids         = optional(list(string), [])
+    assign_public_ip   = optional(bool)
+    security_group_ids = optional(list(string))
+    subnet_ids         = optional(list(string))
     ordered_placement_strategy = optional(map(object({
       field = optional(string)
       type  = string
@@ -329,7 +329,7 @@ variable "services" {
     propagate_tags      = optional(string)
     scheduling_strategy = optional(string)
     service_connect_configuration = optional(object({
-      enabled = optional(bool, true)
+      enabled = optional(bool)
       log_configuration = optional(object({
         log_driver = string
         options    = optional(map(string))
@@ -390,7 +390,7 @@ variable "services" {
         size_in_gb       = optional(number)
         snapshot_id      = optional(string)
         tag_specifications = optional(list(object({
-          propagate_tags = optional(string, "TASK_DEFINITION")
+          propagate_tags = optional(string)
           resource_type  = string
           tags           = optional(map(string))
         })))
@@ -404,16 +404,16 @@ variable "services" {
       port_name        = string
     }))
     wait_for_steady_state = optional(bool)
-    service_tags          = optional(map(string), {})
+    service_tags          = optional(map(string))
     # Service - IAM Role
-    create_iam_role               = optional(bool, true)
+    create_iam_role               = optional(bool)
     iam_role_arn                  = optional(string)
     iam_role_name                 = optional(string)
-    iam_role_use_name_prefix      = optional(bool, true)
+    iam_role_use_name_prefix      = optional(bool)
     iam_role_path                 = optional(string)
     iam_role_description          = optional(string)
     iam_role_permissions_boundary = optional(string)
-    iam_role_tags                 = optional(map(string), {})
+    iam_role_tags                 = optional(map(string))
     iam_role_statements = optional(list(object({
       sid           = optional(string)
       actions       = optional(list(string))
@@ -436,7 +436,7 @@ variable "services" {
       })))
     })))
     # Task Definition
-    create_task_definition = optional(bool, true)
+    create_task_definition = optional(bool)
     task_definition_arn    = optional(string)
     container_definitions = optional(map(object({
       operating_system_family = optional(string)
@@ -568,10 +568,10 @@ variable "services" {
 
       # Cloudwatch Log Group
       service                                = optional(string, "")
-      enable_cloudwatch_logging              = optional(bool, true)
-      create_cloudwatch_log_group            = optional(bool, true)
+      enable_cloudwatch_logging              = optional(bool)
+      create_cloudwatch_log_group            = optional(bool)
       cloudwatch_log_group_name              = optional(string)
-      cloudwatch_log_group_use_name_prefix   = optional(bool, false)
+      cloudwatch_log_group_use_name_prefix   = optional(bool)
       cloudwatch_log_group_class             = optional(string)
       cloudwatch_log_group_retention_in_days = optional(number)
       cloudwatch_log_group_kms_key_id        = optional(string)
@@ -584,30 +584,24 @@ variable "services" {
     family       = optional(string)
     ipc_mode     = optional(string)
     memory       = optional(number, 2048)
-    network_mode = optional(string, "awsvpc")
+    network_mode = optional(string)
     pid_mode     = optional(string)
     proxy_configuration = optional(object({
       container_name = string
       properties     = optional(map(string))
       type           = optional(string)
     }))
-    requires_compatibilities = optional(list(string), ["FARGATE"])
+    requires_compatibilities = optional(list(string))
     runtime_platform = optional(object({
-      cpu_architecture        = optional(string, "X86_64")
-      operating_system_family = optional(string, "LINUX")
-      }),
-      # Default
-      {
-        cpu_architecture        = "X86_64"
-        operating_system_family = "LINUX"
-      }
-    )
+      cpu_architecture        = optional(string)
+      operating_system_family = optional(string)
+    }))
     skip_destroy = optional(bool)
     task_definition_placement_constraints = optional(map(object({
       expression = optional(string)
       type       = string
     })))
-    track_latest = optional(bool, true)
+    track_latest = optional(bool)
     volume = optional(map(object({
       configure_at_launch = optional(bool)
       docker_volume_configuration = optional(object({
@@ -638,21 +632,21 @@ variable "services" {
       host_path = optional(string)
       name      = optional(string)
     })))
-    task_tags = optional(map(string), {})
+    task_tags = optional(map(string))
     # Task Execution - IAM Role
-    create_task_exec_iam_role               = optional(bool, true)
+    create_task_exec_iam_role               = optional(bool)
     task_exec_iam_role_arn                  = optional(string)
     task_exec_iam_role_name                 = optional(string)
-    task_exec_iam_role_use_name_prefix      = optional(bool, true)
+    task_exec_iam_role_use_name_prefix      = optional(bool)
     task_exec_iam_role_path                 = optional(string)
     task_exec_iam_role_description          = optional(string)
     task_exec_iam_role_permissions_boundary = optional(string)
-    task_exec_iam_role_tags                 = optional(map(string), {})
-    task_exec_iam_role_policies             = optional(map(string), {})
+    task_exec_iam_role_tags                 = optional(map(string))
+    task_exec_iam_role_policies             = optional(map(string))
     task_exec_iam_role_max_session_duration = optional(number)
-    create_task_exec_policy                 = optional(bool, true)
-    task_exec_ssm_param_arns                = optional(list(string), [])
-    task_exec_secret_arns                   = optional(list(string), [])
+    create_task_exec_policy                 = optional(bool)
+    task_exec_ssm_param_arns                = optional(list(string))
+    task_exec_secret_arns                   = optional(list(string))
     task_exec_iam_statements = optional(list(object({
       sid           = optional(string)
       actions       = optional(list(string))
@@ -676,15 +670,15 @@ variable "services" {
     })))
     task_exec_iam_policy_path = optional(string)
     # Tasks - IAM Role
-    create_tasks_iam_role               = optional(bool, true)
+    create_tasks_iam_role               = optional(bool)
     tasks_iam_role_arn                  = optional(string)
     tasks_iam_role_name                 = optional(string)
-    tasks_iam_role_use_name_prefix      = optional(bool, true)
+    tasks_iam_role_use_name_prefix      = optional(bool)
     tasks_iam_role_path                 = optional(string)
     tasks_iam_role_description          = optional(string)
     tasks_iam_role_permissions_boundary = optional(string)
-    tasks_iam_role_tags                 = optional(map(string), {})
-    tasks_iam_role_policies             = optional(map(string), {})
+    tasks_iam_role_tags                 = optional(map(string))
+    tasks_iam_role_policies             = optional(map(string))
     tasks_iam_role_statements = optional(list(object({
       sid           = optional(string)
       actions       = optional(list(string))
@@ -715,12 +709,12 @@ variable "services" {
     wait_until_stable         = optional(bool)
     wait_until_stable_timeout = optional(string)
     # Autoscaling
-    enable_autoscaling       = optional(bool, true)
-    autoscaling_min_capacity = optional(number, 1)
-    autoscaling_max_capacity = optional(number, 10)
+    enable_autoscaling       = optional(bool)
+    autoscaling_min_capacity = optional(number)
+    autoscaling_max_capacity = optional(number)
     autoscaling_policies = optional(map(object({
       name        = optional(string) # Will fall back to the key name if not provided
-      policy_type = optional(string, "TargetTrackingScaling")
+      policy_type = optional(string)
       step_scaling_policy_configuration = optional(object({
         adjustment_type          = optional(string)
         cooldown                 = optional(number)
@@ -767,33 +761,11 @@ variable "services" {
           predefined_metric_type = string
           resource_label         = optional(string)
         }))
-        scale_in_cooldown  = optional(number, 300)
-        scale_out_cooldown = optional(number, 60)
-        target_value       = optional(number, 75)
+        scale_in_cooldown  = optional(number)
+        scale_out_cooldown = optional(number)
+        target_value       = optional(number)
       }))
-      })),
-      # Default
-      {
-        cpu = {
-          policy_type = "TargetTrackingScaling"
-
-          target_tracking_scaling_policy_configuration = {
-            predefined_metric_specification = {
-              predefined_metric_type = "ECSServiceAverageCPUUtilization"
-            }
-          }
-        }
-        memory = {
-          policy_type = "TargetTrackingScaling"
-
-          target_tracking_scaling_policy_configuration = {
-            predefined_metric_specification = {
-              predefined_metric_type = "ECSServiceAverageMemoryUtilization"
-            }
-          }
-        }
-      }
-    )
+    })))
     autoscaling_scheduled_actions = optional(map(object({
       name         = optional(string)
       min_capacity = number
@@ -804,48 +776,42 @@ variable "services" {
       timezone     = optional(string)
     })))
     # Security Group
-    create_security_group          = optional(bool, true)
+    create_security_group          = optional(bool)
     security_group_name            = optional(string)
-    security_group_use_name_prefix = optional(bool, true)
+    security_group_use_name_prefix = optional(bool)
     security_group_description     = optional(string)
     security_group_ingress_rules = optional(map(object({
       cidr_ipv4                    = optional(string)
       cidr_ipv6                    = optional(string)
       description                  = optional(string)
       from_port                    = optional(string)
-      ip_protocol                  = optional(string, "tcp")
+      ip_protocol                  = optional(string)
       prefix_list_id               = optional(string)
       referenced_security_group_id = optional(string)
-      tags                         = optional(map(string), {})
+      tags                         = optional(map(string))
       to_port                      = optional(string)
-      })),
-      # Default
-      {}
-    )
+    })))
     security_group_egress_rules = optional(map(object({
       cidr_ipv4                    = optional(string)
       cidr_ipv6                    = optional(string)
       description                  = optional(string)
       from_port                    = optional(string)
-      ip_protocol                  = optional(string, "tcp")
+      ip_protocol                  = optional(string)
       prefix_list_id               = optional(string)
       referenced_security_group_id = optional(string)
-      tags                         = optional(map(string), {})
+      tags                         = optional(map(string))
       to_port                      = optional(string)
-      })),
-      # Default
-      {}
-    )
-    security_group_tags = optional(map(string), {})
+    })))
+    security_group_tags = optional(map(string))
     # ECS Infrastructure IAM Role
-    create_infrastructure_iam_role               = optional(bool, true)
+    create_infrastructure_iam_role               = optional(bool)
     infrastructure_iam_role_arn                  = optional(string)
     infrastructure_iam_role_name                 = optional(string)
-    infrastructure_iam_role_use_name_prefix      = optional(bool, true)
+    infrastructure_iam_role_use_name_prefix      = optional(bool)
     infrastructure_iam_role_path                 = optional(string)
     infrastructure_iam_role_description          = optional(string)
     infrastructure_iam_role_permissions_boundary = optional(string)
-    infrastructure_iam_role_tags                 = optional(map(string), {})
+    infrastructure_iam_role_tags                 = optional(map(string))
   }))
   default = null
 }

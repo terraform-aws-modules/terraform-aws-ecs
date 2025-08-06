@@ -8,12 +8,14 @@ variable "operating_system_family" {
   description = "The OS family for task"
   type        = string
   default     = "LINUX"
+  nullable    = false
 }
 
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 ################################################################################
@@ -81,12 +83,14 @@ variable "enable_execute_command" {
   description = "Specifies whether to enable Amazon ECS Exec for the tasks within the service"
   type        = bool
   default     = false
+  nullable    = false
 }
 
 variable "entrypoint" {
   description = "The entry point that is passed to the container"
   type        = list(string)
   default     = []
+  nullable    = false
 }
 
 variable "environment" {
@@ -95,7 +99,8 @@ variable "environment" {
     name  = string
     value = string
   }))
-  default = []
+  default  = []
+  nullable = false
 }
 
 # tflint-ignore: terraform_naming_convention
@@ -105,7 +110,8 @@ variable "environmentFiles" {
     value = string
     type  = string
   }))
-  default = []
+  default  = []
+  nullable = false
 }
 
 variable "essential" {
@@ -163,6 +169,7 @@ variable "interactive" {
   description = "When this parameter is `true`, you can deploy containerized applications that require `stdin` or a `tty` to be allocated"
   type        = bool
   default     = false
+  nullable    = false
 }
 
 variable "links" {
@@ -184,7 +191,7 @@ variable "linuxParameters" {
       hostPath      = optional(string)
       permissions   = optional(list(string))
     })))
-    initProcessEnabled = optional(bool, false)
+    initProcessEnabled = optional(bool)
     maxSwap            = optional(number)
     sharedMemorySize   = optional(number)
     swappiness         = optional(number)
@@ -194,9 +201,8 @@ variable "linuxParameters" {
       size          = number
     })))
   })
-  default = {
-    initProcessEnabled = false
-  }
+  default  = {}
+  nullable = false
 }
 
 # tflint-ignore: terraform_naming_convention
@@ -210,7 +216,8 @@ variable "logConfiguration" {
       valueFrom = string
     })))
   })
-  default = {}
+  default  = {}
+  nullable = false
 }
 
 variable "memory" {
@@ -234,7 +241,8 @@ variable "mountPoints" {
     readOnly      = optional(bool)
     sourceVolume  = optional(string)
   }))
-  default = []
+  default  = []
+  nullable = false
 }
 
 variable "name" {
@@ -261,6 +269,7 @@ variable "privileged" {
   description = "When this parameter is true, the container is given elevated privileges on the host container instance (similar to the root user)"
   type        = bool
   default     = false
+  nullable    = false
 }
 
 # tflint-ignore: terraform_naming_convention
@@ -268,6 +277,7 @@ variable "pseudoTerminal" {
   description = "When this parameter is true, a `TTY` is allocated"
   type        = bool
   default     = false
+  nullable    = false
 }
 
 # tflint-ignore: terraform_naming_convention
@@ -275,6 +285,7 @@ variable "readonlyRootFilesystem" {
   description = "When this parameter is true, the container is given read-only access to its root file system"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 # tflint-ignore: terraform_naming_convention
@@ -300,8 +311,8 @@ variable "resourceRequirements" {
 variable "restartPolicy" {
   description = "Container restart policy; helps overcome transient failures faster and maintain task availability"
   type = object({
-    enabled              = optional(bool, true)
-    ignoredExitCodes     = optional(list(number), [])
+    enabled              = optional(bool)
+    ignoredExitCodes     = optional(list(number))
     restartAttemptPeriod = optional(number)
   })
   default = {
@@ -339,7 +350,8 @@ variable "systemControls" {
     namespace = optional(string)
     value     = optional(string)
   }))
-  default = []
+  default  = []
+  nullable = false
 }
 
 variable "ulimits" {
@@ -363,6 +375,7 @@ variable "versionConsistency" {
   description = "Specifies whether Amazon ECS will resolve the container image tag provided in the container definition to an image digest"
   type        = string
   default     = "disabled"
+  nullable    = false
 }
 
 # tflint-ignore: terraform_naming_convention
@@ -372,7 +385,8 @@ variable "volumesFrom" {
     readOnly        = optional(bool)
     sourceContainer = optional(string)
   }))
-  default = []
+  default  = []
+  nullable = false
 }
 
 # tflint-ignore: terraform_naming_convention
@@ -396,12 +410,14 @@ variable "enable_cloudwatch_logging" {
   description = "Determines whether CloudWatch logging is configured for this container definition. Set to `false` to use other logging drivers"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "create_cloudwatch_log_group" {
   description = "Determines whether a log group is created by this module. If not, AWS will automatically create one if logging is enabled"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "cloudwatch_log_group_name" {
@@ -414,6 +430,7 @@ variable "cloudwatch_log_group_use_name_prefix" {
   description = "Determines whether the log group name should be used as a prefix"
   type        = bool
   default     = false
+  nullable    = false
 }
 
 variable "cloudwatch_log_group_class" {
@@ -426,6 +443,7 @@ variable "cloudwatch_log_group_retention_in_days" {
   description = "Number of days to retain log events. Set to `0` to keep logs indefinitely"
   type        = number
   default     = 14
+  nullable    = false
 }
 
 variable "cloudwatch_log_group_kms_key_id" {

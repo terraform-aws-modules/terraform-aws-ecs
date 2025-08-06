@@ -65,18 +65,18 @@ module "ecs_service" {
     strategy             = "BLUE_GREEN"
     bake_time_in_minutes = 2
 
-    # example config using lifecycle hooks
+    # # Example config using lifecycle hooks
     # lifecycle_hook = {
-    #  success = {
-    #    hook_target_arn  = aws_lambda_function.hook_success.arn
-    #    role_arn         = aws_iam_role.global.arn
-    #    lifecycle_stages = ["POST_SCALE_UP", "POST_TEST_TRAFFIC_SHIFT"]
-    #  }
-    #  failure = {
-    #    hook_target_arn  = aws_lambda_function.hook_failure.arn
-    #    role_arn         = aws_iam_role.global.arn
-    #    lifecycle_stages = ["TEST_TRAFFIC_SHIFT", "POST_PRODUCTION_TRAFFIC_SHIFT"]
-    #  }
+    #   success = {
+    #     hook_target_arn  = aws_lambda_function.hook_success.arn
+    #     role_arn         = aws_iam_role.global.arn
+    #     lifecycle_stages = ["POST_SCALE_UP", "POST_TEST_TRAFFIC_SHIFT"]
+    #   }
+    #   failure = {
+    #     hook_target_arn  = aws_lambda_function.hook_failure.arn
+    #     role_arn         = aws_iam_role.global.arn
+    #     lifecycle_stages = ["TEST_TRAFFIC_SHIFT", "POST_PRODUCTION_TRAFFIC_SHIFT"]
+    #   }
     # }
   }
 

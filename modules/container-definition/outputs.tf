@@ -7,8 +7,9 @@ output "container_definition" {
   value       = local.container_definition
 }
 
+# ToDo - remove at next breaking change. Not worth it
 output "container_definition_json" {
-  description = "Container definition"
+  description = "Container definition. NOTE: use `jsonencode([module.ecs_container_definition.container_definition])` instead of this output when passing into a Task Definition"
   value       = jsonencode(local.container_definition)
 }
 
