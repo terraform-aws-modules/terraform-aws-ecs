@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.1.4](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.3...v6.1.4) (2025-08-07)
+
+
+### Bug Fixes
+
+* Correct variable optional argument defaults and container definition conditional logic ([#332](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/332)) ([054ad89](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/054ad891744dd9fc1ba3f8216e52c2387e841186))
+
 ## [6.1.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.2...v6.1.3) (2025-07-31)
 
 
