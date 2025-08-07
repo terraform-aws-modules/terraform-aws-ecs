@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.2.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.4...v6.2.0) (2025-08-07)
+
+
+### Features
+
+* Remove empty containers (map/list) from container definition ([#336](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/336)) ([24746cc](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/24746cc90744b6053d81009889f04a6befcda7d5))
+
 ## [6.1.4](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.3...v6.1.4) (2025-08-07)
 
 
