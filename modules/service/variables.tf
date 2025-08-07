@@ -2,12 +2,14 @@ variable "create" {
   description = "Determines whether resources will be created (affects all resources)"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "create_service" {
   description = "Determines whether service resource will be created (set to `false` in case you want to create task definition only)"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "region" {
@@ -20,6 +22,7 @@ variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 ################################################################################
@@ -30,6 +33,7 @@ variable "ignore_task_definition_changes" {
   description = "Whether changes to service `task_definition` changes should be ignored"
   type        = bool
   default     = false
+  nullable    = false
 }
 
 variable "alarms" {
@@ -62,6 +66,7 @@ variable "cluster_arn" {
   description = "ARN of the ECS cluster where the resources will be provisioned"
   type        = string
   default     = ""
+  nullable    = false
 }
 
 variable "deployment_circuit_breaker" {
@@ -117,12 +122,14 @@ variable "enable_ecs_managed_tags" {
   description = "Specifies whether to enable Amazon ECS managed tags for the tasks within the service"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "enable_execute_command" {
   description = "Specifies whether to enable Amazon ECS Exec for the tasks within the service"
   type        = bool
   default     = false
+  nullable    = false
 }
 
 variable "force_delete" {
@@ -135,6 +142,7 @@ variable "force_new_deployment" {
   description = "Enable to force a new task deployment of the service. This can be used to update tasks to use a newer Docker image with same image/tag combination, roll Fargate tasks onto a newer platform version, or immediately deploy `ordered_placement_strategy` and `placement_constraints` updates"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "health_check_grace_period_seconds" {
@@ -147,6 +155,7 @@ variable "launch_type" {
   description = "Launch type on which to run your service. The valid values are `EC2`, `FARGATE`, and `EXTERNAL`. Defaults to `FARGATE`"
   type        = string
   default     = "FARGATE"
+  nullable    = false
 }
 
 variable "load_balancer" {
@@ -176,18 +185,21 @@ variable "assign_public_ip" {
   description = "Assign a public IP address to the ENI (Fargate launch type only)"
   type        = bool
   default     = false
+  nullable    = false
 }
 
 variable "security_group_ids" {
   description = "List of security groups to associate with the task or service"
   type        = list(string)
   default     = []
+  nullable    = false
 }
 
 variable "subnet_ids" {
   description = "List of subnets to associate with the task or service"
   type        = list(string)
   default     = []
+  nullable    = false
 }
 
 variable "ordered_placement_strategy" {
@@ -341,6 +353,7 @@ variable "service_tags" {
   description = "A map of additional tags to add to the service"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 ################################################################################
@@ -351,6 +364,7 @@ variable "create_iam_role" {
   description = "Determines whether the ECS service IAM role should be created"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "iam_role_arn" {
@@ -369,6 +383,7 @@ variable "iam_role_use_name_prefix" {
   description = "Determines whether the IAM role name (`iam_role_name`) is used as a prefix"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "iam_role_path" {
@@ -393,6 +408,7 @@ variable "iam_role_tags" {
   description = "A map of additional tags to add to the IAM role created"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 variable "iam_role_statements" {
@@ -429,6 +445,7 @@ variable "create_task_definition" {
   description = "Determines whether to create a task definition or use existing/provided"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "task_definition_arn" {
@@ -441,8 +458,8 @@ variable "container_definitions" {
   description = "A map of valid [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html). Please note that you should only provide values that are part of the container definition document"
   type = map(object({
     create                  = optional(bool, true)
-    operating_system_family = optional(string, "LINUX")
-    tags                    = optional(map(string), {})
+    operating_system_family = optional(string)
+    tags                    = optional(map(string))
 
     # Container definition
     command = optional(list(string))
@@ -461,7 +478,7 @@ variable "container_definitions" {
     environment = optional(list(object({
       name  = string
       value = string
-    })), [])
+    })))
     environmentFiles = optional(list(object({
       type  = string
       value = string
@@ -484,7 +501,7 @@ variable "container_definitions" {
     }))
     hostname    = optional(string)
     image       = optional(string)
-    interactive = optional(bool, false)
+    interactive = optional(bool)
     links       = optional(list(string))
     linuxParameters = optional(object({
       capabilities = optional(object({
@@ -496,7 +513,7 @@ variable "container_definitions" {
         hostPath      = optional(string)
         permissions   = optional(list(string))
       })))
-      initProcessEnabled = optional(bool, false)
+      initProcessEnabled = optional(bool)
       maxSwap            = optional(number)
       sharedMemorySize   = optional(number)
       swappiness         = optional(number)
@@ -505,12 +522,7 @@ variable "container_definitions" {
         mountOptions  = optional(list(string))
         size          = number
       })))
-      }),
-      # Default
-      {
-        initProcessEnabled = false
-      }
-    )
+    }))
     logConfiguration = optional(object({
       logDriver = optional(string)
       options   = optional(map(string))
@@ -518,14 +530,14 @@ variable "container_definitions" {
         name      = string
         valueFrom = string
       })))
-    }), {})
+    }))
     memory            = optional(number)
     memoryReservation = optional(number)
     mountPoints = optional(list(object({
       containerPath = optional(string)
       readOnly      = optional(bool)
       sourceVolume  = optional(string)
-    })), [])
+    })))
     name = optional(string)
     portMappings = optional(list(object({
       appProtocol        = optional(string)
@@ -535,9 +547,9 @@ variable "container_definitions" {
       name               = optional(string)
       protocol           = optional(string)
     })))
-    privileged             = optional(bool, false)
-    pseudoTerminal         = optional(bool, false)
-    readonlyRootFilesystem = optional(bool, true)
+    privileged             = optional(bool)
+    pseudoTerminal         = optional(bool)
+    readonlyRootFilesystem = optional(bool)
     repositoryCredentials = optional(object({
       credentialsParameter = optional(string)
     }))
@@ -546,7 +558,7 @@ variable "container_definitions" {
       value = string
     })))
     restartPolicy = optional(object({
-      enabled              = optional(bool, true)
+      enabled              = optional(bool)
       ignoredExitCodes     = optional(list(number))
       restartAttemptPeriod = optional(number)
       }),
@@ -564,28 +576,28 @@ variable "container_definitions" {
     systemControls = optional(list(object({
       namespace = optional(string)
       value     = optional(string)
-    })), [])
+    })))
     ulimits = optional(list(object({
       hardLimit = number
       name      = string
       softLimit = number
     })))
     user               = optional(string)
-    versionConsistency = optional(string, "disabled")
+    versionConsistency = optional(string)
     volumesFrom = optional(list(object({
       readOnly        = optional(bool)
       sourceContainer = optional(string)
-    })), [])
+    })))
     workingDirectory = optional(string)
 
     # Cloudwatch Log Group
-    service                                = optional(string, "")
-    enable_cloudwatch_logging              = optional(bool, true)
-    create_cloudwatch_log_group            = optional(bool, true)
+    service                                = optional(string)
+    enable_cloudwatch_logging              = optional(bool)
+    create_cloudwatch_log_group            = optional(bool)
     cloudwatch_log_group_name              = optional(string)
-    cloudwatch_log_group_use_name_prefix   = optional(bool, false)
+    cloudwatch_log_group_use_name_prefix   = optional(bool)
     cloudwatch_log_group_class             = optional(string)
-    cloudwatch_log_group_retention_in_days = optional(number, 14)
+    cloudwatch_log_group_retention_in_days = optional(number)
     cloudwatch_log_group_kms_key_id        = optional(string)
   }))
   default = {}
@@ -633,6 +645,7 @@ variable "network_mode" {
   description = "Docker networking mode to use for the containers in the task. Valid values are `none`, `bridge`, `awsvpc`, and `host`"
   type        = string
   default     = "awsvpc"
+  nullable    = false
 }
 
 variable "pid_mode" {
@@ -655,6 +668,7 @@ variable "requires_compatibilities" {
   description = "Set of launch types required by the task. The valid values are `EC2` and `FARGATE`"
   type        = list(string)
   default     = ["FARGATE"]
+  nullable    = false
 }
 
 variable "runtime_platform" {
@@ -667,6 +681,7 @@ variable "runtime_platform" {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
   }
+  nullable = false
 }
 
 variable "skip_destroy" {
@@ -688,6 +703,7 @@ variable "track_latest" {
   description = "Whether should track latest `ACTIVE` task definition on AWS or the one created with the resource stored in state. Useful in the event the task definition is modified outside of this resource"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "volume" {
@@ -729,6 +745,7 @@ variable "task_tags" {
   description = "A map of additional tags to add to the task definition/set created"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 ################################################################################
@@ -740,6 +757,7 @@ variable "create_task_exec_iam_role" {
   description = "Determines whether the ECS task definition IAM role should be created"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "task_exec_iam_role_arn" {
@@ -758,6 +776,7 @@ variable "task_exec_iam_role_use_name_prefix" {
   description = "Determines whether the IAM role name (`task_exec_iam_role_name`) is used as a prefix"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "task_exec_iam_role_path" {
@@ -782,12 +801,14 @@ variable "task_exec_iam_role_tags" {
   description = "A map of additional tags to add to the IAM role created"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 variable "task_exec_iam_role_policies" {
   description = "Map of IAM role policy ARNs to attach to the IAM role"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 variable "task_exec_iam_role_max_session_duration" {
@@ -800,18 +821,21 @@ variable "create_task_exec_policy" {
   description = "Determines whether the ECS task definition IAM policy should be created. This includes permissions included in AmazonECSTaskExecutionRolePolicy as well as access to secrets and SSM parameters"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "task_exec_ssm_param_arns" {
   description = "List of SSM parameter ARNs the task execution role will be permitted to get/read"
   type        = list(string)
   default     = []
+  nullable    = false
 }
 
 variable "task_exec_secret_arns" {
   description = "List of SecretsManager secret ARNs the task execution role will be permitted to get/read"
   type        = list(string)
   default     = []
+  nullable    = false
 }
 
 variable "task_exec_iam_statements" {
@@ -855,6 +879,7 @@ variable "create_tasks_iam_role" {
   description = "Determines whether the ECS tasks IAM role should be created"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "tasks_iam_role_arn" {
@@ -873,6 +898,7 @@ variable "tasks_iam_role_use_name_prefix" {
   description = "Determines whether the IAM role name (`tasks_iam_role_name`) is used as a prefix"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "tasks_iam_role_path" {
@@ -897,12 +923,14 @@ variable "tasks_iam_role_tags" {
   description = "A map of additional tags to add to the IAM role created"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 variable "tasks_iam_role_policies" {
   description = "Map of additioanl IAM role policy ARNs to attach to the IAM role"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 variable "tasks_iam_role_statements" {
@@ -970,18 +998,21 @@ variable "enable_autoscaling" {
   description = "Determines whether to enable autoscaling for the service"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "autoscaling_min_capacity" {
   description = "Minimum number of tasks to run in your service"
   type        = number
   default     = 1
+  nullable    = false
 }
 
 variable "autoscaling_max_capacity" {
   description = "Maximum number of tasks to run in your service"
   type        = number
   default     = 10
+  nullable    = false
 }
 
 variable "autoscaling_policies" {
@@ -1059,6 +1090,7 @@ variable "autoscaling_policies" {
       }
     }
   }
+  nullable = false
 }
 
 variable "autoscaling_scheduled_actions" {
@@ -1083,6 +1115,7 @@ variable "create_security_group" {
   description = "Determines if a security group is created"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "security_group_name" {
@@ -1095,6 +1128,7 @@ variable "security_group_use_name_prefix" {
   description = "Determines whether the security group name (`security_group_name`) is used as a prefix"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "security_group_description" {
@@ -1118,7 +1152,8 @@ variable "security_group_ingress_rules" {
     tags                         = optional(map(string), {})
     to_port                      = optional(string)
   }))
-  default = {}
+  default  = {}
+  nullable = false
 }
 
 variable "security_group_egress_rules" {
@@ -1136,13 +1171,15 @@ variable "security_group_egress_rules" {
     tags                         = optional(map(string), {})
     to_port                      = optional(string)
   }))
-  default = {}
+  default  = {}
+  nullable = false
 }
 
 variable "security_group_tags" {
   description = "A map of additional tags to add to the security group created"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 ############################################################################################
@@ -1153,6 +1190,7 @@ variable "create_infrastructure_iam_role" {
   description = "Determines whether the ECS infrastructure IAM role should be created"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "infrastructure_iam_role_arn" {
@@ -1171,6 +1209,7 @@ variable "infrastructure_iam_role_use_name_prefix" {
   description = "Determines whether the IAM role name (`iam_role_name`) is used as a prefix"
   type        = bool
   default     = true
+  nullable    = false
 }
 
 variable "infrastructure_iam_role_path" {
@@ -1195,4 +1234,5 @@ variable "infrastructure_iam_role_tags" {
   description = "A map of additional tags to add to the IAM role created"
   type        = map(string)
   default     = {}
+  nullable    = false
 }

@@ -12,9 +12,17 @@ output "container_definition_json" {
   value       = module.ecs_container_definition.container_definition_json
 }
 
-resource "local_file" "container_definition_json" {
-  content  = module.ecs_container_definition.container_definition_json
-  filename = "${path.module}/definition.json"
+resource "null_resource" "container_definition_json" {
+  count = var.write_container_definition_to_file ? 1 : 0
+
+  triggers = {
+    container_definition_json = timestamp()
+  }
+
+  provisioner "local-exec" {
+    # Need the output pretty-printed and sorted for comparison
+    command = "echo '${module.ecs_container_definition.container_definition_json}' | jq -S > ./definition.json"
+  }
 }
 
 ################################################################################

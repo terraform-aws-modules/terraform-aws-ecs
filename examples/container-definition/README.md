@@ -23,13 +23,13 @@ Note that this example may create resources which will incur monetary charges on
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.4 |
-| <a name="requirement_local"></a> [local](#requirement\_local) | >= 2.5 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | >= 3.2 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_local"></a> [local](#provider\_local) | >= 2.5 |
+| <a name="provider_null"></a> [null](#provider\_null) | >= 3.2 |
 
 ## Modules
 
@@ -41,11 +41,13 @@ Note that this example may create resources which will incur monetary charges on
 
 | Name | Type |
 |------|------|
-| [local_file.container_definition_json](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
+| [null_resource.container_definition_json](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_write_container_definition_to_file"></a> [write\_container\_definition\_to\_file](#input\_write\_container\_definition\_to\_file) | Determines whether the container definition JSON should be written to a file. Used for debugging and checking diffs | `bool` | `true` | no |
 
 ## Outputs
 

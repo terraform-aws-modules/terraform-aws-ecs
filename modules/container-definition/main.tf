@@ -2,7 +2,6 @@ data "aws_region" "current" {
   region = var.region
 }
 
-
 locals {
   is_not_windows = contains(["LINUX"], var.operating_system_family)
 
@@ -23,8 +22,16 @@ locals {
     { for k, v in var.logConfiguration : k => v if v != null }
   )
 
+  # 1. We remove any attributes that are set to `null` by default from the variable optional attributes
   # tflint-ignore: terraform_naming_convention
-  linuxParameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, var.linuxParameters) : merge({ "initProcessEnabled" : false }, var.linuxParameters)
+  trimedLinuxParameters = { for k, v in var.linuxParameters : k => v if v != null }
+  # 2. We then merge in the `initProcessEnabled` attribute based on whether `enable_execute_command` is true or false
+  # This also means we will always have something in `linuxParameters` (it will never be `null` or `{}`)
+  # Terraform doesn't allow us to set `initProcessEnabled` to `true` on one side only of the conditional, so we have to merge it in on both sides
+  # However, in the `true` case, we set it last to ensure `initProcessEnabled` is always `true` when `enable_execute_command` is true
+  # and the "psuedo-default" is `false` when `enable_execute_command` is false (but can still be overridden by the user)
+  # tflint-ignore: terraform_naming_convention
+  linuxParameters = var.enable_execute_command ? merge(local.trimedLinuxParameters, { "initProcessEnabled" : true }) : merge({ "initProcessEnabled" : false }, local.trimedLinuxParameters)
 
   definition = {
     command                = var.command
@@ -46,7 +53,7 @@ locals {
     image                  = var.image
     interactive            = var.interactive
     links                  = local.is_not_windows ? var.links : null
-    linuxParameters        = local.is_not_windows ? { for k, v in local.linuxParameters : k => v if v != null } : null
+    linuxParameters        = local.is_not_windows ? local.linuxParameters : null
     logConfiguration       = length(local.logConfiguration) > 0 ? local.logConfiguration : null
     memory                 = var.memory
     memoryReservation      = var.memoryReservation
