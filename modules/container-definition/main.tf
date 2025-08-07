@@ -33,6 +33,9 @@ locals {
   # tflint-ignore: terraform_naming_convention
   linuxParameters = var.enable_execute_command ? merge(local.trimedLinuxParameters, { "initProcessEnabled" : true }) : merge({ "initProcessEnabled" : false }, local.trimedLinuxParameters)
 
+  # tflint-ignore: terraform_naming_convention
+  trimmedRestartPolicy = { for k, v in var.restartPolicy : k => v if v != null }
+
   definition = {
     command                = var.command
     cpu                    = var.cpu
@@ -42,9 +45,9 @@ locals {
     dnsServers             = local.is_not_windows ? var.dnsServers : null
     dockerLabels           = var.dockerLabels
     dockerSecurityOptions  = var.dockerSecurityOptions
-    entrypoint             = var.entrypoint
-    environment            = var.environment
-    environmentFiles       = var.environmentFiles
+    entrypoint             = var.entrypoint != null ? var.entrypoint : null
+    environment            = var.environment != null ? var.environment : null
+    environmentFiles       = var.environmentFiles != null ? var.environmentFiles : null
     essential              = var.essential
     extraHosts             = local.is_not_windows ? var.extraHosts : null
     firelensConfiguration  = var.firelensConfiguration != null ? { for k, v in var.firelensConfiguration : k => v if v != null } : null
@@ -57,7 +60,7 @@ locals {
     logConfiguration       = length(local.logConfiguration) > 0 ? local.logConfiguration : null
     memory                 = var.memory
     memoryReservation      = var.memoryReservation
-    mountPoints            = var.mountPoints
+    mountPoints            = var.mountPoints != null ? var.mountPoints : null
     name                   = var.name
     portMappings           = var.portMappings != null ? [for p in var.portMappings : { for k, v in p : k => v if v != null }] : null
     privileged             = local.is_not_windows ? var.privileged : null
@@ -65,15 +68,15 @@ locals {
     readonlyRootFilesystem = local.is_not_windows ? var.readonlyRootFilesystem : null
     repositoryCredentials  = var.repositoryCredentials
     resourceRequirements   = var.resourceRequirements
-    restartPolicy          = { for k, v in var.restartPolicy : k => v if v != null }
+    restartPolicy          = local.trimmedRestartPolicy.enabled ? local.trimmedRestartPolicy : null
     secrets                = var.secrets
     startTimeout           = var.startTimeout
     stopTimeout            = var.stopTimeout
-    systemControls         = var.systemControls
+    systemControls         = var.systemControls != null ? var.systemControls : null
     ulimits                = local.is_not_windows ? var.ulimits : null
     user                   = local.is_not_windows ? var.user : null
     versionConsistency     = var.versionConsistency
-    volumesFrom            = var.volumesFrom
+    volumesFrom            = var.volumesFrom != null ? var.volumesFrom : null
     workingDirectory       = var.workingDirectory
   }
 

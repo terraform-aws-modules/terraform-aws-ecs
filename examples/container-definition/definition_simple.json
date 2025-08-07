@@ -1,0 +1,32 @@
+{
+  "cpu": 256,
+  "essential": true,
+  "image": "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50",
+  "interactive": false,
+  "linuxParameters": {
+    "initProcessEnabled": false
+  },
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "/aws/ecs",
+      "awslogs-region": "eu-west-1",
+      "awslogs-stream-prefix": "ecs"
+    }
+  },
+  "memory": 512,
+  "portMappings": [
+    {
+      "containerPort": 80,
+      "hostPort": 80,
+      "name": "app",
+      "protocol": "tcp"
+    }
+  ],
+  "privileged": false,
+  "pseudoTerminal": false,
+  "readonlyRootFilesystem": false,
+  "startTimeout": 30,
+  "stopTimeout": 120,
+  "versionConsistency": "disabled"
+}

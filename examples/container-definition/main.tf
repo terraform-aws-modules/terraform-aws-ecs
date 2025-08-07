@@ -155,3 +155,24 @@ module "ecs_container_definition" {
 
   tags = local.tags
 }
+
+module "ecs_container_definition_simple" {
+  source = "../../modules/container-definition"
+
+  image                  = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+  cpu                    = 256
+  memory                 = 512
+  essential              = true
+  readonlyRootFilesystem = false
+  portMappings = [{
+    name          = "app"
+    protocol      = "tcp"
+    containerPort = 80
+    hostPort      = 80
+  }]
+  restartPolicy = {
+    enabled = false
+  }
+
+  tags = local.tags
+}

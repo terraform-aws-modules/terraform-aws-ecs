@@ -36,12 +36,14 @@ Note that this example may create resources which will incur monetary charges on
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_ecs_container_definition"></a> [ecs\_container\_definition](#module\_ecs\_container\_definition) | ../../modules/container-definition | n/a |
+| <a name="module_ecs_container_definition_simple"></a> [ecs\_container\_definition\_simple](#module\_ecs\_container\_definition\_simple) | ../../modules/container-definition | n/a |
 
 ## Resources
 
 | Name | Type |
 |------|------|
 | [null_resource.container_definition_json](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.container_definition_json_simple](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 
 ## Inputs
 
@@ -57,6 +59,8 @@ Note that this example may create resources which will incur monetary charges on
 | <a name="output_cloudwatch_log_group_name"></a> [cloudwatch\_log\_group\_name](#output\_cloudwatch\_log\_group\_name) | Name of CloudWatch log group created |
 | <a name="output_container_definition"></a> [container\_definition](#output\_container\_definition) | Container definition |
 | <a name="output_container_definition_json"></a> [container\_definition\_json](#output\_container\_definition\_json) | Container definition |
+| <a name="output_container_definition_json_simple"></a> [container\_definition\_json\_simple](#output\_container\_definition\_json\_simple) | Container definition |
+| <a name="output_container_definition_simple"></a> [container\_definition\_simple](#output\_container\_definition\_simple) | Container definition |
 <!-- END_TF_DOCS -->
 
 ## License
