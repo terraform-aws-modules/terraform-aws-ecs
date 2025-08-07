@@ -144,6 +144,14 @@ module "ecs" {
 
             port_name      = local.container_name
             discovery_name = local.container_name
+            # Example TLS configuration
+            # tls = {
+            #   issuer_cert_authority = {
+            #     aws_pca_authority_arn = aws_acmpca_certificate_authority.this.arn
+            #   }
+            #   role_arn = module.tls_role.iam_role_arn
+            #   kms_key = module.tls_role.kms_key_arn
+            # }
           }
         ]
       }

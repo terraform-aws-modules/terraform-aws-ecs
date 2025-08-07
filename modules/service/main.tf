@@ -251,7 +251,7 @@ resource "aws_ecs_service" "this" {
 
             content {
               dynamic "issuer_cert_authority" {
-                for_each = tls.value.issuer_cert_authority
+                for_each = [tls.value.issuer_cert_authority]
 
                 content {
                   aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
