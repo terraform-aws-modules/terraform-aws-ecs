@@ -89,8 +89,7 @@ variable "enable_execute_command" {
 variable "entrypoint" {
   description = "The entry point that is passed to the container"
   type        = list(string)
-  default     = []
-  nullable    = false
+  default     = null
 }
 
 variable "environment" {
@@ -99,8 +98,7 @@ variable "environment" {
     name  = string
     value = string
   }))
-  default  = []
-  nullable = false
+  default = null
 }
 
 # tflint-ignore: terraform_naming_convention
@@ -110,8 +108,7 @@ variable "environmentFiles" {
     value = string
     type  = string
   }))
-  default  = []
-  nullable = false
+  default = null
 }
 
 variable "essential" {
@@ -241,8 +238,7 @@ variable "mountPoints" {
     readOnly      = optional(bool)
     sourceVolume  = optional(string)
   }))
-  default  = []
-  nullable = false
+  default = null
 }
 
 variable "name" {
@@ -311,13 +307,14 @@ variable "resourceRequirements" {
 variable "restartPolicy" {
   description = "Container restart policy; helps overcome transient failures faster and maintain task availability"
   type = object({
-    enabled              = optional(bool)
+    enabled              = optional(bool, true)
     ignoredExitCodes     = optional(list(number))
     restartAttemptPeriod = optional(number)
   })
   default = {
     enabled = true
   }
+  nullable = false
 }
 
 variable "secrets" {
@@ -350,8 +347,7 @@ variable "systemControls" {
     namespace = optional(string)
     value     = optional(string)
   }))
-  default  = []
-  nullable = false
+  default = null
 }
 
 variable "ulimits" {
@@ -385,8 +381,7 @@ variable "volumesFrom" {
     readOnly        = optional(bool)
     sourceContainer = optional(string)
   }))
-  default  = []
-  nullable = false
+  default = null
 }
 
 # tflint-ignore: terraform_naming_convention

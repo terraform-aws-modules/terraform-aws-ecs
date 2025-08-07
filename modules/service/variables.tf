@@ -561,11 +561,7 @@ variable "container_definitions" {
       enabled              = optional(bool)
       ignoredExitCodes     = optional(list(number))
       restartAttemptPeriod = optional(number)
-      }),
-      # Default
-      {
-        enabled = true
-      }
+      })
     )
     secrets = optional(list(object({
       name      = string
