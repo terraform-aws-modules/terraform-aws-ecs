@@ -250,9 +250,14 @@ resource "aws_ecs_service" "this" {
             for_each = service.value.tls != null ? [service.value.tls] : []
 
             content {
-              issuer_cert_authority {
-                aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
+              dynamic "issuer_cert_authority" {
+                for_each = [tls.value.issuer_cert_authority]
+
+                content {
+                  aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
+                }
               }
+
               kms_key  = tls.value.kms_key
               role_arn = tls.value.role_arn
             }
