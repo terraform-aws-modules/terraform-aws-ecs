@@ -13,6 +13,8 @@ output "container_definition_json" {
 }
 
 resource "null_resource" "container_definition_json" {
+  count = var.write_container_definition_to_file ? 1 : 0
+
   triggers = {
     container_definition_json = timestamp()
   }

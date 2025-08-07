@@ -45,7 +45,9 @@ Note that this example may create resources which will incur monetary charges on
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_write_container_definition_to_file"></a> [write\_container\_definition\_to\_file](#input\_write\_container\_definition\_to\_file) | Determines whether the container definition JSON should be written to a file. Used for debugging and checking diffs | `bool` | `true` | no |
 
 ## Outputs
 
