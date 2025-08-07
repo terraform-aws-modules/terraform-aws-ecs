@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.2.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.2.0...v6.2.1) (2025-08-07)
+
+
+### Bug Fixes
+
+* Correct loop extraction logic for `tls.issuer_cert_authority` ([#337](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/337)) ([e68b246](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/e68b246283b9d521945557291498a6ab8f429010))
+
 ## [6.2.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.4...v6.2.0) (2025-08-07)
 
 
