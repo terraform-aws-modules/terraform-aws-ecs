@@ -100,14 +100,14 @@ module "ecs" {
 
       service_connect_configuration = {
         namespace = "example"
-        service = {
+        service = [{
           client_alias = {
             port     = 80
             dns_name = "ecs-sample"
           }
           port_name      = "ecs-sample"
           discovery_name = "ecs-sample"
-        }
+        }]
       }
 
       load_balancer = {
