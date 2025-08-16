@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.2.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.2.1...v6.2.2) (2025-08-16)
+
+
+### Bug Fixes
+
+* Update `tls.issuer_cert_authority` dynamic block for `aws_ecs_service.ignore_task_definition` ([#341](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/341)) ([f1fdccb](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/f1fdccb3618563caacef20efb10d248e1cd2f7ce))
+
 ## [6.2.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.2.0...v6.2.1) (2025-08-07)
 
 
