@@ -56,7 +56,7 @@ output "task_definition_revision" {
 
 output "task_definition_family" {
   description = "The unique name of the task definition"
-  value       = try(aws_ecs_task_definition.this[0].family, null)
+  value       = try(aws_ecs_task_definition.ignore_task_definition_changes[0].family, aws_ecs_task_definition.this[0].family, null)
 }
 
 ################################################################################
