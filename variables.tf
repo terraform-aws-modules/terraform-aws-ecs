@@ -815,3 +815,286 @@ variable "services" {
   }))
   default = null
 }
+
+################################################################################
+# Task(s)
+################################################################################
+
+variable "tasks" {
+  description = "Map of task definitions to create"
+  type = map(object({
+    create = optional(bool)
+    tags   = optional(map(string))
+
+    # Task definition
+    name                   = optional(string) # Will fall back to use map key if not set
+    enable_execute_command = optional(bool)
+    create_task_definition = optional(bool)
+    task_definition_arn    = optional(string)
+    container_definitions = optional(map(object({
+      create                  = optional(bool, true)
+      operating_system_family = optional(string)
+      tags                    = optional(map(string))
+
+      # Container definition
+      command = optional(list(string))
+      cpu     = optional(number)
+      dependsOn = optional(list(object({
+        condition     = string
+        containerName = string
+      })))
+      disableNetworking     = optional(bool)
+      dnsSearchDomains      = optional(list(string))
+      dnsServers            = optional(list(string))
+      dockerLabels          = optional(map(string))
+      dockerSecurityOptions = optional(list(string))
+      entrypoint            = optional(list(string))
+      environment = optional(list(object({
+        name  = string
+        value = string
+      })))
+      environmentFiles = optional(list(object({
+        type  = string
+        value = string
+      })))
+      essential = optional(bool)
+      extraHosts = optional(list(object({
+        hostname  = string
+        ipAddress = string
+      })))
+      firelensConfiguration = optional(object({
+        options = optional(map(string))
+        type    = optional(string)
+      }))
+      healthCheck = optional(object({
+        command     = optional(list(string))
+        interval    = optional(number)
+        retries     = optional(number)
+        startPeriod = optional(number)
+        timeout     = optional(number)
+      }))
+      hostname    = optional(string)
+      image       = optional(string)
+      interactive = optional(bool)
+      links       = optional(list(string))
+      linuxParameters = optional(object({
+        capabilities = optional(object({
+          add  = optional(list(string))
+          drop = optional(list(string))
+        }))
+        devices = optional(list(object({
+          containerPath = optional(string)
+          hostPath      = optional(string)
+          permissions   = optional(list(string))
+        })))
+        initProcessEnabled = optional(bool)
+        maxSwap            = optional(number)
+        sharedMemorySize   = optional(number)
+        swappiness         = optional(number)
+        tmpfs = optional(list(object({
+          containerPath = string
+          mountOptions  = optional(list(string))
+          size          = number
+        })))
+      }))
+      logConfiguration = optional(object({
+        logDriver = optional(string)
+        options   = optional(map(string))
+        secretOptions = optional(list(object({
+          name      = string
+          valueFrom = string
+        })))
+      }))
+      memory            = optional(number)
+      memoryReservation = optional(number)
+      mountPoints = optional(list(object({
+        containerPath = optional(string)
+        readOnly      = optional(bool)
+        sourceVolume  = optional(string)
+      })))
+      name = optional(string)
+      portMappings = optional(list(object({
+        appProtocol        = optional(string)
+        containerPort      = optional(number)
+        containerPortRange = optional(string)
+        hostPort           = optional(number)
+        name               = optional(string)
+        protocol           = optional(string)
+      })))
+      privileged             = optional(bool)
+      pseudoTerminal         = optional(bool)
+      readonlyRootFilesystem = optional(bool)
+      repositoryCredentials = optional(object({
+        credentialsParameter = optional(string)
+      }))
+      resourceRequirements = optional(list(object({
+        type  = string
+        value = string
+      })))
+      restartPolicy = optional(object({
+        enabled              = optional(bool)
+        ignoredExitCodes     = optional(list(number))
+        restartAttemptPeriod = optional(number)
+      }))
+      secrets = optional(list(object({
+        name      = string
+        valueFrom = string
+      })))
+      startTimeout = optional(number)
+      stopTimeout  = optional(number)
+      systemControls = optional(list(object({
+        namespace = optional(string)
+        value     = optional(string)
+      })))
+      ulimits = optional(list(object({
+        hardLimit = number
+        name      = string
+        softLimit = number
+      })))
+      user               = optional(string)
+      versionConsistency = optional(string)
+      volumesFrom = optional(list(object({
+        readOnly        = optional(bool)
+        sourceContainer = optional(string)
+      })))
+      workingDirectory = optional(string)
+
+      # Cloudwatch Log Group
+      service                                = optional(string)
+      enable_cloudwatch_logging              = optional(bool)
+      create_cloudwatch_log_group            = optional(bool)
+      cloudwatch_log_group_name              = optional(string)
+      cloudwatch_log_group_use_name_prefix   = optional(bool)
+      cloudwatch_log_group_class             = optional(string)
+      cloudwatch_log_group_retention_in_days = optional(number)
+      cloudwatch_log_group_kms_key_id        = optional(string)
+    })))
+    cpu                    = optional(number, 1024)
+    enable_fault_injection = optional(bool)
+    ephemeral_storage = optional(object({
+      size_in_gib = number
+    }))
+    family       = optional(string)
+    ipc_mode     = optional(string)
+    memory       = optional(number, 2048)
+    network_mode = optional(string)
+    pid_mode     = optional(string)
+    proxy_configuration = optional(object({
+      container_name = string
+      properties     = optional(map(string))
+      type           = optional(string)
+    }))
+    requires_compatibilities = optional(list(string))
+    runtime_platform = optional(object({
+      cpu_architecture        = optional(string)
+      operating_system_family = optional(string)
+    }))
+    skip_destroy = optional(bool)
+    task_definition_placement_constraints = optional(map(object({
+      expression = optional(string)
+      type       = string
+    })))
+    track_latest = optional(bool)
+    volume = optional(map(object({
+      configure_at_launch = optional(bool)
+      docker_volume_configuration = optional(object({
+        autoprovision = optional(bool)
+        driver        = optional(string)
+        driver_opts   = optional(map(string))
+        labels        = optional(map(string))
+        scope         = optional(string)
+      }))
+      efs_volume_configuration = optional(object({
+        authorization_config = optional(object({
+          access_point_id = optional(string)
+          iam             = optional(string)
+        }))
+        file_system_id          = string
+        root_directory          = optional(string)
+        transit_encryption      = optional(string)
+        transit_encryption_port = optional(number)
+      }))
+      fsx_windows_file_server_volume_configuration = optional(object({
+        authorization_config = optional(object({
+          credentials_parameter = string
+          domain                = string
+        }))
+        file_system_id = string
+        root_directory = string
+      }))
+      host_path = optional(string)
+      name      = optional(string)
+    })))
+    task_tags = optional(map(string))
+
+    # Task Execution IAM role
+    create_task_exec_iam_role               = optional(bool)
+    task_exec_iam_role_arn                  = optional(string)
+    task_exec_iam_role_name                 = optional(string)
+    task_exec_iam_role_use_name_prefix      = optional(bool)
+    task_exec_iam_role_path                 = optional(string)
+    task_exec_iam_role_description          = optional(string)
+    task_exec_iam_role_permissions_boundary = optional(string)
+    task_exec_iam_role_tags                 = optional(map(string))
+    task_exec_iam_role_policies             = optional(map(string))
+    task_exec_iam_role_max_session_duration = optional(number)
+    create_task_exec_policy                 = optional(bool)
+    task_exec_ssm_param_arns                = optional(list(string))
+    task_exec_secret_arns                   = optional(list(string))
+    task_exec_iam_statements = optional(list(object({
+      sid           = optional(string)
+      actions       = optional(list(string))
+      not_actions   = optional(list(string))
+      effect        = optional(string)
+      resources     = optional(list(string))
+      not_resources = optional(list(string))
+      principals = optional(list(object({
+        type        = string
+        identifiers = list(string)
+      })))
+      not_principals = optional(list(object({
+        type        = string
+        identifiers = list(string)
+      })))
+      condition = optional(list(object({
+        test     = string
+        values   = list(string)
+        variable = string
+      })))
+    })))
+    task_exec_iam_policy_path = optional(string)
+
+    # Tasks IAM role
+    create_tasks_iam_role               = optional(bool)
+    tasks_iam_role_arn                  = optional(string)
+    tasks_iam_role_name                 = optional(string)
+    tasks_iam_role_use_name_prefix      = optional(bool)
+    tasks_iam_role_path                 = optional(string)
+    tasks_iam_role_description          = optional(string)
+    tasks_iam_role_permissions_boundary = optional(string)
+    tasks_iam_role_tags                 = optional(map(string))
+    tasks_iam_role_policies             = optional(map(string))
+    tasks_iam_role_statements = optional(list(object({
+      sid           = optional(string)
+      actions       = optional(list(string))
+      not_actions   = optional(list(string))
+      effect        = optional(string)
+      resources     = optional(list(string))
+      not_resources = optional(list(string))
+      principals = optional(list(object({
+        type        = string
+        identifiers = list(string)
+      })))
+      not_principals = optional(list(object({
+        type        = string
+        identifiers = list(string)
+      })))
+      condition = optional(list(object({
+        test     = string
+        values   = list(string)
+        variable = string
+      })))
+    })))
+  }))
+  default = null
+}

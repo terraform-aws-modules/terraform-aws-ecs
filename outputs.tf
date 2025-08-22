@@ -60,3 +60,8 @@ output "services" {
   description = "Map of services created and their attributes"
   value       = module.service
 }
+
+output "tasks" {
+  description = "Map of tasks created and their attributes"
+  value       = module.task
+}

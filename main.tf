@@ -192,3 +192,70 @@ module "service" {
 
   tags = merge(var.tags, each.value.tags)
 }
+
+################################################################################
+# Task(s)
+################################################################################
+
+module "task" {
+  source = "./modules/task"
+
+  for_each = var.create && var.tasks != null ? var.tasks : {}
+
+  create = each.value.create
+  region = var.region
+
+  # Task definition
+  name                                  = coalesce(each.value.name, each.key)
+  enable_execute_command                = each.value.enable_execute_command
+  create_task_definition                = each.value.create_task_definition
+  task_definition_arn                   = each.value.task_definition_arn
+  container_definitions                 = each.value.container_definitions
+  cpu                                   = each.value.cpu
+  enable_fault_injection                = each.value.enable_fault_injection
+  ephemeral_storage                     = each.value.ephemeral_storage
+  family                                = each.value.family
+  ipc_mode                              = each.value.ipc_mode
+  memory                                = each.value.memory
+  network_mode                          = each.value.network_mode
+  pid_mode                              = each.value.pid_mode
+  proxy_configuration                   = each.value.proxy_configuration
+  requires_compatibilities              = each.value.requires_compatibilities
+  runtime_platform                      = each.value.runtime_platform
+  skip_destroy                          = each.value.skip_destroy
+  task_definition_placement_constraints = each.value.task_definition_placement_constraints
+  track_latest                          = each.value.track_latest
+  volume                                = each.value.volume
+  task_tags                             = each.value.task_tags
+
+  # Task Execution IAM role
+  create_task_exec_iam_role               = each.value.create_task_exec_iam_role
+  task_exec_iam_role_arn                  = each.value.task_exec_iam_role_arn
+  task_exec_iam_role_name                 = each.value.task_exec_iam_role_name
+  task_exec_iam_role_use_name_prefix      = each.value.task_exec_iam_role_use_name_prefix
+  task_exec_iam_role_path                 = each.value.task_exec_iam_role_path
+  task_exec_iam_role_description          = each.value.task_exec_iam_role_description
+  task_exec_iam_role_permissions_boundary = each.value.task_exec_iam_role_permissions_boundary
+  task_exec_iam_role_tags                 = each.value.task_exec_iam_role_tags
+  task_exec_iam_role_policies             = each.value.task_exec_iam_role_policies
+  task_exec_iam_role_max_session_duration = each.value.task_exec_iam_role_max_session_duration
+  create_task_exec_policy                 = each.value.create_task_exec_policy
+  task_exec_ssm_param_arns                = each.value.task_exec_ssm_param_arns
+  task_exec_secret_arns                   = each.value.task_exec_secret_arns
+  task_exec_iam_statements                = each.value.task_exec_iam_statements
+  task_exec_iam_policy_path               = each.value.task_exec_iam_policy_path
+
+  # Tasks IAM role
+  create_tasks_iam_role               = each.value.create_tasks_iam_role
+  tasks_iam_role_arn                  = each.value.tasks_iam_role_arn
+  tasks_iam_role_name                 = each.value.tasks_iam_role_name
+  tasks_iam_role_use_name_prefix      = each.value.tasks_iam_role_use_name_prefix
+  tasks_iam_role_path                 = each.value.tasks_iam_role_path
+  tasks_iam_role_description          = each.value.tasks_iam_role_description
+  tasks_iam_role_permissions_boundary = each.value.tasks_iam_role_permissions_boundary
+  tasks_iam_role_tags                 = each.value.tasks_iam_role_tags
+  tasks_iam_role_policies             = each.value.tasks_iam_role_policies
+  tasks_iam_role_statements           = each.value.tasks_iam_role_statements
+
+  tags = merge(var.tags, each.value.tags)
+}
