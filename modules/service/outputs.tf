@@ -37,22 +37,22 @@ output "iam_role_unique_id" {
 
 output "task_definition_arn" {
   description = "Full ARN of the Task Definition (including both `family` and `revision`)"
-  value       = local.create_task_definition ? module.task[0].task_definition_arn : var.task_definition_arn
+  value       = local.create_task_definition ? try(module.task[0].task_definition_arn, null) : var.task_definition_arn
 }
 
 output "task_definition_revision" {
   description = "Revision of the task in a particular family"
-  value       = local.create_task_definition ? module.task[0].task_definition_revision : null
+  value       = local.create_task_definition ? try(module.task[0].task_definition_revision, null) : null
 }
 
 output "task_definition_family" {
   description = "The unique name of the task definition"
-  value       = local.create_task_definition ? module.task[0].task_definition_family : null
+  value       = local.create_task_definition ? try(module.task[0].task_definition_family, null) : null
 }
 
 output "container_definitions" {
   description = "Container definitions"
-  value       = local.create_task_definition ? module.task[0].container_definitions : {}
+  value       = local.create_task_definition ? try(module.task[0].container_definitions, {}) : {}
 }
 
 ################################################################################
@@ -62,7 +62,7 @@ output "container_definitions" {
 
 output "task_exec_iam_role_name" {
   description = "Task execution IAM role name"
-  value       = local.create_task_definition ? module.task[0].task_exec_iam_role_name : null
+  value       = local.create_task_definition ? try(module.task[0].task_exec_iam_role_name, null) : null
 }
 
 output "task_exec_iam_role_arn" {
@@ -72,7 +72,7 @@ output "task_exec_iam_role_arn" {
 
 output "task_exec_iam_role_unique_id" {
   description = "Stable and unique string identifying the task execution IAM role"
-  value       = local.create_task_definition ? module.task[0].task_exec_iam_role_unique_id : null
+  value       = local.create_task_definition ? try(module.task[0].task_exec_iam_role_unique_id, null) : null
 }
 
 ################################################################################
@@ -82,7 +82,7 @@ output "task_exec_iam_role_unique_id" {
 
 output "tasks_iam_role_name" {
   description = "Tasks IAM role name"
-  value       = local.create_task_definition ? module.task[0].tasks_iam_role_name : null
+  value       = local.create_task_definition ? try(module.task[0].tasks_iam_role_name, null) : null
 }
 
 output "tasks_iam_role_arn" {
@@ -92,7 +92,7 @@ output "tasks_iam_role_arn" {
 
 output "tasks_iam_role_unique_id" {
   description = "Stable and unique string identifying the tasks IAM role"
-  value       = local.create_task_definition ? module.task[0].tasks_iam_role_unique_id : null
+  value       = local.create_task_definition ? try(module.task[0].tasks_iam_role_unique_id, null) : null
 }
 
 ################################################################################
