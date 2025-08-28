@@ -104,6 +104,7 @@ module "wrapper" {
   service_connect_configuration           = try(each.value.service_connect_configuration, var.defaults.service_connect_configuration, null)
   service_registries                      = try(each.value.service_registries, var.defaults.service_registries, null)
   service_tags                            = try(each.value.service_tags, var.defaults.service_tags, {})
+  sigint_rollback                         = try(each.value.sigint_rollback, var.defaults.sigint_rollback, null)
   skip_destroy                            = try(each.value.skip_destroy, var.defaults.skip_destroy, null)
   subnet_ids                              = try(each.value.subnet_ids, var.defaults.subnet_ids, [])
   tags                                    = try(each.value.tags, var.defaults.tags, {})

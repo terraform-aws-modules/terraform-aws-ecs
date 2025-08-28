@@ -195,6 +195,12 @@ variable "security_group_ids" {
   nullable    = false
 }
 
+variable "sigint_rollback" {
+  description = "Whether to enable graceful termination of deployments using SIGINT signals. Only applicable when using ECS deployment controller and requires wait_for_steady_state = true. Default is false"
+  type        = bool
+  default     = null
+}
+
 variable "subnet_ids" {
   description = "List of subnets to associate with the task or service"
   type        = list(string)
