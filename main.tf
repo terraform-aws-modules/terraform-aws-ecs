@@ -88,6 +88,7 @@ module "service" {
   scheduling_strategy                = each.value.scheduling_strategy
   service_connect_configuration      = each.value.service_connect_configuration
   service_registries                 = each.value.service_registries
+  sigint_rollback                    = each.value.sigint_rollback
   timeouts                           = each.value.timeouts
   triggers                           = each.value.triggers
   volume_configuration               = each.value.volume_configuration

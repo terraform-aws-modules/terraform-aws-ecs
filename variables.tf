@@ -374,6 +374,7 @@ variable "services" {
       port           = optional(number)
       registry_arn   = string
     }))
+    sigint_rollback = optional(bool)
     timeouts = optional(object({
       create = optional(string)
       update = optional(string)
