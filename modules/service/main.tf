@@ -279,10 +279,7 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-  sigint_rollback = (
-    lookup(var.deployment_controller, "type", "ECS") == "ECS" &&
-    var.wait_for_steady_state == true
-  ) ? var.sigint_rollback : false
+  sigint_rollback = try(var.deployment_configuration.strategy, null) == "BLUE_GREEN" ? var.sigint_rollback : null
 
   tags            = merge(var.tags, var.service_tags)
   task_definition = local.task_definition
