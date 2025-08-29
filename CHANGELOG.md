@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.3.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.2.2...v6.3.0) (2025-08-29)
+
+
+### Features
+
+* Add sigint_rollback argument support to ECS service ([#347](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/347)) ([6dfb8ef](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/6dfb8efba7a890afbb1819a6330afa252f77506f))
+
 ## [6.2.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.2.1...v6.2.2) (2025-08-16)
 
 
