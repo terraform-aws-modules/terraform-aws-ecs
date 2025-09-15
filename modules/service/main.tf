@@ -1653,7 +1653,7 @@ resource "aws_security_group" "this" {
   name        = var.security_group_use_name_prefix ? null : local.security_group_name
   name_prefix = var.security_group_use_name_prefix ? "${local.security_group_name}-" : null
   description = var.security_group_description
-  vpc_id      = data.aws_subnet.this[0].vpc_id
+  vpc_id      = var.vpc_id != null ? var.vpc_id : data.aws_subnet.this[0].vpc_id
 
   tags = merge(
     var.tags,
