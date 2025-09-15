@@ -1071,6 +1071,79 @@ variable "autoscaling_policies" {
       scale_out_cooldown = optional(number, 60)
       target_value       = optional(number, 75)
     }))
+    predictive_scaling_policy_configuration = optional(object({
+      mode                         = optional(string, "ForecastAndScale")
+      max_capacity_buffer          = optional(number)
+      max_capacity_breach_behavior = optional(string)
+      scheduling_buffer_time       = optional(number)
+      metric_specifications = list(object({
+        target_value = number
+        predefined_metric_specification = optional(object({
+          predefined_metric_type = string
+          resource_label         = optional(string)
+        }))
+        customized_capacity_metric_specification = optional(object({
+          metric_data_queries = list(object({
+            expression = optional(string)
+            id         = string
+            label      = optional(string)
+            metric_stat = optional(object({
+              metric = object({
+                dimensions = optional(list(object({
+                  name  = string
+                  value = string
+                })))
+                metric_name = string
+                namespace   = string
+              })
+              stat = string
+              unit = optional(string)
+            }))
+            return_data = optional(bool)
+          }))
+        }))
+        customized_load_metric_specification = optional(object({
+          metric_data_queries = list(object({
+            expression = optional(string)
+            id         = string
+            label      = optional(string)
+            metric_stat = optional(object({
+              metric = object({
+                dimensions = optional(list(object({
+                  name  = string
+                  value = string
+                })))
+                metric_name = string
+                namespace   = string
+              })
+              stat = string
+              unit = optional(string)
+            }))
+            return_data = optional(bool)
+          }))
+        }))
+        customized_scaling_metric_specification = optional(object({
+          metric_data_queries = list(object({
+            expression = optional(string)
+            id         = string
+            label      = optional(string)
+            metric_stat = optional(object({
+              metric = object({
+                dimensions = optional(list(object({
+                  name  = string
+                  value = string
+                })))
+                metric_name = string
+                namespace   = string
+              })
+              stat = string
+              unit = optional(string)
+            }))
+            return_data = optional(bool)
+          }))
+        }))
+      }))
+    }))
   }))
   default = {
     cpu = {

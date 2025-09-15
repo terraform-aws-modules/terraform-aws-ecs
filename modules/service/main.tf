@@ -1603,6 +1603,47 @@ resource "aws_appautoscaling_policy" "this" {
       target_value       = target_tracking_scaling_policy_configuration.value.target_value
     }
   }
+
+  dynamic "predictive_scaling_policy_configuration" {
+    for_each = each.value.policy_type == "PredictiveScaling" && each.value.predictive_scaling_policy_configuration != null ? [each.value.predictive_scaling_policy_configuration] : []
+
+    content {
+      mode                         = try(predictive_scaling_policy_configuration.value.mode, null)
+      max_capacity_buffer          = try(predictive_scaling_policy_configuration.value.max_capacity_buffer, null)
+      scheduling_buffer_time       = try(predictive_scaling_policy_configuration.value.scheduling_buffer_time, null)
+      max_capacity_breach_behavior = try(predictive_scaling_policy_configuration.value.max_capacity_breach_behavior, null)
+
+      dynamic "metric_specification" {
+        for_each = predictive_scaling_policy_configuration.value.metric_specification != null ? [predictive_scaling_policy_configuration.value.metric_specification] : []
+
+        target_value = predictive_scaling_policy_configuration.value.metric_specification.target_value
+
+        content {
+          dynamic "customized_capacity_metric_specification" {
+            for_each = predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification != null ? [predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification] : []
+
+            content {
+              metric_data_query {
+                id         = predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.id
+                expression = try(predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.expression, null)
+                label      = try(predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.label, null)
+
+                dynamic "metric_stat" {
+                  for_each = predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.metric_stat != null ? [predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.metric_stat] : []
+
+                  content {
+                    metric = predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.metric_stat.metric
+                    stat   = predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.metric_stat.stat
+                    unit   = try(predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.metric_stat.unit, null)
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 resource "aws_appautoscaling_scheduled_action" "this" {
