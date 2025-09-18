@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.4.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.3.0...v6.4.0) (2025-09-18)
+
+
+### Features
+
+* Add `lifecycle_hook.hook_details` ([#354](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/354)) ([73b7104](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/73b710487b298613718e5e92f6ca091e039b8771))
+
 ## [6.3.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.2.2...v6.3.0) (2025-08-29)
 
 
