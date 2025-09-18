@@ -287,6 +287,7 @@ variable "services" {
         hook_target_arn  = string
         role_arn         = string
         lifecycle_stages = list(string)
+        hook_details     = optional(string)
       })))
     }))
     deployment_controller = optional(object({
