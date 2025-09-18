@@ -89,6 +89,7 @@ resource "aws_ecs_service" "this" {
           hook_target_arn  = lifecycle_hook.value.hook_target_arn
           role_arn         = lifecycle_hook.value.role_arn
           lifecycle_stages = lifecycle_hook.value.lifecycle_stages
+          hook_details     = lifecycle_hook.value.hook_details
         }
       }
     }
@@ -411,6 +412,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
           hook_target_arn  = lifecycle_hook.value.hook_target_arn
           role_arn         = lifecycle_hook.value.role_arn
           lifecycle_stages = lifecycle_hook.value.lifecycle_stages
+          hook_details     = lifecycle_hook.value.hook_details
         }
       }
     }

@@ -71,6 +71,7 @@ module "ecs_service" {
     #     hook_target_arn  = aws_lambda_function.hook_success.arn
     #     role_arn         = aws_iam_role.global.arn
     #     lifecycle_stages = ["POST_SCALE_UP", "POST_TEST_TRAFFIC_SHIFT"]
+    #     hook_details     = jsonencode("test")
     #   }
     #   failure = {
     #     hook_target_arn  = aws_lambda_function.hook_failure.arn
