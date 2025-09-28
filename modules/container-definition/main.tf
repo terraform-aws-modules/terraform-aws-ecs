@@ -31,7 +31,7 @@ locals {
   # However, in the `true` case, we set it last to ensure `initProcessEnabled` is always `true` when `enable_execute_command` is true
   # and the "psuedo-default" is `false` when `enable_execute_command` is false (but can still be overridden by the user)
   # tflint-ignore: terraform_naming_convention
-  linuxParameters = var.enable_execute_command ? merge(local.trimedLinuxParameters, { "initProcessEnabled" : true }) : merge({ "initProcessEnabled" : false }, local.trimedLinuxParameters)
+  linuxParameters = var.enable_execute_command ? merge({ "initProcessEnabled" : true }, local.trimedLinuxParameters) : merge({ "initProcessEnabled" : false }, local.trimedLinuxParameters)
 
   # tflint-ignore: terraform_naming_convention
   trimmedRestartPolicy = { for k, v in var.restartPolicy : k => v if v != null }
