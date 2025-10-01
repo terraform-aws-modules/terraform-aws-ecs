@@ -209,6 +209,12 @@ variable "subnet_ids" {
   nullable    = false
 }
 
+variable "vpc_id" {
+  description = "The VPC ID where to deploy the task or service. If not provided, the VPC ID is derived from the subnets provided"
+  type        = string
+  default     = null
+}
+
 variable "ordered_placement_strategy" {
   description = "Service level strategy rules that are taken into consideration during task placement. List from top to bottom in order of precedence"
   type = map(object({

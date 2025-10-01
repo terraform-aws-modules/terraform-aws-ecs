@@ -138,6 +138,7 @@ module "wrapper" {
   triggers                                = try(each.value.triggers, var.defaults.triggers, null)
   volume                                  = try(each.value.volume, var.defaults.volume, null)
   volume_configuration                    = try(each.value.volume_configuration, var.defaults.volume_configuration, null)
+  vpc_id                                  = try(each.value.vpc_id, var.defaults.vpc_id, null)
   vpc_lattice_configurations              = try(each.value.vpc_lattice_configurations, var.defaults.vpc_lattice_configurations, null)
   wait_for_steady_state                   = try(each.value.wait_for_steady_state, var.defaults.wait_for_steady_state, null)
   wait_until_stable                       = try(each.value.wait_until_stable, var.defaults.wait_until_stable, null)
