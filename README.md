@@ -119,7 +119,6 @@ module "ecs" {
       }
 
       subnet_ids = ["subnet-abcde012", "subnet-bcde012a", "subnet-fghi345a"]
-      vpc_id     = "vpc-jklmn789"
 
       security_group_ingress_rules = {
         alb_3000 = {

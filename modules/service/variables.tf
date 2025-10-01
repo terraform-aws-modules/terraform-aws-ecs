@@ -210,10 +210,9 @@ variable "subnet_ids" {
 }
 
 variable "vpc_id" {
-  description = "The VPC ID where to deploy the task or service. If not provided, the VPC ID is retrieved from the subnets."
+  description = "The VPC ID where to deploy the task or service. If not provided, the VPC ID is derived from the subnets provided"
   type        = string
   default     = null
-  nullable    = true
 }
 
 variable "ordered_placement_strategy" {
