@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.4.0...v6.5.0) (2025-10-01)
+
+
+### Features
+
+* Allow Toggling `initProcessEnabled` independent of `enable_execute_command` ([#355](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/355)) ([b7054cd](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/b7054cd206b3ab9a0301f9a011e61e4e1bebc8de))
+
 ## [6.4.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.3.0...v6.4.0) (2025-09-18)
 
 
