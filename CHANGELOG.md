@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.6.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.5.0...v6.6.0) (2025-10-01)
+
+
+### Features
+
+* Allow specifying VPC ID used by service security group in lieu of deriving from subnets provided ([#353](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/353)) ([ac8f420](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/ac8f42074a3f8a061066eeb707dd913eaf106b1b))
+
 ## [6.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.4.0...v6.5.0) (2025-10-01)
 
 
