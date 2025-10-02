@@ -1638,7 +1638,7 @@ locals {
 }
 
 data "aws_subnet" "this" {
-  count = local.create_security_group && var.vpc_id != null ? 1 : 0
+  count = local.create_security_group && var.vpc_id == null ? 1 : 0
 
   region = var.region
 

@@ -779,6 +779,7 @@ variable "services" {
     })))
     # Security Group
     create_security_group          = optional(bool)
+    vpc_id                         = optional(string)
     security_group_name            = optional(string)
     security_group_use_name_prefix = optional(bool)
     security_group_description     = optional(string)
