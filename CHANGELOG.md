@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.6.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.6.0...v6.6.1) (2025-10-02)
+
+
+### Bug Fixes
+
+* Correct logic for determining VPC lookup via subnets ([#358](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/358)) ([7e57f08](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/7e57f083c26cb91c36c3cd0b7dc0105fcaeb188b))
+
 ## [6.6.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.5.0...v6.6.0) (2025-10-01)
 
 
