@@ -174,6 +174,7 @@ module "service" {
 
   # Security Group
   create_security_group          = each.value.create_security_group
+  vpc_id                         = each.value.vpc_id
   security_group_name            = each.value.security_group_name
   security_group_use_name_prefix = each.value.security_group_use_name_prefix
   security_group_description     = each.value.security_group_description
