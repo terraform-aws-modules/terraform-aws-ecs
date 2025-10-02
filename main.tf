@@ -81,6 +81,7 @@ module "service" {
   assign_public_ip                   = each.value.assign_public_ip
   security_group_ids                 = each.value.security_group_ids
   subnet_ids                         = each.value.subnet_ids
+  vpc_id                             = each.value.vpc_id
   ordered_placement_strategy         = each.value.ordered_placement_strategy
   placement_constraints              = each.value.placement_constraints
   platform_version                   = each.value.platform_version
