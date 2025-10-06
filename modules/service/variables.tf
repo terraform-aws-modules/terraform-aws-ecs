@@ -1097,6 +1097,66 @@ variable "autoscaling_policies" {
           predefined_metric_type = string
           resource_label         = optional(string)
         }))
+        customized_load_metric_specification = optional(object({
+          metric_data_query = list(object({
+            expression = optional(string)
+            id         = string
+            label      = optional(string)
+            metric_stat = optional(object({
+              metric = object({
+                dimension = optional(list(object({
+                  name  = string
+                  value = string
+                })))
+                metric_name = string
+                namespace   = string
+              })
+              stat = string
+              unit = optional(string)
+            }))
+            return_data = optional(bool)
+          }))
+        }))
+        customized_scaling_metric_specification = optional(object({
+          metric_data_query = list(object({
+            expression = optional(string)
+            id         = string
+            label      = optional(string)
+            metric_stat = optional(object({
+              metric = object({
+                dimension = optional(list(object({
+                  name  = string
+                  value = string
+                })))
+                metric_name = string
+                namespace   = string
+              })
+              stat = string
+              unit = optional(string)
+            }))
+            return_data = optional(bool)
+          }))
+        }))
+        customized_capacity_metric_specification = optional(object({
+          metric_data_query = list(object({
+            expression = optional(string)
+            id         = string
+            label      = optional(string)
+            metric_stat = optional(object({
+              metric = object({
+                dimension = optional(list(object({
+                  name  = string
+                  value = string
+                })))
+                metric_name = string
+                namespace   = string
+              })
+              stat = string
+              unit = optional(string)
+            }))
+            return_data = optional(bool)
+          }))
+        }))
       })
     }))
   }))

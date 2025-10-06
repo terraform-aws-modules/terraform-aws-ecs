@@ -71,11 +71,36 @@ module "ecs" {
               # predefined_scaling_metric_specification = {
               #   predefined_metric_type = "ECSServiceAverageMemoryUtilization"
               # }
-              # predefined_load_metric_specification = {
-              #   predefined_metric_type = "ECSServiceTotalMemoryUtilization"
+              # predefined_metric_pair_specification = {
+              #   predefined_metric_type = "ECSServiceMemoryUtilization"
               # }
-              predefined_metric_pair_specification = {
-                predefined_metric_type = "ECSServiceMemoryUtilization"
+              predefined_load_metric_specification = {
+                predefined_metric_type = "ECSServiceTotalCPUUtilization"
+              }
+              customized_scaling_metric_specification = {
+                metric_data_query = [
+                  {
+                    id = "memory_util"
+                    metric_stat = {
+                      stat = "Average"
+                      metric = {
+                        metric_name = "CPUUtilization"
+                        namespace   = "AWS/ECS"
+                        dimension = [
+                          {
+                            name  = "ServiceName"
+                            value = "ecsdemo-frontend"
+                          },
+                          {
+                            name  = "ClusterName"
+                            value = "ex-complete"
+                          }
+                        ]
+                      }
+                    }
+                    return_data = true
+                  }
+                ]
               }
             }
           }
