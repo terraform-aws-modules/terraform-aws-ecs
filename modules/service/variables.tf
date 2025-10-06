@@ -87,6 +87,7 @@ variable "deployment_configuration" {
       hook_target_arn  = string
       role_arn         = string
       lifecycle_stages = list(string)
+      hook_details     = optional(string)
     })))
   })
   default = null
@@ -206,6 +207,12 @@ variable "subnet_ids" {
   type        = list(string)
   default     = []
   nullable    = false
+}
+
+variable "vpc_id" {
+  description = "The VPC ID where to deploy the task or service. If not provided, the VPC ID is derived from the subnets provided"
+  type        = string
+  default     = null
 }
 
 variable "ordered_placement_strategy" {

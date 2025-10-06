@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.6.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.6.0...v6.6.1) (2025-10-02)
+
+
+### Bug Fixes
+
+* Correct logic for determining VPC lookup via subnets ([#358](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/358)) ([7e57f08](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/7e57f083c26cb91c36c3cd0b7dc0105fcaeb188b))
+
+## [6.6.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.5.0...v6.6.0) (2025-10-01)
+
+
+### Features
+
+* Allow specifying VPC ID used by service security group in lieu of deriving from subnets provided ([#353](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/353)) ([ac8f420](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/ac8f42074a3f8a061066eeb707dd913eaf106b1b))
+
+## [6.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.4.0...v6.5.0) (2025-10-01)
+
+
+### Features
+
+* Allow Toggling `initProcessEnabled` independent of `enable_execute_command` ([#355](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/355)) ([b7054cd](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/b7054cd206b3ab9a0301f9a011e61e4e1bebc8de))
+
+## [6.4.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.3.0...v6.4.0) (2025-09-18)
+
+
+### Features
+
+* Add `lifecycle_hook.hook_details` ([#354](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/354)) ([73b7104](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/73b710487b298613718e5e92f6ca091e039b8771))
+
 ## [6.3.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.2.2...v6.3.0) (2025-08-29)
 
 

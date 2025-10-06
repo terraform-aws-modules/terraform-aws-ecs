@@ -89,6 +89,7 @@ resource "aws_ecs_service" "this" {
           hook_target_arn  = lifecycle_hook.value.hook_target_arn
           role_arn         = lifecycle_hook.value.role_arn
           lifecycle_stages = lifecycle_hook.value.lifecycle_stages
+          hook_details     = lifecycle_hook.value.hook_details
         }
       }
     }
@@ -411,6 +412,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
           hook_target_arn  = lifecycle_hook.value.hook_target_arn
           role_arn         = lifecycle_hook.value.role_arn
           lifecycle_stages = lifecycle_hook.value.lifecycle_stages
+          hook_details     = lifecycle_hook.value.hook_details
         }
       }
     }
@@ -1692,7 +1694,7 @@ resource "aws_security_group" "this" {
   name        = var.security_group_use_name_prefix ? null : local.security_group_name
   name_prefix = var.security_group_use_name_prefix ? "${local.security_group_name}-" : null
   description = var.security_group_description
-  vpc_id      = data.aws_subnet.this[0].vpc_id
+  vpc_id      = var.vpc_id != null ? var.vpc_id : data.aws_subnet.this[0].vpc_id
 
   tags = merge(
     var.tags,

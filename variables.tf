@@ -287,6 +287,7 @@ variable "services" {
         hook_target_arn  = string
         role_arn         = string
         lifecycle_stages = list(string)
+        hook_details     = optional(string)
       })))
     }))
     deployment_controller = optional(object({
@@ -778,6 +779,7 @@ variable "services" {
     })))
     # Security Group
     create_security_group          = optional(bool)
+    vpc_id                         = optional(string)
     security_group_name            = optional(string)
     security_group_use_name_prefix = optional(bool)
     security_group_description     = optional(string)
