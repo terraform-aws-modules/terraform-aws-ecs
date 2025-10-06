@@ -1616,30 +1616,35 @@ resource "aws_appautoscaling_policy" "this" {
       max_capacity_breach_behavior = try(predictive_scaling_policy_configuration.value.max_capacity_breach_behavior, null)
 
       dynamic "metric_specification" {
-        for_each = predictive_scaling_policy_configuration.value.metric_specification != null ? [predictive_scaling_policy_configuration.value.metric_specification] : []
-
-        target_value = predictive_scaling_policy_configuration.value.metric_specification.target_value
+        for_each = [predictive_scaling_policy_configuration.value.metric_specification]
 
         content {
-          dynamic "customized_capacity_metric_specification" {
-            for_each = predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification != null ? [predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification] : []
+          target_value = metric_specification.value.target_value
+
+          dynamic "predefined_scaling_metric_specification" {
+            for_each = metric_specification.value.predefined_scaling_metric_specification != null ? [metric_specification.value.predefined_scaling_metric_specification] : []
 
             content {
-              metric_data_query {
-                id         = predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.id
-                expression = try(predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.expression, null)
-                label      = try(predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.label, null)
+              predefined_metric_type = predefined_scaling_metric_specification.value.predefined_metric_type
+              resource_label         = predefined_scaling_metric_specification.value.resource_label
+            }
+          }
 
-                dynamic "metric_stat" {
-                  for_each = predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.metric_stat != null ? [predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.metric_stat] : []
+          dynamic "predefined_load_metric_specification" {
+            for_each = metric_specification.value.predefined_load_metric_specification != null ? [metric_specification.value.predefined_load_metric_specification] : []
 
-                  content {
-                    metric = predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.metric_stat.metric
-                    stat   = predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.metric_stat.stat
-                    unit   = try(predictive_scaling_policy_configuration.value.metric_specification.customized_capacity_metric_specification.metric_stat.unit, null)
-                  }
-                }
-              }
+            content {
+              predefined_metric_type = predefined_load_metric_specification.value.predefined_metric_type
+              resource_label         = predefined_load_metric_specification.value.resource_label
+            }
+          }
+
+          dynamic "predefined_metric_pair_specification" {
+            for_each = metric_specification.value.predefined_metric_pair_specification != null ? [metric_specification.value.predefined_metric_pair_specification] : []
+
+            content {
+              predefined_metric_type = predefined_metric_pair_specification.value.predefined_metric_type
+              resource_label         = predefined_metric_pair_specification.value.resource_label
             }
           }
         }

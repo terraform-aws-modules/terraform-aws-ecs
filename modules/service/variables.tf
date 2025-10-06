@@ -1083,73 +1083,21 @@ variable "autoscaling_policies" {
       max_capacity_buffer          = optional(number)
       max_capacity_breach_behavior = optional(string)
       scheduling_buffer_time       = optional(number)
-      metric_specifications = list(object({
+      metric_specification = object({
         target_value = number
-        predefined_metric_specification = optional(object({
+        predefined_scaling_metric_specification = optional(object({
           predefined_metric_type = string
           resource_label         = optional(string)
         }))
-        customized_capacity_metric_specification = optional(object({
-          metric_data_queries = list(object({
-            expression = optional(string)
-            id         = string
-            label      = optional(string)
-            metric_stat = optional(object({
-              metric = object({
-                dimensions = optional(list(object({
-                  name  = string
-                  value = string
-                })))
-                metric_name = string
-                namespace   = string
-              })
-              stat = string
-              unit = optional(string)
-            }))
-            return_data = optional(bool)
-          }))
+        predefined_load_metric_specification = optional(object({
+          predefined_metric_type = string
+          resource_label         = optional(string)
         }))
-        customized_load_metric_specification = optional(object({
-          metric_data_queries = list(object({
-            expression = optional(string)
-            id         = string
-            label      = optional(string)
-            metric_stat = optional(object({
-              metric = object({
-                dimensions = optional(list(object({
-                  name  = string
-                  value = string
-                })))
-                metric_name = string
-                namespace   = string
-              })
-              stat = string
-              unit = optional(string)
-            }))
-            return_data = optional(bool)
-          }))
+        predefined_metric_pair_specification = optional(object({
+          predefined_metric_type = string
+          resource_label         = optional(string)
         }))
-        customized_scaling_metric_specification = optional(object({
-          metric_data_queries = list(object({
-            expression = optional(string)
-            id         = string
-            label      = optional(string)
-            metric_stat = optional(object({
-              metric = object({
-                dimensions = optional(list(object({
-                  name  = string
-                  value = string
-                })))
-                metric_name = string
-                namespace   = string
-              })
-              stat = string
-              unit = optional(string)
-            }))
-            return_data = optional(bool)
-          }))
-        }))
-      }))
+      })
     }))
   }))
   default = {

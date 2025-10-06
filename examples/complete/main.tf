@@ -61,6 +61,27 @@ module "ecs" {
       cpu    = 1024
       memory = 4096
 
+      autoscaling_policies = {
+        predictive = {
+          policy_type = "PredictiveScaling"
+          predictive_scaling_policy_configuration = {
+            mode = "ForecastOnly"
+            metric_specification = {
+              target_value = 60
+              # predefined_scaling_metric_specification = {
+              #   predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+              # }
+              # predefined_load_metric_specification = {
+              #   predefined_metric_type = "ECSServiceTotalMemoryUtilization"
+              # }
+              predefined_metric_pair_specification = {
+                predefined_metric_type = "ECSServiceMemoryUtilization"
+              }
+            }
+          }
+        }
+      }
+
       # Container definition(s)
       container_definitions = {
 

@@ -767,6 +767,27 @@ variable "services" {
         scale_out_cooldown = optional(number)
         target_value       = optional(number)
       }))
+      predictive_scaling_policy_configuration = optional(object({
+        mode                         = optional(string, "ForecastAndScale")
+        max_capacity_buffer          = optional(number)
+        max_capacity_breach_behavior = optional(string)
+        scheduling_buffer_time       = optional(number)
+        metric_specification = object({
+          target_value = number
+          predefined_scaling_metric_specification = optional(object({
+            predefined_metric_type = string
+            resource_label         = optional(string)
+          }))
+          predefined_load_metric_specification = optional(object({
+            predefined_metric_type = string
+            resource_label         = optional(string)
+          }))
+          predefined_metric_pair_specification = optional(object({
+            predefined_metric_type = string
+            resource_label         = optional(string)
+          }))
+        })
+      }))
     })))
     autoscaling_scheduled_actions = optional(map(object({
       name         = optional(string)
