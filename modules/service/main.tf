@@ -1610,9 +1610,7 @@ resource "aws_appautoscaling_policy" "this" {
     for_each = each.value.policy_type == "PredictiveScaling" && each.value.predictive_scaling_policy_configuration != null ? [each.value.predictive_scaling_policy_configuration] : []
 
     content {
-      mode                         = predictive_scaling_policy_configuration.value.mode
       max_capacity_buffer          = predictive_scaling_policy_configuration.value.max_capacity_buffer
-      scheduling_buffer_time       = predictive_scaling_policy_configuration.value.scheduling_buffer_time
       max_capacity_breach_behavior = predictive_scaling_policy_configuration.value.max_capacity_breach_behavior
 
       dynamic "metric_specification" {
@@ -1784,6 +1782,9 @@ resource "aws_appautoscaling_policy" "this" {
           target_value = metric_specification.value.target_value
         }
       }
+
+      mode                   = predictive_scaling_policy_configuration.value.mode
+      scheduling_buffer_time = predictive_scaling_policy_configuration.value.scheduling_buffer_time
     }
   }
 }
