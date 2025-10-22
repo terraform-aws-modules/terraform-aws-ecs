@@ -61,6 +61,52 @@ module "ecs" {
       cpu    = 1024
       memory = 4096
 
+      autoscaling_policies = {
+        predictive = {
+          policy_type = "PredictiveScaling"
+          predictive_scaling_policy_configuration = {
+            mode = "ForecastOnly"
+            metric_specification = [{
+              target_value = 60
+              customized_scaling_metric_specification = {
+                metric_data_query = [
+                  {
+                    id = "cpu_util"
+                    metric_stat = {
+                      stat = "Average"
+                      metric = {
+                        metric_name = "CPUUtilization"
+                        namespace   = "AWS/ECS"
+                        dimension = [
+                          {
+                            name  = "ServiceName"
+                            value = "ecsdemo-frontend"
+                          },
+                          {
+                            name  = "ClusterName"
+                            value = "ex-complete"
+                          }
+                        ]
+                      }
+                    }
+                    return_data = true
+                  }
+                ]
+              }
+              predefined_load_metric_specification = {
+                predefined_metric_type = "ECSServiceTotalCPUUtilization"
+              }
+              # predefined_scaling_metric_specification = {
+              #   predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+              # }
+              # predefined_metric_pair_specification = {
+              #   predefined_metric_type = "ECSServiceMemoryUtilization"
+              # }
+            }]
+          }
+        }
+      }
+
       # Container definition(s)
       container_definitions = {
 
@@ -237,7 +283,7 @@ resource "aws_service_discovery_http_namespace" "this" {
 
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "~> 9.0"
+  version = "~> 10.0"
 
   name = local.name
 
