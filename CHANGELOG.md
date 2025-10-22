@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.6.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.6.1...v6.6.2) (2025-10-21)
+
+### Bug Fixes
+
+* Update CI workflow versions to latest ([#362](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/362)) ([fca1cc4](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/fca1cc4d5ff33488ba8edc203766261cfddc472a))
+
 ## [6.6.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.6.0...v6.6.1) (2025-10-02)
 
 
