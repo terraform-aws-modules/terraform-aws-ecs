@@ -72,9 +72,9 @@ module "ecs" {
                 metric_data_query = [
                   {
                     id = "cpu_util"
-                    metric_stat = [{
+                    metric_stat = {
                       stat = "Average"
-                      metric = [{
+                      metric = {
                         metric_name = "CPUUtilization"
                         namespace   = "AWS/ECS"
                         dimension = [
@@ -87,8 +87,8 @@ module "ecs" {
                             value = "ex-complete"
                           }
                         ]
-                      }]
-                    }]
+                      }
+                    }
                     return_data = true
                   }
                 ]
@@ -283,7 +283,7 @@ resource "aws_service_discovery_http_namespace" "this" {
 
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "~> 9.0"
+  version = "~> 10.0"
 
   name = local.name
 

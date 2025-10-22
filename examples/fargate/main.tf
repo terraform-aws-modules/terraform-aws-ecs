@@ -280,7 +280,7 @@ resource "aws_service_discovery_http_namespace" "this" {
 
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "~> 9.0"
+  version = "~> 10.0"
 
   name = local.name
 

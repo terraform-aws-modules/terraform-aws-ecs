@@ -721,43 +721,43 @@ variable "services" {
         max_capacity_breach_behavior = optional(string)
         max_capacity_buffer          = optional(number)
         metric_specification = list(object({
-          customized_capacity_metric_specification = optional(list(object({
+          customized_capacity_metric_specification = optional(object({
             metric_data_query = list(object({
               expression = optional(string)
               id         = string
               label      = optional(string)
-              metric_stat = optional(list(object({
-                metric = list(object({
+              metric_stat = optional(object({
+                metric = object({
                   dimension = optional(list(object({
                     name  = string
                     value = string
                   })))
                   metric_name = optional(string)
                   namespace   = optional(string)
-                }))
+                })
                 stat = string
                 unit = optional(string)
-              })))
+              }))
               return_data = optional(bool)
             }))
-          })))
+          }))
           customized_load_metric_specification = optional(object({
             metric_data_query = list(object({
               expression = optional(string)
               id         = string
               label      = optional(string)
-              metric_stat = optional(list(object({
-                metric = list(object({
+              metric_stat = optional(object({
+                metric = object({
                   dimension = optional(list(object({
                     name  = string
                     value = string
                   })))
                   metric_name = optional(string)
                   namespace   = optional(string)
-                }))
+                })
                 stat = string
                 unit = optional(string)
-              })))
+              }))
               return_data = optional(bool)
             }))
           }))
@@ -766,18 +766,18 @@ variable "services" {
               expression = optional(string)
               id         = string
               label      = optional(string)
-              metric_stat = optional(list(object({
-                metric = list(object({
+              metric_stat = optional(object({
+                metric = object({
                   dimension = optional(list(object({
                     name  = string
                     value = string
                   })))
                   metric_name = optional(string)
                   namespace   = optional(string)
-                }))
+                })
                 stat = string
                 unit = optional(string)
-              })))
+              }))
               return_data = optional(bool)
             }))
           }))
