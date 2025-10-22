@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.7.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.6.2...v6.7.0) (2025-10-22)
+
+### Features
+
+* Add support for predictive autoscaling policies ([#361](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/361)) ([f731feb](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/f731feba8bbc45fa83637d6984dffb25f326f3e2))
+
 ## [6.6.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.6.1...v6.6.2) (2025-10-21)
 
 ### Bug Fixes
