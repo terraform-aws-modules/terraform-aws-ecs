@@ -24,6 +24,7 @@ module "cluster" {
 
   # Cluster capacity providers
   autoscaling_capacity_providers     = var.autoscaling_capacity_providers
+  capacity_providers                 = var.capacity_providers
   default_capacity_provider_strategy = var.default_capacity_provider_strategy
 
   # Task execution IAM role
