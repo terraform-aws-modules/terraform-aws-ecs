@@ -52,6 +52,51 @@ output "task_exec_iam_role_unique_id" {
   value       = module.cluster.task_exec_iam_role_unique_id
 }
 
+output "infrastructure_iam_role_arn" {
+  description = "The Amazon Resource Name (ARN) specifying the IAM role"
+  value       = module.cluster.infrastructure_iam_role_arn
+}
+
+output "infrastructure_iam_role_name" {
+  description = "IAM role name"
+  value       = module.cluster.infrastructure_iam_role_name
+}
+
+output "infrastructure_iam_role_unique_id" {
+  description = "Stable and unique string identifying the IAM role"
+  value       = module.cluster.infrastructure_iam_role_unique_id
+}
+
+output "node_iam_role_arn" {
+  description = "The Amazon Resource Name (ARN) specifying the IAM role"
+  value       = module.cluster.node_iam_role_arn
+}
+
+output "node_iam_role_name" {
+  description = "IAM role name"
+  value       = module.cluster.node_iam_role_name
+}
+
+output "node_iam_role_unique_id" {
+  description = "Stable and unique string identifying the IAM role"
+  value       = module.cluster.node_iam_role_unique_id
+}
+
+output "node_iam_instance_profile_arn" {
+  description = "ARN assigned by AWS to the instance profile"
+  value       = module.cluster.node_iam_instance_profile_arn
+}
+
+output "node_iam_instance_profile_id" {
+  description = "Instance profile's ID"
+  value       = module.cluster.node_iam_instance_profile_id
+}
+
+output "node_iam_instance_profile_unique" {
+  description = "Stable and unique string identifying the IAM instance profile"
+  value       = module.cluster.node_iam_instance_profile_unique
+}
+
 ################################################################################
 # Service(s)
 ################################################################################
