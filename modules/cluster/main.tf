@@ -113,6 +113,12 @@ resource "aws_cloudwatch_log_group" "this" {
 # Cluster Capacity Providers
 ################################################################################
 
+locals {
+  # TODO - is this correct?!
+  # Only the AutoScaling group capacity providers need to be associated with the cluster
+  auto_scaling_group_providers = local.capacity_providers != null ? [for k, v in local.capacity_providers : try(coalesce(v.name, k)) if v.auto_scaling_group_provider != null] : []
+}
+
 resource "aws_ecs_cluster_capacity_providers" "this" {
   count = var.create ? 1 : 0
 
@@ -121,7 +127,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
   cluster_name = aws_ecs_cluster.this[0].name
   capacity_providers = distinct(concat(
     [for k, v in var.default_capacity_provider_strategy : try(coalesce(v.name, k))],
-    var.autoscaling_capacity_providers != null ? [for k, v in var.autoscaling_capacity_providers : try(coalesce(v.name, k))] : []
+    local.auto_scaling_group_providers
   ))
 
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-capacity-providers.html#capacity-providers-considerations
@@ -145,14 +151,14 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 ################################################################################
 
 locals {
-  managed_instances_enabled  = anytrue([for k, v in local.capacity_providers : v.managed_instances_provider != null])
+  managed_instances_enabled = anytrue([for k, v in local.capacity_providers : v.managed_instances_provider != null])
 
   # TODO - embed the `autoscaling_capacity_providers` into a shape acceptable for
   # `var.capacity_providers` so that it can be merged with the new `capacity_providers`
   # for backward compatibility. Remove `autoscaling_capacity_providers` in the next major version.
   capacity_providers = var.autoscaling_capacity_providers != null ? merge({
     for k, v in var.autoscaling_capacity_providers : k => {
-      autoscaling_group_provider = {
+      auto_scaling_group_provider = {
         autoscaling_group_arn = v.autoscaling_group_arn
         managed_draining      = try(v.managed_draining, null)
         managed_scaling = try(v.managed_scaling, null) != null ? {
@@ -343,7 +349,8 @@ resource "aws_ecs_capacity_provider" "this" {
     }
   }
 
-  cluster = each.value.managed_instances_provider != null ? aws_ecs_cluster.this[0].id : null
+  # cluster = each.value.managed_instances_provider != null ? aws_ecs_cluster.this[0].id : null
+  cluster = aws_ecs_cluster.this[0].name
 
   name = try(coalesce(each.value.name, each.key), "")
 
@@ -514,7 +521,7 @@ resource "aws_iam_role_policy_attachment" "task_exec" {
 locals {
   create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.managed_instances_enabled
 
-  infrastructure_iam_role_name   = coalesce(var.infrastructure_iam_role_name, "${var.name}-infra", "NotProvided")
+  infrastructure_iam_role_name = coalesce(var.infrastructure_iam_role_name, "${var.name}-infra", "NotProvided")
 }
 
 data "aws_iam_policy_document" "infrastructure" {
@@ -749,7 +756,7 @@ resource "aws_iam_instance_profile" "this" {
 locals {
   create_security_group = var.create && var.create_security_group && local.managed_instances_enabled
 
-  security_group_name   = coalesce(var.security_group_name, var.name, "NotProvided")
+  security_group_name = coalesce(var.security_group_name, var.name, "NotProvided")
 }
 
 resource "aws_security_group" "this" {

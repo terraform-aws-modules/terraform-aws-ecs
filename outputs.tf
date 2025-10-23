@@ -33,8 +33,13 @@ output "cluster_capacity_providers" {
 }
 
 output "autoscaling_capacity_providers" {
-  description = "Map of autoscaling capacity providers created and their attributes"
+  description = "[DEPRECATED - use `capacity_providers`] Map of autoscaling capacity providers created and their attributes"
   value       = module.cluster.autoscaling_capacity_providers
+}
+
+output "capacity_providers" {
+  description = "Map of autoscaling capacity providers created and their attributes"
+  value       = module.cluster.capacity_providers
 }
 
 output "task_exec_iam_role_name" {

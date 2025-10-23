@@ -215,26 +215,3 @@ output "service_security_group_id" {
   description = "ID of the security group"
   value       = module.ecs_service.security_group_id
 }
-
-################################################################################
-# Standalone Task Definition (w/o Service)
-################################################################################
-
-output "task_definition_run_task_command" {
-  description = "awscli command to run the standalone task"
-  value       = <<EOT
-    aws ecs run-task --cluster ${module.ecs_cluster.name} \
-      --task-definition ${module.ecs_task_definition.task_definition_family}:${module.ecs_task_definition.task_definition_revision} \
-      --network-configuration "awsvpcConfiguration={subnets=[${join(",", module.vpc.private_subnets)}],securityGroups=[${module.ecs_task_definition.security_group_id}]}" \
-      --region ${local.region}
-  EOT
-}
-
-################################################################################
-# Application Load Balancer
-################################################################################
-
-output "alb_dns_name" {
-  description = "The DNS name of the load balancer"
-  value       = module.alb.dns_name
-}
