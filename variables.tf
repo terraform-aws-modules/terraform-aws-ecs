@@ -148,7 +148,7 @@ variable "autoscaling_capacity_providers" {
 variable "capacity_providers" {
   description = "Map of capacity provider definitions to create for the cluster"
   type = map(object({
-    autoscaling_group_provider = optional(object({
+    auto_scaling_group_provider = optional(object({
       auto_scaling_group_arn = string
       managed_draining       = optional(string, "ENABLED")
       managed_scaling = optional(object({
@@ -226,7 +226,7 @@ variable "capacity_providers" {
           storage_size_gib = number
         }))
       })
-      propagate_tags = optional(string)
+      propagate_tags = optional(string, "CAPACITY_PROVIDER")
     }))
     name = optional(string) # Will fall back to use map key if not set
     tags = optional(map(string), {})

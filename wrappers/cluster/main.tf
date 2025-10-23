@@ -21,6 +21,7 @@ module "wrapper" {
   create_cloudwatch_log_group                  = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)
   create_infrastructure_iam_role               = try(each.value.create_infrastructure_iam_role, var.defaults.create_infrastructure_iam_role, true)
   create_node_iam_instance_profile             = try(each.value.create_node_iam_instance_profile, var.defaults.create_node_iam_instance_profile, true)
+  create_security_group                        = try(each.value.create_security_group, var.defaults.create_security_group, true)
   create_task_exec_iam_role                    = try(each.value.create_task_exec_iam_role, var.defaults.create_task_exec_iam_role, false)
   create_task_exec_policy                      = try(each.value.create_task_exec_policy, var.defaults.create_task_exec_policy, true)
   default_capacity_provider_strategy           = try(each.value.default_capacity_provider_strategy, var.defaults.default_capacity_provider_strategy, {})
@@ -42,6 +43,12 @@ module "wrapper" {
   node_iam_role_tags                           = try(each.value.node_iam_role_tags, var.defaults.node_iam_role_tags, {})
   node_iam_role_use_name_prefix                = try(each.value.node_iam_role_use_name_prefix, var.defaults.node_iam_role_use_name_prefix, true)
   region                                       = try(each.value.region, var.defaults.region, null)
+  security_group_description                   = try(each.value.security_group_description, var.defaults.security_group_description, null)
+  security_group_egress_rules                  = try(each.value.security_group_egress_rules, var.defaults.security_group_egress_rules, {})
+  security_group_ingress_rules                 = try(each.value.security_group_ingress_rules, var.defaults.security_group_ingress_rules, {})
+  security_group_name                          = try(each.value.security_group_name, var.defaults.security_group_name, null)
+  security_group_tags                          = try(each.value.security_group_tags, var.defaults.security_group_tags, {})
+  security_group_use_name_prefix               = try(each.value.security_group_use_name_prefix, var.defaults.security_group_use_name_prefix, true)
   service_connect_defaults                     = try(each.value.service_connect_defaults, var.defaults.service_connect_defaults, null)
   setting = try(each.value.setting, var.defaults.setting, [
     {
@@ -60,4 +67,5 @@ module "wrapper" {
   task_exec_iam_statements                = try(each.value.task_exec_iam_statements, var.defaults.task_exec_iam_statements, null)
   task_exec_secret_arns                   = try(each.value.task_exec_secret_arns, var.defaults.task_exec_secret_arns, [])
   task_exec_ssm_param_arns                = try(each.value.task_exec_ssm_param_arns, var.defaults.task_exec_ssm_param_arns, [])
+  vpc_id                                  = try(each.value.vpc_id, var.defaults.vpc_id, null)
 }
