@@ -123,33 +123,207 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 }
 
 ################################################################################
-# Capacity Provider - Autoscaling Group(s)
+# Capacity Provider
 ################################################################################
 
+locals {
+  # TODO - embed the `autoscaling_capacity_providers` into a shape acceptable for
+  # `var.capacity_providers` so that it can be merged with the new `capacity_providers`
+  # for backward compatibility. Remove `autoscaling_capacity_providers` in the next major version.
+  capacity_providers = var.autoscaling_capacity_providers != null ? merge({
+    for k, v in var.autoscaling_capacity_providers : k => {
+      autoscaling_group_provider = {
+        autoscaling_group_arn = v.autoscaling_group_arn
+        managed_draining      = try(v.managed_draining, null)
+        managed_scaling = try(v.managed_draining, null) != null ? {
+          instance_warmup_period    = try(v.managed_scaling.instance_warmup_period, null)
+          maximum_scaling_step_size = try(v.managed_scaling.maximum_scaling_step_size, null)
+          minimum_scaling_step_size = try(v.managed_scaling.minimum_scaling_step_size, null)
+          status                    = try(v.managed_scaling.status, null)
+          target_capacity           = try(v.managed_scaling.target_capacity, null)
+        } : null
+        managed_termination_protection = try(v.managed_termination_protection, null)
+      }
+      managed_instances_provider = null
+      name                       = try(v.name, k)
+      tags                       = try(v.tags, {})
+    }
+  }, var.capacity_providers != null ? var.capacity_providers : {}) : var.capacity_providers
+}
+
 resource "aws_ecs_capacity_provider" "this" {
-  for_each = var.create && var.autoscaling_capacity_providers != null ? var.autoscaling_capacity_providers : {}
+  for_each = var.create && local.capacity_providers != null ? local.capacity_providers : {}
 
   region = var.region
 
-  auto_scaling_group_provider {
-    auto_scaling_group_arn = each.value.auto_scaling_group_arn
-    managed_draining       = each.value.managed_draining
+  dynamic "auto_scaling_group_provider" {
+    for_each = each.value.auto_scaling_group_provider != null ? [each.value.auto_scaling_group_provider] : []
 
-    dynamic "managed_scaling" {
-      for_each = each.value.managed_scaling != null ? [each.value.managed_scaling] : []
+    content {
+      auto_scaling_group_arn = each.value.auto_scaling_group_arn
+      managed_draining       = each.value.managed_draining
 
-      content {
-        instance_warmup_period    = managed_scaling.value.instance_warmup_period
-        maximum_scaling_step_size = managed_scaling.value.maximum_scaling_step_size
-        minimum_scaling_step_size = managed_scaling.value.minimum_scaling_step_size
-        status                    = managed_scaling.value.status
-        target_capacity           = managed_scaling.value.target_capacity
+      dynamic "managed_scaling" {
+        for_each = each.value.managed_scaling != null ? [each.value.managed_scaling] : []
+
+        content {
+          instance_warmup_period    = managed_scaling.value.instance_warmup_period
+          maximum_scaling_step_size = managed_scaling.value.maximum_scaling_step_size
+          minimum_scaling_step_size = managed_scaling.value.minimum_scaling_step_size
+          status                    = managed_scaling.value.status
+          target_capacity           = managed_scaling.value.target_capacity
+        }
       }
-    }
 
-    # When you use managed termination protection, you must also use managed scaling otherwise managed termination protection won't work
-    managed_termination_protection = each.value.managed_scaling != null ? each.value.managed_termination_protection : "DISABLED"
+      # When you use managed termination protection, you must also use managed scaling otherwise managed termination protection won't work
+      managed_termination_protection = each.value.managed_scaling != null ? each.value.managed_termination_protection : "DISABLED"
+    }
   }
+
+  dynamic "managed_instances_provider" {
+    for_each = each.value.managed_instances_provider != null ? [each.value.managed_instances_provider] : []
+
+    content {
+      infrastructure_role_arn = managed_instances_provider.value.infrastructure_role_arn
+
+      dynamic "instance_launch_template" {
+        for_each = managed_instances_provider.value.instance_launch_template != null ? [managed_instances_provider.value.instance_launch_template] : []
+
+        content {
+          ec2_instance_profile_arn = instance_launch_template.value.ec2_instance_profile_arn
+
+          dynamic "instance_requirements" {
+            for_each = instance_launch_template.value.instance_requirements != null ? [instance_launch_template.value.instance_requirements] : []
+
+            content {
+              dynamic "accelerator_count" {
+                for_each = instance_requirements.value.accelerator_count != null ? [instance_requirements.value.accelerator_count] : []
+
+                content {
+                  max = accelerator_count.value.max
+                  min = accelerator_count.value.min
+                }
+              }
+
+              accelerator_manufacturers = instance_requirements.value.accelerator_manufacturers
+              accelerator_names         = instance_requirements.value.accelerator_names
+
+              dynamic "accelerator_total_memory_mib" {
+                for_each = instance_requirements.value.accelerator_total_memory_mib != null ? [instance_requirements.value.accelerator_total_memory_mib] : []
+
+                content {
+                  max = accelerator_total_memory_mib.value.max
+                  min = accelerator_total_memory_mib.value.min
+                }
+              }
+
+              accelerator_types      = instance_requirements.value.accelerator_types
+              allowed_instance_types = instance_requirements.value.allowed_instance_types
+              bare_metal             = instance_requirements.value.bare_metal
+
+              dynamic "baseline_ebs_bandwidth_mbps" {
+                for_each = instance_requirements.value.baseline_ebs_bandwidth_mbps != null ? [instance_requirements.value.baseline_ebs_bandwidth_mbps] : []
+
+                content {
+                  max = baseline_ebs_bandwidth_mbps.value.max
+                  min = baseline_ebs_bandwidth_mbps.value.min
+                }
+              }
+
+              burstable_performance                                   = instance_requirements.value.burstable_performance
+              cpu_manufacturers                                       = instance_requirements.value.cpu_manufacturers
+              excluded_instance_types                                 = instance_requirements.value.excluded_instance_types
+              instance_generations                                    = instance_requirements.value.instance_generations
+              local_storage                                           = instance_requirements.value.local_storage
+              local_storage_types                                     = instance_requirements.value.local_storage_types
+              max_spot_price_as_percentage_of_optimal_on_demand_price = instance_requirements.value.max_spot_price_as_percentage_of_optimal_on_demand_price
+
+              dynamic "memory_gib_per_vcpu" {
+                for_each = instance_requirements.value.memory_gib_per_vcpu != null ? [instance_requirements.value.memory_gib_per_vcpu] : []
+
+                content {
+                  max = memory_gib_per_vcpu.value.max
+                  min = memory_gib_per_vcpu.value.min
+                }
+              }
+
+              dynamic "memory_mib" {
+                for_each = instance_requirements.value.memory_mib != null ? [instance_requirements.value.memory_mib] : []
+
+                content {
+                  max = memory_mib.value.max
+                  min = memory_mib.value.min
+                }
+              }
+
+              dynamic "network_bandwidth_gbps" {
+                for_each = instance_requirements.value.network_bandwidth_gbps != null ? [instance_requirements.value.network_bandwidth_gbps] : []
+
+                content {
+                  max = network_bandwidth_gbps.value.max
+                  min = network_bandwidth_gbps.value.min
+                }
+              }
+
+              dynamic "network_interface_count" {
+                for_each = instance_requirements.value.network_interface_count != null ? [instance_requirements.value.network_interface_count] : []
+
+                content {
+                  max = network_interface_count.value.max
+                  min = network_interface_count.value.min
+                }
+              }
+
+              on_demand_max_price_percentage_over_lowest_price = instance_requirements.value.on_demand_max_price_percentage_over_lowest_price
+              require_hibernate_support                        = instance_requirements.value.require_hibernate_support
+              spot_max_price_percentage_over_lowest_price      = instance_requirements.value.spot_max_price_percentage_over_lowest_price
+
+              dynamic "total_local_storage_gb" {
+                for_each = instance_requirements.value.total_local_storage_gb != null ? [instance_requirements.value.total_local_storage_gb] : []
+
+                content {
+                  max = total_local_storage_gb.value.max
+                  min = total_local_storage_gb.value.min
+                }
+              }
+
+              dynamic "vcpu_count" {
+                for_each = instance_requirements.value.vcpu_count != null ? [instance_requirements.value.vcpu_count] : []
+
+                content {
+                  max = vcpu_count.value.max
+                  min = vcpu_count.value.min
+                }
+              }
+            }
+          }
+
+          monitoring = instance_launch_template.value.monitoring
+
+          dynamic "network_configuration" {
+            for_each = instance_launch_template.value.network_configuration != null ? [instance_launch_template.value.network_configuration] : []
+
+            content {
+              security_groups = network_configuration.value.security_groups
+              subnets         = network_configuration.value.subnets
+            }
+          }
+
+          dynamic "storage_configuration" {
+            for_each = instance_launch_template.value.storage_configuration != null ? [instance_launch_template.value.storage_configuration] : []
+
+            content {
+              storage_size_gib = storage_configuration.value.storage_size_gib
+            }
+          }
+        }
+      }
+
+      propagate_tags = managed_instances_provider.value.propagate_tags
+    }
+  }
+
+  cluster = each.value.auto_scaling_group_provider == null ? aws_ecs_cluster.this[0].id : null
 
   name = try(coalesce(each.value.name, each.key), "")
 
