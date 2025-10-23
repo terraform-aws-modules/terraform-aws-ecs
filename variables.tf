@@ -219,7 +219,7 @@ variable "capacity_providers" {
         }))
         monitoring = optional(string)
         network_configuration = optional(object({
-          security_groups = optional(list(string))
+          security_groups = optional(list(string), [])
           subnets         = list(string)
         }))
         storage_configuration = optional(object({

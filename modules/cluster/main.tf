@@ -145,6 +145,8 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 ################################################################################
 
 locals {
+  managed_instances_enabled  = anytrue([for k, v in local.capacity_providers : v.managed_instances_provider != null])
+
   # TODO - embed the `autoscaling_capacity_providers` into a shape acceptable for
   # `var.capacity_providers` so that it can be merged with the new `capacity_providers`
   # for backward compatibility. Remove `autoscaling_capacity_providers` in the next major version.
@@ -322,7 +324,7 @@ resource "aws_ecs_capacity_provider" "this" {
             for_each = instance_launch_template.value.network_configuration != null ? [instance_launch_template.value.network_configuration] : []
 
             content {
-              security_groups = network_configuration.value.security_groups
+              security_groups = local.create_security_group ? flatten(concat(aws_security_group.this[*].id, network_configuration.value.security_groups)) : network_configuration.value.security_groups
               subnets         = network_configuration.value.subnets
             }
           }
@@ -510,8 +512,8 @@ resource "aws_iam_role_policy_attachment" "task_exec" {
 ############################################################################################
 
 locals {
-  needs_infrastructure_iam_role  = anytrue([for k, v in local.capacity_providers : v.managed_instances_provider != null])
-  create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.needs_infrastructure_iam_role
+  create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.managed_instances_enabled
+
   infrastructure_iam_role_name   = coalesce(var.infrastructure_iam_role_name, "${var.name}-infra", "NotProvided")
 }
 
@@ -560,7 +562,7 @@ resource "aws_iam_role_policy_attachment" "infrastructure_managed_instances" {
 ################################################################################
 
 locals {
-  create_node_iam_instance_profile = var.create && var.create_node_iam_instance_profile
+  create_node_iam_instance_profile = var.create && var.create_node_iam_instance_profile && local.managed_instances_enabled
 
   node_iam_role_name = coalesce(var.node_iam_role_name, "${var.name}-node")
 }
@@ -738,4 +740,79 @@ resource "aws_iam_instance_profile" "this" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+################################################################################
+# Security Group
+################################################################################
+
+locals {
+  create_security_group = var.create && var.create_security_group && local.managed_instances_enabled
+
+  security_group_name   = coalesce(var.security_group_name, var.name, "NotProvided")
+}
+
+resource "aws_security_group" "this" {
+  count = local.create_security_group ? 1 : 0
+
+  region = var.region
+
+  name        = var.security_group_use_name_prefix ? null : local.security_group_name
+  name_prefix = var.security_group_use_name_prefix ? "${local.security_group_name}-" : null
+  description = var.security_group_description
+  vpc_id      = var.vpc_id
+
+  tags = merge(
+    var.tags,
+    { Name = local.security_group_name },
+    var.security_group_tags
+  )
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "this" {
+  for_each = { for k, v in var.security_group_ingress_rules : k => v if var.security_group_ingress_rules != null && local.create_security_group }
+
+  region = var.region
+
+  cidr_ipv4                    = each.value.cidr_ipv4
+  cidr_ipv6                    = each.value.cidr_ipv6
+  description                  = each.value.description
+  from_port                    = each.value.from_port
+  ip_protocol                  = each.value.ip_protocol
+  prefix_list_id               = each.value.prefix_list_id
+  referenced_security_group_id = each.value.referenced_security_group_id == "self" ? aws_security_group.this[0].id : each.value.referenced_security_group_id
+  security_group_id            = aws_security_group.this[0].id
+  tags = merge(
+    var.tags,
+    var.security_group_tags,
+    { "Name" = coalesce(each.value.name, "${local.security_group_name}-${each.key}") },
+    each.value.tags
+  )
+  to_port = try(coalesce(each.value.to_port, each.value.from_port), null)
+}
+
+resource "aws_vpc_security_group_egress_rule" "this" {
+  for_each = { for k, v in var.security_group_egress_rules : k => v if var.security_group_egress_rules != null && local.create_security_group }
+
+  region = var.region
+
+  cidr_ipv4                    = each.value.cidr_ipv4
+  cidr_ipv6                    = each.value.cidr_ipv6
+  description                  = each.value.description
+  from_port                    = try(coalesce(each.value.from_port, each.value.to_port), null)
+  ip_protocol                  = each.value.ip_protocol
+  prefix_list_id               = each.value.prefix_list_id
+  referenced_security_group_id = each.value.referenced_security_group_id == "self" ? aws_security_group.this[0].id : each.value.referenced_security_group_id
+  security_group_id            = aws_security_group.this[0].id
+  tags = merge(
+    var.tags,
+    var.security_group_tags,
+    { "Name" = coalesce(each.value.name, "${local.security_group_name}-${each.key}") },
+    each.value.tags
+  )
+  to_port = each.value.to_port
 }
