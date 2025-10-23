@@ -683,7 +683,7 @@ variable "proxy_configuration" {
 }
 
 variable "requires_compatibilities" {
-  description = "Set of launch types required by the task. The valid values are `EC2` and `FARGATE`"
+  description = "Set of launch types required by the task. The valid values are `EC2`, `FARGATE`, `EXTERNAL`, and `MANAGED_INSTANCES`"
   type        = list(string)
   default     = ["FARGATE"]
   nullable    = false
@@ -1298,7 +1298,7 @@ variable "security_group_tags" {
 }
 
 ############################################################################################
-# ECS Infrastructure IAM role
+# Infrastructure IAM role
 ############################################################################################
 
 variable "create_infrastructure_iam_role" {

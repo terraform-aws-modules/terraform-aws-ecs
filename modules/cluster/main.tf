@@ -1,3 +1,21 @@
+data "aws_region" "current" {
+  region = var.region
+
+  count = var.create ? 1 : 0
+}
+data "aws_partition" "current" {
+  count = var.create ? 1 : 0
+}
+data "aws_caller_identity" "current" {
+  count = var.create ? 1 : 0
+}
+
+locals {
+  account_id = try(data.aws_caller_identity.current[0].account_id, "")
+  partition  = try(data.aws_partition.current[0].partition, "")
+  region     = try(data.aws_region.current[0].region, "")
+}
+
 ################################################################################
 # Cluster
 ################################################################################
@@ -135,7 +153,7 @@ locals {
       autoscaling_group_provider = {
         autoscaling_group_arn = v.autoscaling_group_arn
         managed_draining      = try(v.managed_draining, null)
-        managed_scaling = try(v.managed_draining, null) != null ? {
+        managed_scaling = try(v.managed_scaling, null) != null ? {
           instance_warmup_period    = try(v.managed_scaling.instance_warmup_period, null)
           maximum_scaling_step_size = try(v.managed_scaling.maximum_scaling_step_size, null)
           minimum_scaling_step_size = try(v.managed_scaling.minimum_scaling_step_size, null)
@@ -184,13 +202,13 @@ resource "aws_ecs_capacity_provider" "this" {
     for_each = each.value.managed_instances_provider != null ? [each.value.managed_instances_provider] : []
 
     content {
-      infrastructure_role_arn = managed_instances_provider.value.infrastructure_role_arn
+      infrastructure_role_arn = local.create_infrastructure_iam_role ? aws_iam_role.infrastructure[0].arn : managed_instances_provider.value.infrastructure_role_arn
 
       dynamic "instance_launch_template" {
         for_each = managed_instances_provider.value.instance_launch_template != null ? [managed_instances_provider.value.instance_launch_template] : []
 
         content {
-          ec2_instance_profile_arn = instance_launch_template.value.ec2_instance_profile_arn
+          ec2_instance_profile_arn = local.create_node_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : instance_launch_template.value.ec2_instance_profile_arn
 
           dynamic "instance_requirements" {
             for_each = instance_launch_template.value.instance_requirements != null ? [instance_launch_template.value.instance_requirements] : []
@@ -323,7 +341,7 @@ resource "aws_ecs_capacity_provider" "this" {
     }
   }
 
-  cluster = each.value.auto_scaling_group_provider == null ? aws_ecs_cluster.this[0].id : null
+  cluster = each.value.managed_instances_provider != null ? aws_ecs_cluster.this[0].id : null
 
   name = try(coalesce(each.value.name, each.key), "")
 
@@ -484,4 +502,240 @@ resource "aws_iam_role_policy_attachment" "task_exec" {
 
   role       = aws_iam_role.task_exec[0].name
   policy_arn = aws_iam_policy.task_exec[0].arn
+}
+
+############################################################################################
+# Infrastructure IAM role
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html
+############################################################################################
+
+locals {
+  needs_infrastructure_iam_role  = anytrue([for k, v in local.capacity_providers : v.managed_instances_provider != null])
+  create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.needs_infrastructure_iam_role
+  infrastructure_iam_role_name   = coalesce(var.infrastructure_iam_role_name, "${var.name}-infra", "NotProvided")
+}
+
+data "aws_iam_policy_document" "infrastructure" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  statement {
+    sid = "ECSServiceAssumeRole"
+    actions = [
+      "sts:AssumeRole",
+      "sts:TagSession",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "infrastructure" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  name        = var.infrastructure_iam_role_use_name_prefix ? null : local.infrastructure_iam_role_name
+  name_prefix = var.infrastructure_iam_role_use_name_prefix ? "${local.infrastructure_iam_role_name}-" : null
+  path        = var.infrastructure_iam_role_path
+  description = coalesce(var.infrastructure_iam_role_description, "Amazon ECS infrastructure IAM role that is used to manage your infrastructure (managed instances)")
+
+  assume_role_policy    = data.aws_iam_policy_document.infrastructure[0].json
+  permissions_boundary  = var.infrastructure_iam_role_permissions_boundary
+  force_detach_policies = true
+
+  tags = merge(var.tags, var.infrastructure_iam_role_tags)
+}
+
+# https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonECSInfrastructureRolePolicyForManagedInstances.html
+resource "aws_iam_role_policy_attachment" "infrastructure_managed_instances" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  role       = aws_iam_role.infrastructure[0].name
+  policy_arn = "arn:${local.partition}:iam::aws:policy/AmazonECSInfrastructureRolePolicyForManagedInstances"
+}
+
+################################################################################
+# Node IAM role
+################################################################################
+
+locals {
+  create_node_iam_instance_profile = var.create && var.create_node_iam_instance_profile
+
+  node_iam_role_name = coalesce(var.node_iam_role_name, "${var.name}-node")
+}
+
+data "aws_iam_policy_document" "node_assume_role_policy" {
+  count = local.create_node_iam_instance_profile ? 1 : 0
+
+  statement {
+    sid = "ECSNodeAssumeRole"
+    actions = [
+      "sts:AssumeRole",
+      "sts:TagSession",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "node" {
+  count = local.create_node_iam_instance_profile ? 1 : 0
+
+  name        = var.node_iam_role_use_name_prefix ? null : local.node_iam_role_name
+  name_prefix = var.node_iam_role_use_name_prefix ? "${local.node_iam_role_name}-" : null
+  path        = var.node_iam_role_path
+  description = var.node_iam_role_description
+
+  assume_role_policy    = data.aws_iam_policy_document.node_assume_role_policy[0].json
+  permissions_boundary  = var.node_iam_role_permissions_boundary
+  force_detach_policies = true
+
+  tags = merge(var.tags, var.node_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "node_additional" {
+  for_each = { for k, v in var.node_iam_role_additional_policies : k => v if local.create_node_iam_instance_profile }
+
+  policy_arn = each.value
+  role       = aws_iam_role.node[0].name
+}
+
+################################################################################
+# Node IAM role policy
+#
+# Due to this warning from ECS documentation
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/managed-instances-instance-profile.html
+#
+# > If you are using Amazon ECS Managed Instances with the AWS-managed Infrastructure policy,
+# > the instance profile must be named ecsInstanceRole. If you are using a custom policy for
+# > the Infrastructure role, the instance profile can have an alternative name.
+#
+# We default to creating the policy in order to remove this "surprising" requirement
+# Ref: docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonECSInstanceRolePolicyForManagedInstances.html
+################################################################################
+
+data "aws_iam_policy_document" "node" {
+  count = local.create_node_iam_instance_profile ? 1 : 0
+
+  source_policy_documents   = var.node_iam_role_source_policy_documents
+  override_policy_documents = var.node_iam_role_override_policy_documents
+
+  statement {
+    sid       = "ECSAgentDiscoverPollEndpointPermissions"
+    actions   = ["ecs:DiscoverPollEndpoint"]
+    resources = ["*"]
+  }
+
+  statement {
+    sid       = "ECSAgentRegisterPermissions"
+    actions   = ["ecs:RegisterContainerInstance"]
+    resources = [aws_ecs_cluster.this[0].arn]
+  }
+
+  statement {
+    sid       = "ECSAgentPollPermissions"
+    actions   = ["ecs:Poll"]
+    resources = ["arn:${local.partition}:ecs:${local.region}:${local.account_id}:container-instance/*"]
+  }
+
+  statement {
+    sid = "ECSAgentTelemetryPermissions"
+    actions = [
+      "ecs:StartTelemetrySession",
+      "ecs:PutSystemLogEvents",
+    ]
+    resources = ["arn:${local.partition}:ecs:${local.region}:${local.account_id}:container-instance/*"]
+  }
+
+  statement {
+    sid = "ECSAgentStateChangePermissions"
+    actions = [
+      "ecs:SubmitAttachmentStateChanges",
+      "ecs:SubmitTaskStateChange",
+    ]
+    resources = [aws_ecs_cluster.this[0].arn]
+  }
+
+  dynamic "statement" {
+    for_each = var.node_iam_role_statements != null ? var.node_iam_role_statements : {}
+
+    content {
+      sid           = try(coalesce(statement.value.sid, statement.key))
+      actions       = statement.value.actions
+      not_actions   = statement.value.not_actions
+      effect        = statement.value.effect
+      resources     = statement.value.resources
+      not_resources = statement.value.not_resources
+
+      dynamic "principals" {
+        for_each = statement.value.principals != null ? statement.value.principals : []
+
+        content {
+          type        = principals.value.type
+          identifiers = principals.value.identifiers
+        }
+      }
+
+      dynamic "not_principals" {
+        for_each = statement.value.not_principals != null ? statement.value.not_principals : []
+
+        content {
+          type        = not_principals.value.type
+          identifiers = not_principals.value.identifiers
+        }
+      }
+
+      dynamic "condition" {
+        for_each = statement.value.condition != null ? statement.value.condition : []
+
+        content {
+          test     = condition.value.test
+          values   = condition.value.values
+          variable = condition.value.variable
+        }
+      }
+    }
+  }
+}
+
+resource "aws_iam_policy" "node" {
+  count = local.create_node_iam_instance_profile ? 1 : 0
+
+  name        = var.node_iam_role_use_name_prefix ? null : local.node_iam_role_name
+  name_prefix = var.node_iam_role_use_name_prefix ? "${local.node_iam_role_name}-" : null
+  description = coalesce(var.node_iam_role_description, "ECS Managed Instances permissions")
+  policy      = data.aws_iam_policy_document.node[0].json
+
+  tags = merge(var.tags, var.node_iam_role_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "node" {
+  count = local.create_node_iam_instance_profile ? 1 : 0
+
+  policy_arn = aws_iam_policy.node[0].arn
+  role       = aws_iam_role.node[0].name
+}
+
+################################################################################
+# Node Instance Profile
+################################################################################
+
+resource "aws_iam_instance_profile" "this" {
+  count = local.create_node_iam_instance_profile ? 1 : 0
+
+  role = aws_iam_role.node[0].name
+
+  name        = var.node_iam_role_use_name_prefix ? null : local.node_iam_role_name
+  name_prefix = var.node_iam_role_use_name_prefix ? "${local.node_iam_role_name}-" : null
+  path        = var.node_iam_role_path
+
+  tags = merge(var.tags, var.node_iam_role_tags)
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }

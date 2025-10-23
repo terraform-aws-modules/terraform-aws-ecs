@@ -336,3 +336,151 @@ variable "task_exec_iam_statements" {
   }))
   default = null
 }
+
+############################################################################################
+# Infrastructure IAM role
+############################################################################################
+
+variable "create_infrastructure_iam_role" {
+  description = "Determines whether the ECS infrastructure IAM role should be created"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "infrastructure_iam_role_name" {
+  description = "Name to use on IAM role created"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_use_name_prefix" {
+  description = "Determines whether the IAM role name (`iam_role_name`) is used as a prefix"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "infrastructure_iam_role_path" {
+  description = "IAM role path"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_description" {
+  description = "Description of the role"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_permissions_boundary" {
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role"
+  type        = string
+  default     = null
+}
+
+variable "infrastructure_iam_role_tags" {
+  description = "A map of additional tags to add to the IAM role created"
+  type        = map(string)
+  default     = {}
+  nullable    = false
+}
+
+################################################################################
+# Node IAM role & instance profile
+################################################################################
+
+variable "create_node_iam_instance_profile" {
+  description = "Determines whether an IAM instance profile is created or to use an existing IAM instance profile"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "node_iam_role_name" {
+  description = "Name to use on IAM role/instance profile created"
+  type        = string
+  default     = null
+}
+
+variable "node_iam_role_use_name_prefix" {
+  description = "Determines whether the IAM role/instance profile name (`node_iam_role_name`) is used as a prefix"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "node_iam_role_path" {
+  description = "IAM role/instance profile path"
+  type        = string
+  default     = null
+}
+
+variable "node_iam_role_description" {
+  description = "Description of the role"
+  type        = string
+  default     = "ECS Managed Instances node IAM role"
+  nullable    = false
+}
+
+variable "node_iam_role_permissions_boundary" {
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role"
+  type        = string
+  default     = null
+}
+
+variable "node_iam_role_additional_policies" {
+  description = "Additional policies to be added to the IAM role"
+  type        = map(string)
+  default     = {}
+  nullable    = false
+}
+
+variable "node_iam_role_tags" {
+  description = "A map of additional tags to add to the IAM role/instance profile created"
+  type        = map(string)
+  default     = {}
+  nullable    = false
+}
+
+################################################################################
+# Node IAM role policy
+################################################################################
+
+variable "node_iam_role_source_policy_documents" {
+  description = "List of IAM policy documents that are merged together into the exported document. Statements must have unique `sid`s"
+  type        = list(string)
+  default     = []
+}
+
+variable "node_iam_role_override_policy_documents" {
+  description = "List of IAM policy documents that are merged together into the exported document. In merging, statements with non-blank `sid`s will override statements with the same `sid`"
+  type        = list(string)
+  default     = []
+}
+
+variable "node_iam_role_statements" {
+  description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
+  type = map(object({
+    sid           = optional(string)
+    actions       = optional(list(string))
+    not_actions   = optional(list(string))
+    effect        = optional(string, "Allow")
+    resources     = optional(list(string))
+    not_resources = optional(list(string))
+    principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    not_principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    condition = optional(list(object({
+      test     = string
+      variable = string
+      values   = list(string)
+    })))
+  }))
+  default = null
+}
