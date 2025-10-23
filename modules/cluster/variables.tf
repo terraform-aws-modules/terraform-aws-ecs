@@ -214,7 +214,7 @@ variable "capacity_providers" {
         }))
         monitoring = optional(string)
         network_configuration = optional(object({
-          security_groups = optional(list(string))
+          security_groups = optional(list(string), [])
           subnets         = list(string)
         }))
         storage_configuration = optional(object({
@@ -483,4 +483,85 @@ variable "node_iam_role_statements" {
     })))
   }))
   default = null
+}
+
+################################################################################
+# Security Group
+################################################################################
+
+variable "create_security_group" {
+  description = "Determines if a security group is created"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "vpc_id" {
+  description = "The ID of the VPC where the security group will be created"
+  type        = string
+  default     = null
+}
+
+variable "security_group_name" {
+  description = "Name to use on security group created"
+  type        = string
+  default     = null
+}
+
+variable "security_group_use_name_prefix" {
+  description = "Determines whether the security group name (`security_group_name`) is used as a prefix"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "security_group_description" {
+  description = "Description of the security group created"
+  type        = string
+  default     = null
+}
+
+variable "security_group_ingress_rules" {
+  description = "Security group ingress rules to add to the security group created"
+  type = map(object({
+    name = optional(string)
+
+    cidr_ipv4                    = optional(string)
+    cidr_ipv6                    = optional(string)
+    description                  = optional(string)
+    from_port                    = optional(string)
+    ip_protocol                  = optional(string, "tcp")
+    prefix_list_id               = optional(string)
+    referenced_security_group_id = optional(string)
+    tags                         = optional(map(string), {})
+    to_port                      = optional(string)
+  }))
+  default  = {}
+  nullable = false
+}
+
+variable "security_group_egress_rules" {
+  description = "Security group egress rules to add to the security group created"
+  type = map(object({
+    name = optional(string)
+
+    cidr_ipv4                    = optional(string)
+    cidr_ipv6                    = optional(string)
+    description                  = optional(string)
+    from_port                    = optional(string)
+    ip_protocol                  = optional(string, "tcp")
+    prefix_list_id               = optional(string)
+    referenced_security_group_id = optional(string)
+    tags                         = optional(map(string), {})
+    to_port                      = optional(string)
+  }))
+  default  = {}
+  nullable = false
+}
+
+variable "security_group_tags" {
+  description = "A map of additional tags to add to the security group created"
+  type        = map(string)
+  default     = {}
+  nullable    = false
 }
