@@ -51,7 +51,6 @@ module "ecs_cluster" {
 
           network_configuration = {
             subnets = module.vpc.private_subnets
-            # security_groups = [aws_security_group.example.id]
           }
 
           storage_configuration = {
@@ -65,10 +64,16 @@ module "ecs_cluster" {
   # Managed instances security group
   vpc_id = module.vpc.vpc_id
   security_group_ingress_rules = {
-    vpc = {
-      cidr_ipv4 = module.vpc.vpc_cidr_block
-      from_port = local.container_port
-      to_port   = local.container_port
+    alb_http = {
+      from_port                    = local.container_port
+      description                  = "Service port"
+      referenced_security_group_id = module.alb.security_group_id
+    }
+  }
+  security_group_egress_rules = {
+    all = {
+      cidr_ipv4   = "0.0.0.0/0"
+      ip_protocol = "-1"
     }
   }
 
@@ -93,11 +98,16 @@ module "ecs_service" {
   # Container definition(s)
   container_definitions = {
     (local.container_name) = {
-      essential = true
-      image     = "public.ecr.aws/docker/library/httpd:latest"
+      image = "public.ecr.aws/docker/library/httpd:latest"
 
-      cpu    = 1024
-      memory = 2048
+      essential  = true
+      entrypoint = ["sh", "-c"]
+      command    = ["/bin/sh -c \"echo '<html><head><title>Amazon ECS Sample App</title><style>body {margin-top: 40px; background-color: #333;} </style></head><body><div style=color:white;text-align:center><h1>Amazon ECS Sample App</h1><h2>Congratulations!</h2><p>Your application is now running on a container in Amazon ECS using Amazon ECS Managed Instances.</p></div></body></html>' >  /usr/local/apache2/htdocs/index.html && httpd-foreground\""]
+
+      cpu    = 256
+      memory = 512
+
+      readonlyRootFilesystem = false
 
       portMappings = [
         {
@@ -110,30 +120,27 @@ module "ecs_service" {
     }
   }
 
-  # TODO - this shouldn't be required
   capacity_provider_strategy = {
     # On-demand instances
     mi-example = {
       capacity_provider = module.ecs_cluster.capacity_providers["mi-example"].name
-      weight            = 1
-      base              = 1
     }
   }
 
-  # load_balancer = {
-  #   service = {
-  #     target_group_arn = module.alb.target_groups["ex_ecs"].arn
-  #     container_name   = local.container_name
-  #     container_port   = local.container_port
-  #   }
-  # }
+  load_balancer = {
+    service = {
+      target_group_arn = module.alb.target_groups["ex_ecs"].arn
+      container_name   = local.container_name
+      container_port   = local.container_port
+    }
+  }
 
   subnet_ids = module.vpc.private_subnets
   security_group_ingress_rules = {
     alb_http = {
-      from_port   = local.container_port
-      description = "Service port"
-      cidr_ipv4   = module.vpc.vpc_cidr_block
+      from_port                    = local.container_port
+      description                  = "Service port"
+      referenced_security_group_id = module.alb.security_group_id
     }
   }
 
@@ -144,75 +151,75 @@ module "ecs_service" {
 # Supporting Resources
 ################################################################################
 
-# module "alb" {
-#   source  = "terraform-aws-modules/alb/aws"
-#   version = "~> 10.0"
+module "alb" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "~> 10.0"
 
-#   name = local.name
+  name = local.name
 
-#   load_balancer_type = "application"
+  load_balancer_type = "application"
 
-#   vpc_id  = module.vpc.vpc_id
-#   subnets = module.vpc.public_subnets
+  vpc_id  = module.vpc.vpc_id
+  subnets = module.vpc.public_subnets
 
-#   # For example only
-#   enable_deletion_protection = false
+  # For example only
+  enable_deletion_protection = false
 
-#   # Security Group
-#   security_group_ingress_rules = {
-#     all_http = {
-#       from_port   = 80
-#       to_port     = 80
-#       ip_protocol = "tcp"
-#       cidr_ipv4   = "0.0.0.0/0"
-#     }
-#   }
-#   security_group_egress_rules = {
-#     all = {
-#       ip_protocol = "-1"
-#       cidr_ipv4   = module.vpc.vpc_cidr_block
-#     }
-#   }
+  # Security Group
+  security_group_ingress_rules = {
+    all_http = {
+      from_port   = local.container_port
+      to_port     = local.container_port
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = module.vpc.vpc_cidr_block
+    }
+  }
 
-#   listeners = {
-#     ex_http = {
-#       port     = 80
-#       protocol = "HTTP"
+  listeners = {
+    ex_http = {
+      port     = local.container_port
+      protocol = "HTTP"
 
-#       forward = {
-#         target_group_key = "ex_ecs"
-#       }
-#     }
-#   }
+      forward = {
+        target_group_key = "ex_ecs"
+      }
+    }
+  }
 
-#   target_groups = {
-#     ex_ecs = {
-#       backend_protocol                  = "HTTP"
-#       backend_port                      = local.container_port
-#       target_type                       = "ip"
-#       deregistration_delay              = 5
-#       load_balancing_cross_zone_enabled = true
+  target_groups = {
+    ex_ecs = {
+      backend_protocol                  = "HTTP"
+      backend_port                      = local.container_port
+      target_type                       = "ip"
+      deregistration_delay              = 5
+      load_balancing_cross_zone_enabled = true
 
-#       health_check = {
-#         enabled             = true
-#         healthy_threshold   = 5
-#         interval            = 30
-#         matcher             = "200"
-#         path                = "/"
-#         port                = "traffic-port"
-#         protocol            = "HTTP"
-#         timeout             = 5
-#         unhealthy_threshold = 2
-#       }
+      health_check = {
+        enabled             = true
+        healthy_threshold   = 5
+        interval            = 30
+        matcher             = "200"
+        path                = "/"
+        port                = "traffic-port"
+        protocol            = "HTTP"
+        timeout             = 5
+        unhealthy_threshold = 2
+      }
 
-#       # Theres nothing to attach here in this definition. Instead,
-#       # ECS will attach the IPs of the tasks to this target group
-#       create_attachment = false
-#     }
-#   }
+      # Theres nothing to attach here in this definition. Instead,
+      # ECS will attach the IPs of the tasks to this target group
+      create_attachment = false
+    }
+  }
 
-#   tags = local.tags
-# }
+  tags = local.tags
+}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"

@@ -121,27 +121,20 @@ variable "cloudwatch_log_group_tags" {
 # Capacity Providers
 ################################################################################
 
-variable "autoscaling_capacity_providers" {
-  description = "[DEPRECATED - use `capacity_providers` instead] Map of autoscaling capacity provider definitions to create for the cluster"
-  type = map(object({
-    auto_scaling_group_arn = string
-    managed_draining       = optional(string, "ENABLED")
-    managed_scaling = optional(object({
-      instance_warmup_period    = optional(number)
-      maximum_scaling_step_size = optional(number)
-      minimum_scaling_step_size = optional(number)
-      status                    = optional(string)
-      target_capacity           = optional(number)
-    }))
-    managed_termination_protection = optional(string)
-    name                           = optional(string) # Will fall back to use map key if not set
-    tags                           = optional(map(string), {})
-  }))
-  default = null
+variable "cluster_capacity_providers_wait_duration" {
+  description = "Duration to wait after the ECS cluster has become active before attaching the cluster capacity providers"
+  type        = string
+  default     = "20s"
+}
+
+variable "cluster_capacity_providers" {
+  description = "List of capacity provider names to associate with the ECS cluster. Note: any capacity providers created by this module will be automatically added"
+  type        = list(string)
+  default     = []
 }
 
 variable "capacity_providers" {
-  description = "Map of capacity provider definitions to create for the cluster"
+  description = "Map of capacity provider definitions to create"
   type = map(object({
     auto_scaling_group_provider = optional(object({
       auto_scaling_group_arn = string
@@ -387,6 +380,48 @@ variable "infrastructure_iam_role_tags" {
 }
 
 ################################################################################
+# Infrastructure IAM role policy
+################################################################################
+
+variable "infrastructure_iam_role_source_policy_documents" {
+  description = "List of IAM policy documents that are merged together into the exported document. Statements must have unique `sid`s"
+  type        = list(string)
+  default     = []
+}
+
+variable "infrastructure_iam_role_override_policy_documents" {
+  description = "List of IAM policy documents that are merged together into the exported document. In merging, statements with non-blank `sid`s will override statements with the same `sid`"
+  type        = list(string)
+  default     = []
+}
+
+variable "infrastructure_iam_role_statements" {
+  description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
+  type = map(object({
+    sid           = optional(string)
+    actions       = optional(list(string))
+    not_actions   = optional(list(string))
+    effect        = optional(string, "Allow")
+    resources     = optional(list(string))
+    not_resources = optional(list(string))
+    principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    not_principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    condition = optional(list(object({
+      test     = string
+      variable = string
+      values   = list(string)
+    })))
+  }))
+  default = null
+}
+
+################################################################################
 # Node IAM role & instance profile
 ################################################################################
 
@@ -555,7 +590,18 @@ variable "security_group_egress_rules" {
     tags                         = optional(map(string), {})
     to_port                      = optional(string)
   }))
-  default  = {}
+  default = {
+    all_ipv4 = {
+      cidr_ipv4   = "0.0.0.0/0"
+      description = "Allow all IPv4 traffic"
+      ip_protocol = "-1"
+    }
+    all_ipv6 = {
+      cidr_ipv6   = "::/0"
+      description = "Allow all IPv6 traffic"
+      ip_protocol = "-1"
+    }
+  }
   nullable = false
 }
 

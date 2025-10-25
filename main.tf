@@ -23,7 +23,7 @@ module "cluster" {
   cloudwatch_log_group_tags              = var.cloudwatch_log_group_tags
 
   # Cluster capacity providers
-  autoscaling_capacity_providers     = var.autoscaling_capacity_providers
+  cluster_capacity_providers         = var.cluster_capacity_providers
   capacity_providers                 = var.capacity_providers
   default_capacity_provider_strategy = var.default_capacity_provider_strategy
 
@@ -54,6 +54,11 @@ module "cluster" {
   infrastructure_iam_role_permissions_boundary = var.infrastructure_iam_role_permissions_boundary
   infrastructure_iam_role_tags                 = var.infrastructure_iam_role_tags
 
+  # Infrastructure IAM role policy
+  infrastructure_iam_role_source_policy_documents   = var.infrastructure_iam_role_source_policy_documents
+  infrastructure_iam_role_override_policy_documents = var.infrastructure_iam_role_override_policy_documents
+  infrastructure_iam_role_statements                = var.infrastructure_iam_role_statements
+
   # Node IAM role & instance profile
   create_node_iam_instance_profile   = var.create_node_iam_instance_profile
   node_iam_role_name                 = var.node_iam_role_name
@@ -68,6 +73,16 @@ module "cluster" {
   node_iam_role_source_policy_documents   = var.node_iam_role_source_policy_documents
   node_iam_role_override_policy_documents = var.node_iam_role_override_policy_documents
   node_iam_role_statements                = var.node_iam_role_statements
+
+  # Security Group
+  create_security_group          = var.create_security_group
+  vpc_id                         = var.vpc_id
+  security_group_name            = var.security_group_name
+  security_group_use_name_prefix = var.security_group_use_name_prefix
+  security_group_description     = var.security_group_description
+  security_group_ingress_rules   = var.security_group_ingress_rules
+  security_group_egress_rules    = var.security_group_egress_rules
+  security_group_tags            = var.security_group_tags
 
   tags = merge(var.tags, var.cluster_tags)
 }

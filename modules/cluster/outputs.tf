@@ -44,14 +44,9 @@ output "cluster_capacity_providers" {
 # Capacity Provider - Autoscaling Group(s)
 ################################################################################
 
-output "autoscaling_capacity_providers" {
-  description = "[DEPRECATED - use `capacity_providers`] Map of autoscaling capacity providers created and their attributes"
-  value       = aws_ecs_capacity_provider.this
-}
-
 output "capacity_providers" {
   description = "Map of autoscaling capacity providers created and their attributes"
-  value       = aws_ecs_capacity_provider.this
+  value       = var.capacity_providers != null ? jsondecode(time_sleep.this[0].triggers["capacity_providers"]) : {}
 }
 
 ################################################################################
