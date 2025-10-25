@@ -126,23 +126,10 @@ variable "cloudwatch_log_group_tags" {
 # Capacity Providers
 ################################################################################
 
-variable "autoscaling_capacity_providers" {
-  description = "[DEPRECATED - use `capacity_providers` instead] Map of autoscaling capacity provider definitions to create for the cluster"
-  type = map(object({
-    auto_scaling_group_arn = string
-    managed_draining       = optional(string, "ENABLED")
-    managed_scaling = optional(object({
-      instance_warmup_period    = optional(number)
-      maximum_scaling_step_size = optional(number)
-      minimum_scaling_step_size = optional(number)
-      status                    = optional(string)
-      target_capacity           = optional(number)
-    }))
-    managed_termination_protection = optional(string)
-    name                           = optional(string) # Will fall back to use map key if not set
-    tags                           = optional(map(string), {})
-  }))
-  default = null
+variable "cluster_capacity_providers" {
+  description = "List of capacity provider names to associate with the ECS cluster. Note: any capacity providers created by this module will be automatically added"
+  type        = list(string)
+  default     = []
 }
 
 variable "capacity_providers" {
@@ -391,6 +378,48 @@ variable "infrastructure_iam_role_tags" {
 }
 
 ################################################################################
+# Infrastructure IAM role policy
+################################################################################
+
+variable "infrastructure_iam_role_source_policy_documents" {
+  description = "List of IAM policy documents that are merged together into the exported document. Statements must have unique `sid`s"
+  type        = list(string)
+  default     = []
+}
+
+variable "infrastructure_iam_role_override_policy_documents" {
+  description = "List of IAM policy documents that are merged together into the exported document. In merging, statements with non-blank `sid`s will override statements with the same `sid`"
+  type        = list(string)
+  default     = []
+}
+
+variable "infrastructure_iam_role_statements" {
+  description = "A map of IAM policy [statements](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document#statement) for custom permission usage"
+  type = map(object({
+    sid           = optional(string)
+    actions       = optional(list(string))
+    not_actions   = optional(list(string))
+    effect        = optional(string, "Allow")
+    resources     = optional(list(string))
+    not_resources = optional(list(string))
+    principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    not_principals = optional(list(object({
+      type        = string
+      identifiers = list(string)
+    })))
+    condition = optional(list(object({
+      test     = string
+      variable = string
+      values   = list(string)
+    })))
+  }))
+  default = null
+}
+
+################################################################################
 # Node IAM role & instance profile
 ################################################################################
 
@@ -487,6 +516,98 @@ variable "node_iam_role_statements" {
     })))
   }))
   default = null
+}
+
+################################################################################
+# Security Group
+################################################################################
+
+variable "create_security_group" {
+  description = "Determines if a security group is created"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "vpc_id" {
+  description = "The ID of the VPC where the security group will be created"
+  type        = string
+  default     = null
+}
+
+variable "security_group_name" {
+  description = "Name to use on security group created"
+  type        = string
+  default     = null
+}
+
+variable "security_group_use_name_prefix" {
+  description = "Determines whether the security group name (`security_group_name`) is used as a prefix"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "security_group_description" {
+  description = "Description of the security group created"
+  type        = string
+  default     = null
+}
+
+variable "security_group_ingress_rules" {
+  description = "Security group ingress rules to add to the security group created"
+  type = map(object({
+    name = optional(string)
+
+    cidr_ipv4                    = optional(string)
+    cidr_ipv6                    = optional(string)
+    description                  = optional(string)
+    from_port                    = optional(string)
+    ip_protocol                  = optional(string, "tcp")
+    prefix_list_id               = optional(string)
+    referenced_security_group_id = optional(string)
+    tags                         = optional(map(string), {})
+    to_port                      = optional(string)
+  }))
+  default  = {}
+  nullable = false
+}
+
+variable "security_group_egress_rules" {
+  description = "Security group egress rules to add to the security group created"
+  type = map(object({
+    name = optional(string)
+
+    cidr_ipv4                    = optional(string)
+    cidr_ipv6                    = optional(string)
+    description                  = optional(string)
+    from_port                    = optional(string)
+    ip_protocol                  = optional(string, "tcp")
+    prefix_list_id               = optional(string)
+    referenced_security_group_id = optional(string)
+    tags                         = optional(map(string), {})
+    to_port                      = optional(string)
+  }))
+  default = {
+    all_ipv4 = {
+      cidr_ipv4   = "0.0.0.0/0"
+      description = "Allow all IPv4 traffic"
+      ip_protocol = "-1"
+    }
+    all_ipv6 = {
+      cidr_ipv6   = "::/0"
+      description = "Allow all IPv6 traffic"
+      ip_protocol = "-1"
+    }
+  }
+  nullable = false
+}
+
+variable "security_group_tags" {
+  description = "A map of additional tags to add to the security group created"
+  type        = map(string)
+  default     = {}
+  nullable    = false
 }
 
 ################################################################################

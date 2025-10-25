@@ -32,11 +32,6 @@ output "cluster_capacity_providers" {
   value       = module.cluster.cluster_capacity_providers
 }
 
-output "autoscaling_capacity_providers" {
-  description = "[DEPRECATED - use `capacity_providers`] Map of autoscaling capacity providers created and their attributes"
-  value       = module.cluster.autoscaling_capacity_providers
-}
-
 output "capacity_providers" {
   description = "Map of autoscaling capacity providers created and their attributes"
   value       = module.cluster.capacity_providers

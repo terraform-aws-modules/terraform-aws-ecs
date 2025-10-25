@@ -47,7 +47,7 @@ module "ecs_cluster" {
     }
   }
 
-  autoscaling_capacity_providers = {
+  capacity_providers = {
     # On-demand instances
     ex_1 = {
       auto_scaling_group_arn         = module.autoscaling["ex_1"].autoscaling_group_arn
@@ -120,7 +120,7 @@ module "ecs_service" {
   capacity_provider_strategy = {
     # On-demand instances
     ex_1 = {
-      capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["ex_1"].name
+      capacity_provider = module.ecs_cluster.capacity_providers["ex_1"].name
       weight            = 1
       base              = 1
     }

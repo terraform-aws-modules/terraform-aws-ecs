@@ -47,7 +47,7 @@ module "ecs" {
     }
   }
 
-  autoscaling_capacity_providers = {
+  capacity_providers = {
     ASG = {
       auto_scaling_group_arn         = module.autoscaling.autoscaling_group_arn
       managed_draining               = "ENABLED"

@@ -60,7 +60,7 @@ resource "aws_ecs_service" "this" {
     content {
       base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
+      weight            = coalesce(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -364,6 +364,8 @@ resource "aws_ecs_service" "this" {
   depends_on = [
     aws_iam_role_policy_attachment.service,
     aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
+    aws_vpc_security_group_ingress_rule.this,
+    aws_vpc_security_group_egress_rule.this,
   ]
 
   lifecycle {
@@ -401,7 +403,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
     content {
       base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
+      weight            = coalesce(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -703,6 +705,8 @@ resource "aws_ecs_service" "ignore_task_definition" {
   depends_on = [
     aws_iam_role_policy_attachment.service,
     aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
+    aws_vpc_security_group_ingress_rule.this,
+    aws_vpc_security_group_egress_rule.this,
   ]
 
   lifecycle {
@@ -1394,7 +1398,7 @@ resource "aws_ecs_task_set" "this" {
     content {
       base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
+      weight            = coalesce(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -1477,7 +1481,7 @@ resource "aws_ecs_task_set" "ignore_task_definition" {
     content {
       base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
+      weight            = coalesce(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -1865,7 +1869,7 @@ resource "aws_appautoscaling_scheduled_action" "this" {
 
 locals {
   create_security_group = var.create && var.create_security_group && var.network_mode == "awsvpc"
-  security_group_name   = coalesce(var.security_group_name, var.name, "NotProvided")
+  security_group_name   = coalesce(var.security_group_name, "${var.name}-service", "NotProvided")
 }
 
 data "aws_subnet" "this" {
@@ -1883,7 +1887,7 @@ resource "aws_security_group" "this" {
 
   name        = var.security_group_use_name_prefix ? null : local.security_group_name
   name_prefix = var.security_group_use_name_prefix ? "${local.security_group_name}-" : null
-  description = var.security_group_description
+  description = coalesce(var.security_group_description, "Security group for ECS Service ${var.name}")
   vpc_id      = var.vpc_id != null ? var.vpc_id : data.aws_subnet.this[0].vpc_id
 
   tags = merge(
@@ -1908,7 +1912,7 @@ resource "aws_vpc_security_group_ingress_rule" "this" {
   from_port                    = each.value.from_port
   ip_protocol                  = each.value.ip_protocol
   prefix_list_id               = each.value.prefix_list_id
-  referenced_security_group_id = each.value.referenced_security_group_id
+  referenced_security_group_id = each.value.referenced_security_group_id == "self" ? aws_security_group.this[0].id : each.value.referenced_security_group_id
   security_group_id            = aws_security_group.this[0].id
   tags = merge(
     var.tags,
@@ -1930,7 +1934,7 @@ resource "aws_vpc_security_group_egress_rule" "this" {
   from_port                    = try(coalesce(each.value.from_port, each.value.to_port), null)
   ip_protocol                  = each.value.ip_protocol
   prefix_list_id               = each.value.prefix_list_id
-  referenced_security_group_id = each.value.referenced_security_group_id
+  referenced_security_group_id = each.value.referenced_security_group_id == "self" ? aws_security_group.this[0].id : each.value.referenced_security_group_id
   security_group_id            = aws_security_group.this[0].id
   tags = merge(
     var.tags,
