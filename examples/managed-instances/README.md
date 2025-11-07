@@ -1,11 +1,11 @@
-# ECS Cluster w/ EC2 Autoscaling
+# ECS Clusters w/ ECS Managed Instances
 
 Configuration in this directory creates:
 
-- ECS cluster using EC2 autoscaling groups
-- Autoscaling groups with IAM instance profile to be used by ECS cluster
+- ECS cluster using ECS Managed Instances capacity provider
 - Example ECS service that utilizes
-  - Mounts a host volume into the container definition
+  - AWS Firelens using FluentBit sidecar container definition
+  - Service connect configuration
   - Load balancer target group attachment
   - Security group for access to the example service
 
@@ -40,8 +40,6 @@ Note that this example may create resources which will incur monetary charges on
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | ~> 10.0 |
-| <a name="module_autoscaling"></a> [autoscaling](#module\_autoscaling) | terraform-aws-modules/autoscaling/aws | ~> 9.0 |
-| <a name="module_autoscaling_sg"></a> [autoscaling\_sg](#module\_autoscaling\_sg) | terraform-aws-modules/security-group/aws | ~> 5.0 |
 | <a name="module_ecs_cluster"></a> [ecs\_cluster](#module\_ecs\_cluster) | ../../modules/cluster | n/a |
 | <a name="module_ecs_service"></a> [ecs\_service](#module\_ecs\_service) | ../../modules/service | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 6.0 |
@@ -51,7 +49,6 @@ Note that this example may create resources which will incur monetary charges on
 | Name | Type |
 |------|------|
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
-| [aws_ssm_parameter.ecs_optimized_ami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
 
@@ -61,7 +58,6 @@ No inputs.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_alb_dns_name"></a> [alb\_dns\_name](#output\_alb\_dns\_name) | The DNS name of the load balancer |
 | <a name="output_capacity_providers"></a> [capacity\_providers](#output\_capacity\_providers) | Map of autoscaling capacity providers created and their attributes |
 | <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | ARN of CloudWatch log group created |
 | <a name="output_cloudwatch_log_group_name"></a> [cloudwatch\_log\_group\_name](#output\_cloudwatch\_log\_group\_name) | Name of CloudWatch log group created |
@@ -85,10 +81,11 @@ No inputs.
 | <a name="output_service_iam_role_name"></a> [service\_iam\_role\_name](#output\_service\_iam\_role\_name) | Service IAM role name |
 | <a name="output_service_iam_role_unique_id"></a> [service\_iam\_role\_unique\_id](#output\_service\_iam\_role\_unique\_id) | Stable and unique string identifying the service IAM role |
 | <a name="output_service_id"></a> [service\_id](#output\_service\_id) | ARN that identifies the service |
-| <a name="output_service_infrastructure_iam_role_arn"></a> [service\_infrastructure\_iam\_role\_arn](#output\_service\_infrastructure\_iam\_role\_arn) | Infrastructure IAM role ARN |
-| <a name="output_service_infrastructure_iam_role_name"></a> [service\_infrastructure\_iam\_role\_name](#output\_service\_infrastructure\_iam\_role\_name) | Infrastructure IAM role name |
 | <a name="output_service_name"></a> [service\_name](#output\_service\_name) | Name of the service |
+| <a name="output_service_security_group_arn"></a> [service\_security\_group\_arn](#output\_service\_security\_group\_arn) | Amazon Resource Name (ARN) of the security group |
+| <a name="output_service_security_group_id"></a> [service\_security\_group\_id](#output\_service\_security\_group\_id) | ID of the security group |
 | <a name="output_service_task_definition_arn"></a> [service\_task\_definition\_arn](#output\_service\_task\_definition\_arn) | Full ARN of the Task Definition (including both `family` and `revision`) |
+| <a name="output_service_task_definition_family"></a> [service\_task\_definition\_family](#output\_service\_task\_definition\_family) | The unique name of the task definition |
 | <a name="output_service_task_definition_revision"></a> [service\_task\_definition\_revision](#output\_service\_task\_definition\_revision) | Revision of the task in a particular family |
 | <a name="output_service_task_exec_iam_role_arn"></a> [service\_task\_exec\_iam\_role\_arn](#output\_service\_task\_exec\_iam\_role\_arn) | Task execution IAM role ARN |
 | <a name="output_service_task_exec_iam_role_name"></a> [service\_task\_exec\_iam\_role\_name](#output\_service\_task\_exec\_iam\_role\_name) | Task execution IAM role name |
