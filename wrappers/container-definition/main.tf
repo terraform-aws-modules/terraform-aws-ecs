@@ -10,6 +10,7 @@ module "wrapper" {
   cloudwatch_log_group_use_name_prefix   = try(each.value.cloudwatch_log_group_use_name_prefix, var.defaults.cloudwatch_log_group_use_name_prefix, false)
   command                                = try(each.value.command, var.defaults.command, null)
   cpu                                    = try(each.value.cpu, var.defaults.cpu, null)
+  credentialSpecs                        = try(each.value.credentialSpecs, var.defaults.credentialSpecs, null)
   create_cloudwatch_log_group            = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)
   dependsOn                              = try(each.value.dependsOn, var.defaults.dependsOn, null)
   disableNetworking                      = try(each.value.disableNetworking, var.defaults.disableNetworking, null)
