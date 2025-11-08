@@ -447,7 +447,7 @@ variable "services" {
       # Container definition
       command = optional(list(string))
       cpu     = optional(number)
-      credentialSpecs = each.value.credentialSpecs
+      credentialSpecs = optional(list(string))
       dependsOn = optional(list(object({
         condition     = string
         containerName = string
