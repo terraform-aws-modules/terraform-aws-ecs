@@ -34,6 +34,12 @@ variable "cpu" {
   default     = null
 }
 
+variable "credentialSpecs" {
+  description = "Specs for Credentials for gMSA (Windows containers)."
+  type        = list(string)
+  default     = []
+}
+
 # tflint-ignore: terraform_naming_convention
 variable "dependsOn" {
   description = "The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a dependency is defined for container startup, for container shutdown it is reversed. The condition can be one of START, COMPLETE, SUCCESS or HEALTHY"
