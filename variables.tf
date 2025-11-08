@@ -445,7 +445,7 @@ variable "services" {
       tags                    = optional(map(string))
 
       # Container definition
-      command = optional(list(string))
+      command = optional(list(string)) #test
       cpu     = optional(number)
       credentialSpecs = optional(list(string))
       dependsOn = optional(list(object({
