@@ -37,7 +37,7 @@ variable "cpu" {
 variable "credentialSpecs" {
   description = "Specs for Credentials for gMSA (Windows containers)."
   type        = list(string)
-  default     = []
+  default     = null
 }
 
 # tflint-ignore: terraform_naming_convention
