@@ -39,6 +39,7 @@ locals {
   definition = {
     command                = var.command
     cpu                    = var.cpu
+    credentialSpecs        = var.credentialSpecs
     dependsOn              = var.dependsOn
     disableNetworking      = local.is_not_windows ? var.disableNetworking : null
     dnsSearchDomains       = local.is_not_windows ? var.dnsSearchDomains : null

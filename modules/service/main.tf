@@ -814,6 +814,7 @@ module "container_definition" {
   # Container Definition
   command                = each.value.command
   cpu                    = each.value.cpu
+  credentialSpecs        = each.value.credentialSpecs
   dependsOn              = each.value.dependsOn
   disableNetworking      = each.value.disableNetworking
   dnsSearchDomains       = each.value.dnsSearchDomains

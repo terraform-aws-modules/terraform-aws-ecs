@@ -11,6 +11,7 @@ module "wrapper" {
   command                                = try(each.value.command, var.defaults.command, null)
   cpu                                    = try(each.value.cpu, var.defaults.cpu, null)
   create_cloudwatch_log_group            = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)
+  credentialSpecs                        = try(each.value.credentialSpecs, var.defaults.credentialSpecs, null)
   dependsOn                              = try(each.value.dependsOn, var.defaults.dependsOn, null)
   disableNetworking                      = try(each.value.disableNetworking, var.defaults.disableNetworking, null)
   dnsSearchDomains                       = try(each.value.dnsSearchDomains, var.defaults.dnsSearchDomains, null)
