@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.8.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.7.0...v6.8.0) (2025-11-13)
+
+### Features
+
+* Add support for `credentialSpecs` on container definition to enable Windows gMSA ([#368](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/368)) ([654d7d2](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/654d7d2b85d5c5a044bfb8526910f09aef2f54bf))
+
 ## [6.7.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.6.2...v6.7.0) (2025-10-22)
 
 ### Features
