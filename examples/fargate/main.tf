@@ -62,8 +62,13 @@ module "ecs_service" {
 
   # for blue/green deployments
   deployment_configuration = {
-    strategy             = "BLUE_GREEN"
+    strategy             = "LINEAR"
     bake_time_in_minutes = 2
+
+    linear_configuration = {
+      step_percent = 20
+      step_bake_time_in_minutes = 1
+    }
 
     # # Example config using lifecycle hooks
     # lifecycle_hook = {
