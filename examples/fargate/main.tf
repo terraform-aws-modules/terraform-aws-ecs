@@ -79,6 +79,18 @@ module "ecs_service" {
     #     lifecycle_stages = ["TEST_TRAFFIC_SHIFT", "POST_PRODUCTION_TRAFFIC_SHIFT"]
     #   }
     # }
+
+    # # Example config using linear deployment strategy
+    # linear_configuration {
+    #   step_percent              = 25.0
+    #   step_bake_time_in_minutes = 5
+    # }
+
+    # # Example config using canary deployment strategy
+    # canary_configuration {
+    #   canary_percent              = 10.0
+    #   canary_bake_time_in_minutes = 5
+    # }
   }
 
   # Container definition(s)

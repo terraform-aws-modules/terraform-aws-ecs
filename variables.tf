@@ -289,6 +289,14 @@ variable "services" {
         lifecycle_stages = list(string)
         hook_details     = optional(string)
       })))
+      canary_configuration = optional(map(object({
+        canary_percent              = string
+        canary_bake_time_in_minutes = optional(string)
+      })))
+      linear_configuration = optional(map(object({
+        step_percent              = string
+        step_bake_time_in_minutes = optional(string)
+      })))
     }))
     deployment_controller = optional(object({
       type = optional(string)
