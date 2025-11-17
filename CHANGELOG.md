@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.9.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.8.0...v6.9.0) (2025-11-17)
+
+### Features
+
+* Add support for CANARY/LINEAR deployment configuration ([#370](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/370)) ([32a563e](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/32a563e552831413bee7a0c23b125022bfeb96d9))
+
 ## [6.8.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.7.0...v6.8.0) (2025-11-13)
 
 ### Features
