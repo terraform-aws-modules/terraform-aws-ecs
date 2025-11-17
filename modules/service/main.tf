@@ -82,6 +82,24 @@ resource "aws_ecs_service" "this" {
       strategy             = deployment_configuration.value.strategy
       bake_time_in_minutes = deployment_configuration.value.bake_time_in_minutes
 
+      dynamic "linear_configuration" {
+        for_each = deployment_configuration.value.linear_configuration != null ? [deployment_configuration.value.linear_configuration] : []
+
+        content {
+          step_bake_time_in_minutes = linear_configuration.value.step_bake_time_in_minutes
+          step_percent              = linear_configuration.value.step_percent
+        }
+      }
+
+      dynamic "canary_configuration" {
+        for_each = deployment_configuration.value.canary_configuration != null ? [deployment_configuration.value.canary_configuration] : []
+
+        content {
+          canary_bake_time_in_minutes = canary_configuration.value.canary_bake_time_in_minutes
+          canary_percent              = canary_configuration.value.canary_percent
+        }
+      }
+
       dynamic "lifecycle_hook" {
         for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}
 
@@ -404,6 +422,24 @@ resource "aws_ecs_service" "ignore_task_definition" {
     content {
       strategy             = deployment_configuration.value.strategy
       bake_time_in_minutes = deployment_configuration.value.bake_time_in_minutes
+
+      dynamic "linear_configuration" {
+        for_each = deployment_configuration.value.linear_configuration != null ? [deployment_configuration.value.linear_configuration] : []
+
+        content {
+          step_percent              = linear_configuration.value.step_percent
+          step_bake_time_in_minutes = linear_configuration.value.step_bake_time_in_minutes
+        }
+      }
+
+      dynamic "canary_configuration" {
+        for_each = deployment_configuration.value.canary_configuration != null ? [deployment_configuration.value.canary_configuration] : []
+
+        content {
+          canary_percent              = canary_configuration.value.canary_percent
+          canary_bake_time_in_minutes = canary_configuration.value.canary_bake_time_in_minutes
+        }
+      }
 
       dynamic "lifecycle_hook" {
         for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}

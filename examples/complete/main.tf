@@ -179,6 +179,16 @@ module "ecs" {
         }
       }
 
+      # Linear deployment
+      deployment_configuration = {
+        strategy = "LINEAR"
+
+        linear_configuration = {
+          step_percent              = 20
+          step_bake_time_in_minutes = 1
+        }
+      }
+
       service_connect_configuration = {
         namespace = aws_service_discovery_http_namespace.this.arn
         service = [

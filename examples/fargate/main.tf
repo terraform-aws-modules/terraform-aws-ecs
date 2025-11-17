@@ -60,7 +60,7 @@ module "ecs_service" {
   # Enables ECS Exec
   enable_execute_command = true
 
-  # for blue/green deployments
+  # Blue/green deployment
   deployment_configuration = {
     strategy             = "BLUE_GREEN"
     bake_time_in_minutes = 2
