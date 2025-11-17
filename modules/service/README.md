@@ -170,13 +170,13 @@ module "ecs_service" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.14 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.21 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.14 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.21 |
 
 ## Modules
 
@@ -250,7 +250,7 @@ module "ecs_service" {
 | <a name="input_create_task_exec_policy"></a> [create\_task\_exec\_policy](#input\_create\_task\_exec\_policy) | Determines whether the ECS task definition IAM policy should be created. This includes permissions included in AmazonECSTaskExecutionRolePolicy as well as access to secrets and SSM parameters | `bool` | `true` | no |
 | <a name="input_create_tasks_iam_role"></a> [create\_tasks\_iam\_role](#input\_create\_tasks\_iam\_role) | Determines whether the ECS tasks IAM role should be created | `bool` | `true` | no |
 | <a name="input_deployment_circuit_breaker"></a> [deployment\_circuit\_breaker](#input\_deployment\_circuit\_breaker) | Configuration block for deployment circuit breaker | <pre>object({<br/>    enable   = bool<br/>    rollback = bool<br/>  })</pre> | `null` | no |
-| <a name="input_deployment_configuration"></a> [deployment\_configuration](#input\_deployment\_configuration) | Configuration block for deployment settings | <pre>object({<br/>    strategy             = optional(string)<br/>    bake_time_in_minutes = optional(string)<br/>    lifecycle_hook = optional(map(object({<br/>      hook_target_arn  = string<br/>      role_arn         = string<br/>      lifecycle_stages = list(string)<br/>      hook_details     = optional(string)<br/>    })))<br/>  })</pre> | `null` | no |
+| <a name="input_deployment_configuration"></a> [deployment\_configuration](#input\_deployment\_configuration) | Configuration block for deployment settings | <pre>object({<br/>    strategy             = optional(string)<br/>    bake_time_in_minutes = optional(string)<br/>    canary_configuration = optional(object({<br/>      canary_bake_time_in_minutes = optional(string)<br/>      canary_percent              = optional(string)<br/>    }))<br/>    linear_configuration = optional(object({<br/>      step_bake_time_in_minutes = optional(string)<br/>      step_percent              = optional(string)<br/>    }))<br/>    lifecycle_hook = optional(map(object({<br/>      hook_target_arn  = string<br/>      role_arn         = string<br/>      lifecycle_stages = list(string)<br/>      hook_details     = optional(string)<br/>    })))<br/>  })</pre> | `null` | no |
 | <a name="input_deployment_controller"></a> [deployment\_controller](#input\_deployment\_controller) | Configuration block for deployment controller configuration | <pre>object({<br/>    type = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_deployment_maximum_percent"></a> [deployment\_maximum\_percent](#input\_deployment\_maximum\_percent) | Upper limit (as a percentage of the service's `desired_count`) of the number of running tasks that can be running in a service during a deployment | `number` | `200` | no |
 | <a name="input_deployment_minimum_healthy_percent"></a> [deployment\_minimum\_healthy\_percent](#input\_deployment\_minimum\_healthy\_percent) | Lower limit (as a percentage of the service's `desired_count`) of the number of running tasks that must remain running and healthy in a service during a deployment | `number` | `66` | no |

@@ -84,6 +84,31 @@ module "ecs_service" {
   name        = local.name
   cluster_arn = module.ecs_cluster.arn
 
+  # Canary deployment
+  deployment_configuration = {
+    strategy = "CANARY"
+
+    canary_configuration = {
+      canary_percent              = 10.0
+      canary_bake_time_in_minutes = 5
+    }
+
+    # # Example config using lifecycle hooks
+    # lifecycle_hook = {
+    #   success = {
+    #     hook_target_arn  = aws_lambda_function.hook_success.arn
+    #     role_arn         = aws_iam_role.global.arn
+    #     lifecycle_stages = ["POST_SCALE_UP", "POST_TEST_TRAFFIC_SHIFT"]
+    #     hook_details     = jsonencode("test")
+    #   }
+    #   failure = {
+    #     hook_target_arn  = aws_lambda_function.hook_failure.arn
+    #     role_arn         = aws_iam_role.global.arn
+    #     lifecycle_stages = ["TEST_TRAFFIC_SHIFT", "POST_PRODUCTION_TRAFFIC_SHIFT"]
+    #   }
+    # }
+  }
+
   # Task Definition
   requires_compatibilities = ["EC2"]
   capacity_provider_strategy = {

@@ -60,15 +60,10 @@ module "ecs_service" {
   # Enables ECS Exec
   enable_execute_command = true
 
-  # for blue/green deployments
+  # Blue/green deployment
   deployment_configuration = {
-    strategy             = "LINEAR"
+    strategy             = "BLUE_GREEN"
     bake_time_in_minutes = 2
-
-    linear_configuration = {
-      step_percent = 20
-      step_bake_time_in_minutes = 1
-    }
 
     # # Example config using lifecycle hooks
     # lifecycle_hook = {

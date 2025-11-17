@@ -84,12 +84,12 @@ variable "deployment_configuration" {
     strategy             = optional(string)
     bake_time_in_minutes = optional(string)
     canary_configuration = optional(object({
-      canary_bake_time_in_minutes = string
-      canary_percent              = string
+      canary_bake_time_in_minutes = optional(string)
+      canary_percent              = optional(string)
     }))
     linear_configuration = optional(object({
-      step_bake_time_in_minutes = string
-      step_percent              = string
+      step_bake_time_in_minutes = optional(string)
+      step_percent              = optional(string)
     }))
     lifecycle_hook = optional(map(object({
       hook_target_arn  = string

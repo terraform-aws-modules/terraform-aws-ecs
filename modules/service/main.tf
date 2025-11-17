@@ -86,8 +86,8 @@ resource "aws_ecs_service" "this" {
         for_each = deployment_configuration.value.linear_configuration != null ? [deployment_configuration.value.linear_configuration] : []
 
         content {
-          step_percent              = linear_configuration.value.step_percent
           step_bake_time_in_minutes = linear_configuration.value.step_bake_time_in_minutes
+          step_percent              = linear_configuration.value.step_percent
         }
       }
 
@@ -95,11 +95,11 @@ resource "aws_ecs_service" "this" {
         for_each = deployment_configuration.value.canary_configuration != null ? [deployment_configuration.value.canary_configuration] : []
 
         content {
-          canary_percent              = canary_configuration.value.canary_percent
           canary_bake_time_in_minutes = canary_configuration.value.canary_bake_time_in_minutes
+          canary_percent              = canary_configuration.value.canary_percent
         }
       }
-      
+
       dynamic "lifecycle_hook" {
         for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}
 
@@ -440,7 +440,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
           canary_bake_time_in_minutes = canary_configuration.value.canary_bake_time_in_minutes
         }
       }
-      
+
       dynamic "lifecycle_hook" {
         for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}
 
