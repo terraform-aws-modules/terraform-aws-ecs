@@ -171,6 +171,7 @@ module "service" {
   autoscaling_max_capacity      = each.value.autoscaling_max_capacity
   autoscaling_policies          = each.value.autoscaling_policies
   autoscaling_scheduled_actions = each.value.autoscaling_scheduled_actions
+  autoscaling_suspended_state   = each.value.autoscaling_suspended_state
 
   # Security Group
   create_security_group          = each.value.create_security_group
