@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.10.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.9.0...v6.10.0) (2025-11-21)
+
+### Features
+
+* Add support of suspended_state block in aws_appautoscaling_target of ECS service ([#373](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/373)) ([ba34aa7](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/ba34aa700994c00dae2bf56c140331a5c6f80d7c))
+
 ## [6.9.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.8.0...v6.9.0) (2025-11-17)
 
 ### Features
