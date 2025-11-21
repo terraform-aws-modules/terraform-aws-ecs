@@ -867,6 +867,11 @@ variable "services" {
       end_time     = optional(string)
       timezone     = optional(string)
     })))
+    autoscaling_suspended_state = optional(object({
+      dynamic_scaling_in_suspended  = optional(bool)
+      dynamic_scaling_out_suspended = optional(bool)
+      scheduled_scaling_suspended   = optional(bool)
+    }))
     # Security Group
     create_security_group          = optional(bool)
     vpc_id                         = optional(string)

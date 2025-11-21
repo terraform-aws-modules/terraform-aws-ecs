@@ -28,6 +28,7 @@ module "wrapper" {
     }
   })
   autoscaling_scheduled_actions                = try(each.value.autoscaling_scheduled_actions, var.defaults.autoscaling_scheduled_actions, null)
+  autoscaling_suspended_state                  = try(each.value.autoscaling_suspended_state, var.defaults.autoscaling_suspended_state, null)
   availability_zone_rebalancing                = try(each.value.availability_zone_rebalancing, var.defaults.availability_zone_rebalancing, null)
   capacity_provider_strategy                   = try(each.value.capacity_provider_strategy, var.defaults.capacity_provider_strategy, null)
   cluster_arn                                  = try(each.value.cluster_arn, var.defaults.cluster_arn, "")

@@ -1206,6 +1206,16 @@ variable "autoscaling_scheduled_actions" {
   default = null
 }
 
+variable "autoscaling_suspended_state" {
+  description = "Configuration block that specifies whether the scaling activities for the service are in a suspended state"
+  type = object({
+    dynamic_scaling_in_suspended  = optional(bool, false)
+    dynamic_scaling_out_suspended = optional(bool, false)
+    scheduled_scaling_suspended   = optional(bool, false)
+  })
+  default = null
+}
+
 ################################################################################
 # Security Group
 ################################################################################

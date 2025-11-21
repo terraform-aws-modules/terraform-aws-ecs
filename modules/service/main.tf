@@ -1527,7 +1527,18 @@ resource "aws_appautoscaling_target" "this" {
   resource_id        = "service/${local.cluster_name}/${try(aws_ecs_service.this[0].name, aws_ecs_service.ignore_task_definition[0].name)}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
-  tags               = var.tags
+
+  dynamic "suspended_state" {
+    for_each = local.enable_autoscaling && var.autoscaling_suspended_state != null ? [var.autoscaling_suspended_state] : []
+
+    content {
+      dynamic_scaling_in_suspended  = suspended_state.value.dynamic_scaling_in_suspended
+      dynamic_scaling_out_suspended = suspended_state.value.dynamic_scaling_out_suspended
+      scheduled_scaling_suspended   = suspended_state.value.scheduled_scaling_suspended
+    }
+  }
+
+  tags = var.tags
 }
 
 resource "aws_appautoscaling_policy" "this" {
