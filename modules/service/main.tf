@@ -1876,8 +1876,7 @@ data "aws_subnet" "this" {
 }
 
 resource "aws_security_group" "this" {
-  count = local.create_security_group && (var.vpc_id != null ||
-  length(var.subnet_ids) > 0) ? 1 : 0
+  count = local.create_security_group && length(var.subnet_ids) > 0 ? 1 : 0
 
   region = var.region
 
