@@ -321,20 +321,20 @@ The default behavior of the container definition module is to create the CloudWa
        # FluentBit sidecar is required for Firelens
        fluent-bit = {
          image = data.aws_ssm_parameter.fluentbit.value
-         firelens_configuration = {
+         firelensConfiguration = {
            type = "fluentbit"
          }
          # ...
        }
 
        default = {
-         dependencies = [{
+         dependsOn = [{
            containerName = "fluent-bit"
            condition     = "START"
          }]
 
          enable_cloudwatch_logging = false
-         log_configuration = {
+         logConfiguration = {
            logDriver = "awsfirelens"
            options = {
              # ...

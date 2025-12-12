@@ -2,6 +2,187 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.10.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.9.0...v6.10.0) (2025-11-21)
+
+### Features
+
+* Add support of suspended_state block in aws_appautoscaling_target of ECS service ([#373](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/373)) ([ba34aa7](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/ba34aa700994c00dae2bf56c140331a5c6f80d7c))
+
+## [6.9.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.8.0...v6.9.0) (2025-11-17)
+
+### Features
+
+* Add support for CANARY/LINEAR deployment configuration ([#370](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/370)) ([32a563e](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/32a563e552831413bee7a0c23b125022bfeb96d9))
+
+## [6.8.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.7.0...v6.8.0) (2025-11-13)
+
+### Features
+
+* Add support for `credentialSpecs` on container definition to enable Windows gMSA ([#368](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/368)) ([654d7d2](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/654d7d2b85d5c5a044bfb8526910f09aef2f54bf))
+
+## [6.7.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.6.2...v6.7.0) (2025-10-22)
+
+### Features
+
+* Add support for predictive autoscaling policies ([#361](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/361)) ([f731feb](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/f731feba8bbc45fa83637d6984dffb25f326f3e2))
+
+## [6.6.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.6.1...v6.6.2) (2025-10-21)
+
+### Bug Fixes
+
+* Update CI workflow versions to latest ([#362](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/362)) ([fca1cc4](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/fca1cc4d5ff33488ba8edc203766261cfddc472a))
+
+## [6.6.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.6.0...v6.6.1) (2025-10-02)
+
+
+### Bug Fixes
+
+* Correct logic for determining VPC lookup via subnets ([#358](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/358)) ([7e57f08](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/7e57f083c26cb91c36c3cd0b7dc0105fcaeb188b))
+
+## [6.6.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.5.0...v6.6.0) (2025-10-01)
+
+
+### Features
+
+* Allow specifying VPC ID used by service security group in lieu of deriving from subnets provided ([#353](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/353)) ([ac8f420](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/ac8f42074a3f8a061066eeb707dd913eaf106b1b))
+
+## [6.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.4.0...v6.5.0) (2025-10-01)
+
+
+### Features
+
+* Allow Toggling `initProcessEnabled` independent of `enable_execute_command` ([#355](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/355)) ([b7054cd](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/b7054cd206b3ab9a0301f9a011e61e4e1bebc8de))
+
+## [6.4.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.3.0...v6.4.0) (2025-09-18)
+
+
+### Features
+
+* Add `lifecycle_hook.hook_details` ([#354](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/354)) ([73b7104](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/73b710487b298613718e5e92f6ca091e039b8771))
+
+## [6.3.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.2.2...v6.3.0) (2025-08-29)
+
+
+### Features
+
+* Add sigint_rollback argument support to ECS service ([#347](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/347)) ([6dfb8ef](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/6dfb8efba7a890afbb1819a6330afa252f77506f))
+
+## [6.2.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.2.1...v6.2.2) (2025-08-16)
+
+
+### Bug Fixes
+
+* Update `tls.issuer_cert_authority` dynamic block for `aws_ecs_service.ignore_task_definition` ([#341](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/341)) ([f1fdccb](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/f1fdccb3618563caacef20efb10d248e1cd2f7ce))
+
+## [6.2.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.2.0...v6.2.1) (2025-08-07)
+
+
+### Bug Fixes
+
+* Correct loop extraction logic for `tls.issuer_cert_authority` ([#337](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/337)) ([e68b246](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/e68b246283b9d521945557291498a6ab8f429010))
+
+## [6.2.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.4...v6.2.0) (2025-08-07)
+
+
+### Features
+
+* Remove empty containers (map/list) from container definition ([#336](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/336)) ([24746cc](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/24746cc90744b6053d81009889f04a6befcda7d5))
+
+## [6.1.4](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.3...v6.1.4) (2025-08-07)
+
+
+### Bug Fixes
+
+* Correct variable optional argument defaults and container definition conditional logic ([#332](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/332)) ([054ad89](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/054ad891744dd9fc1ba3f8216e52c2387e841186))
+
+## [6.1.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.2...v6.1.3) (2025-07-31)
+
+
+### Bug Fixes
+
+* Ensure `var.region` is passed through `aws_region` data source ([#329](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/329)) ([9a7f9b5](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/9a7f9b5a3cf757b075c98f71af95973a7b2baa35))
+
+## [6.1.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.1...v6.1.2) (2025-07-29)
+
+
+### Bug Fixes
+
+* Set logConfiguration to null if empty to prevent ECS errors ([#323](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/323)) ([da36e2a](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/da36e2a2b357d4bd850df70fb26eac84897aed50))
+
+## [6.1.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.1.0...v6.1.1) (2025-07-29)
+
+
+### Bug Fixes
+
+* Use an empty map as default value for `default_capacity_provider_strategy` ([#326](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/326)) ([ea0a160](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/ea0a1604f335dea0ae54f238104590f7377baadf))
+
+## [6.1.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.6...v6.1.0) (2025-07-21)
+
+
+### Features
+
+* Add support for advanced deployment configurations (i.e. - blue/green deployment) ([#322](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/322)) ([010e581](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/010e581b5cd1d9b04418f6f98591128ea9078a17))
+
+## [6.0.6](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.5...v6.0.6) (2025-07-18)
+
+
+### Bug Fixes
+
+* Allow optional `initProcessEnabled` when `enable_execute_command` is `true` ([#319](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/319)) ([99f8edd](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/99f8eddeeb1b2de8754669549fd495f5bb108bb0))
+
+## [6.0.5](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.4...v6.0.5) (2025-07-11)
+
+
+### Bug Fixes
+
+* Correct IAM statement `condition` variable type ([#315](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/315)) ([27e9114](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/27e91145c9e1a58ae4b454b8c45ba7dffcff5c94))
+
+## [6.0.4](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.3...v6.0.4) (2025-07-11)
+
+
+### Bug Fixes
+
+* Remove non-functional `container_definition_defaults` ([#312](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/312)) ([dcc5ae5](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/dcc5ae58165a64976cc9bb2b49c51d0bceef2733))
+
+## [6.0.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.2...v6.0.3) (2025-07-10)
+
+
+### Bug Fixes
+
+* Correct variable attribute for `step_adjustment` ([#310](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/310)) ([542616d](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/542616d1aff587a4391075b25b473bede3b259fe))
+
+## [6.0.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.1...v6.0.2) (2025-07-09)
+
+
+### Bug Fixes
+
+* Remove `coalesce()` to ensure value precedence is honored ([#307](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/307)) ([da354d9](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/da354d9a37ca39182f660ac18851ef2bf5396a23))
+
+## [6.0.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.0.0...v6.0.1) (2025-07-07)
+
+
+### Bug Fixes
+
+* Pass missing `versionConsistency` argument, correct `conditions` to `condition` ([#303](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/303)) ([e90f761](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/e90f7617505fce7099b1fec9289841df9369f21f))
+
+## [6.0.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.12.1...v6.0.0) (2025-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* Upgrade AWS provider and min required Terraform version to `6.0` and `1.5.7` respectively (#217)
+
+### Features
+
+* Upgrade AWS provider and min required Terraform version to `6.0` and `1.5.7` respectively ([#217](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/217)) ([29b257a](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/29b257a92ea0da04ffe6fd21790ae6d3aa691cde)), closes [#158](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/158)
+
+## [5.12.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.12.0...v5.12.1) (2025-04-18)
+
+
+### Bug Fixes
+
+* Ensure both ECS service definitions use the same settings/configurations ([#277](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/277)) ([6f4feab](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/6f4feaba42afcc3f233b41110d0b9ed204438843))
+
 ## [5.12.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v5.11.4...v5.12.0) (2024-11-29)
 
 

@@ -28,20 +28,16 @@ locals {
 module "ecs_cluster" {
   source = "../../modules/cluster"
 
-  cluster_name = local.name
+  name = local.name
 
   # Capacity provider
-  fargate_capacity_providers = {
+  default_capacity_provider_strategy = {
     FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 50
-        base   = 20
-      }
+      weight = 50
+      base   = 20
     }
     FARGATE_SPOT = {
-      default_capacity_provider_strategy = {
-        weight = 50
-      }
+      weight = 50
     }
   }
 
@@ -64,6 +60,27 @@ module "ecs_service" {
   # Enables ECS Exec
   enable_execute_command = true
 
+  # Blue/green deployment
+  deployment_configuration = {
+    strategy             = "BLUE_GREEN"
+    bake_time_in_minutes = 2
+
+    # # Example config using lifecycle hooks
+    # lifecycle_hook = {
+    #   success = {
+    #     hook_target_arn  = aws_lambda_function.hook_success.arn
+    #     role_arn         = aws_iam_role.global.arn
+    #     lifecycle_stages = ["POST_SCALE_UP", "POST_TEST_TRAFFIC_SHIFT"]
+    #     hook_details     = jsonencode("test")
+    #   }
+    #   failure = {
+    #     hook_target_arn  = aws_lambda_function.hook_failure.arn
+    #     role_arn         = aws_iam_role.global.arn
+    #     lifecycle_stages = ["TEST_TRAFFIC_SHIFT", "POST_PRODUCTION_TRAFFIC_SHIFT"]
+    #   }
+    # }
+  }
+
   # Container definition(s)
   container_definitions = {
 
@@ -72,11 +89,11 @@ module "ecs_service" {
       memory    = 1024
       essential = true
       image     = nonsensitive(data.aws_ssm_parameter.fluentbit.value)
-      firelens_configuration = {
+      firelensConfiguration = {
         type = "fluentbit"
       }
-      memory_reservation = 50
-      user               = "0"
+      memoryReservation = 50
+      user              = "0"
     }
 
     (local.container_name) = {
@@ -84,7 +101,7 @@ module "ecs_service" {
       memory    = 1024
       essential = true
       image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
-      port_mappings = [
+      portMappings = [
         {
           name          = local.container_name
           containerPort = local.container_port
@@ -94,15 +111,15 @@ module "ecs_service" {
       ]
 
       # Example image used requires access to write to root filesystem
-      readonly_root_filesystem = false
+      readonlyRootFilesystem = false
 
-      dependencies = [{
+      dependsOn = [{
         containerName = "fluent-bit"
         condition     = "START"
       }]
 
       enable_cloudwatch_logging = false
-      log_configuration = {
+      logConfiguration = {
         logDriver = "awsfirelens"
         options = {
           Name                    = "firehose"
@@ -112,7 +129,7 @@ module "ecs_service" {
         }
       }
 
-      linux_parameters = {
+      linuxParameters = {
         capabilities = {
           add = []
           drop = [
@@ -121,26 +138,34 @@ module "ecs_service" {
         }
       }
 
+      restartPolicy = {
+        enabled              = true
+        ignoredExitCodes     = [1]
+        restartAttemptPeriod = 60
+      }
+
       # Not required for fluent-bit, just an example
-      volumes_from = [{
+      volumesFrom = [{
         sourceContainer = "fluent-bit"
         readOnly        = false
       }]
 
-      memory_reservation = 100
+      memoryReservation = 100
     }
   }
 
   service_connect_configuration = {
     namespace = aws_service_discovery_http_namespace.this.arn
-    service = {
-      client_alias = {
-        port     = local.container_port
-        dns_name = local.container_name
+    service = [
+      {
+        client_alias = {
+          port     = local.container_port
+          dns_name = local.container_name
+        }
+        port_name      = local.container_name
+        discovery_name = local.container_name
       }
-      port_name      = local.container_name
-      discovery_name = local.container_name
-    }
+    ]
   }
 
   load_balancer = {
@@ -148,25 +173,30 @@ module "ecs_service" {
       target_group_arn = module.alb.target_groups["ex_ecs"].arn
       container_name   = local.container_name
       container_port   = local.container_port
+
+      # for blue/green deployments
+      advanced_configuration = {
+        alternate_target_group_arn = module.alb.target_groups["ex_ecs_alternate"].arn
+        production_listener_rule   = module.alb.listener_rules["ex_http/production"].arn
+        test_listener_rule         = module.alb.listener_rules["ex_http/test"].arn
+        role_arn                   = aws_iam_role.ecs_elb_permissions.arn
+      }
     }
   }
 
   subnet_ids = module.vpc.private_subnets
-  security_group_rules = {
-    alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = local.container_port
-      to_port                  = local.container_port
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
+  security_group_ingress_rules = {
+    alb_3000 = {
+      description                  = "Service port"
+      from_port                    = local.container_port
+      ip_protocol                  = "tcp"
+      referenced_security_group_id = module.alb.security_group_id
     }
-    egress_all = {
-      type        = "egress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
+  }
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 
@@ -175,6 +205,12 @@ module "ecs_service" {
   }
 
   tags = local.tags
+
+  depends_on = [
+    aws_iam_role.ecs_elb_permissions,
+    aws_iam_role_policy_attachment.ecs_service_role,
+    aws_iam_role_policy_attachment.ecs_elb_management_role
+  ]
 }
 
 ################################################################################
@@ -204,7 +240,7 @@ module "ecs_task_definition" {
     al2023 = {
       image = "public.ecr.aws/amazonlinux/amazonlinux:2023-minimal"
 
-      mount_points = [
+      mountPoints = [
         {
           sourceVolume  = "ex-vol",
           containerPath = "/var/www/ex-vol"
@@ -218,13 +254,10 @@ module "ecs_task_definition" {
 
   subnet_ids = module.vpc.private_subnets
 
-  security_group_rules = {
-    egress_all = {
-      type        = "egress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 
@@ -247,7 +280,7 @@ resource "aws_service_discovery_http_namespace" "this" {
 
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "~> 9.0"
+  version = "~> 10.0"
 
   name = local.name
 
@@ -280,14 +313,93 @@ module "alb" {
       port     = 80
       protocol = "HTTP"
 
-      forward = {
-        target_group_key = "ex_ecs"
+      fixed_response = {
+        content_type = "text/plain"
+        message_body = "404: Page not found"
+        status_code  = "404"
+      }
+
+      # for blue/green deployments
+      rules = {
+        production = {
+          priority = 1
+          actions = [
+            {
+              weighted_forward = {
+                target_groups = [
+                  {
+                    target_group_key = "ex_ecs"
+                    weight           = 100
+                  },
+                  {
+                    target_group_key = "ex_ecs_alternate"
+                    weight           = 0
+                  }
+                ]
+              }
+            }
+          ]
+          conditions = [
+            {
+              path_pattern = {
+                values = ["/*"]
+              }
+            }
+          ]
+        }
+        test = {
+          priority = 2
+          actions = [
+            {
+              weighted_forward = {
+                target_groups = [
+                  {
+                    target_group_key = "ex_ecs_alternate"
+                    weight           = 100
+                  }
+                ]
+              }
+            }
+          ]
+          conditions = [
+            {
+              path_pattern = {
+                values = ["/*"]
+              }
+            }
+          ]
+        }
       }
     }
   }
 
   target_groups = {
     ex_ecs = {
+      backend_protocol                  = "HTTP"
+      backend_port                      = local.container_port
+      target_type                       = "ip"
+      deregistration_delay              = 5
+      load_balancing_cross_zone_enabled = true
+
+      health_check = {
+        enabled             = true
+        healthy_threshold   = 5
+        interval            = 30
+        matcher             = "200"
+        path                = "/"
+        port                = "traffic-port"
+        protocol            = "HTTP"
+        timeout             = 5
+        unhealthy_threshold = 2
+      }
+
+      # There's nothing to attach here in this definition. Instead,
+      # ECS will attach the IPs of the tasks to this target group
+      create_attachment = false
+    }
+
+    # for blue/green deployments
+    ex_ecs_alternate = {
       backend_protocol                  = "HTTP"
       backend_port                      = local.container_port
       target_type                       = "ip"
@@ -317,7 +429,7 @@ module "alb" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.0"
+  version = "~> 6.0"
 
   name = local.name
   cidr = local.vpc_cidr
@@ -330,4 +442,34 @@ module "vpc" {
   single_nat_gateway = true
 
   tags = local.tags
+}
+
+resource "aws_iam_role" "ecs_elb_permissions" {
+  name = "${local.name}-ecs-elb-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = [
+            "ecs-tasks.amazonaws.com",
+            "ecs.amazonaws.com",
+          ]
+        }
+      }
+    ]
+  })
+}
+
+# for example purposes only
+resource "aws_iam_role_policy_attachment" "ecs_service_role" {
+  role       = aws_iam_role.ecs_elb_permissions.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_elb_management_role" {
+  role       = aws_iam_role.ecs_elb_permissions.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECSInfrastructureRolePolicyForLoadBalancers"
 }

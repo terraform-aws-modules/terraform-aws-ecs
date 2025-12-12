@@ -28,14 +28,24 @@ locals {
 module "ecs_cluster" {
   source = "../../modules/cluster"
 
-  cluster_name = local.name
+  name = local.name
 
-  # Capacity provider - autoscaling groups
-  default_capacity_provider_use_fargate = false
+  # Cluster capacity providers
+  default_capacity_provider_strategy = {
+    ex_1 = {
+      weight = 60
+      base   = 20
+    }
+    ex_2 = {
+      weight = 40
+    }
+  }
+
   autoscaling_capacity_providers = {
     # On-demand instances
     ex_1 = {
       auto_scaling_group_arn         = module.autoscaling["ex_1"].autoscaling_group_arn
+      managed_draining               = "ENABLED"
       managed_termination_protection = "ENABLED"
 
       managed_scaling = {
@@ -44,15 +54,11 @@ module "ecs_cluster" {
         status                    = "ENABLED"
         target_capacity           = 60
       }
-
-      default_capacity_provider_strategy = {
-        weight = 60
-        base   = 20
-      }
     }
     # Spot instances
     ex_2 = {
       auto_scaling_group_arn         = module.autoscaling["ex_2"].autoscaling_group_arn
+      managed_draining               = "ENABLED"
       managed_termination_protection = "ENABLED"
 
       managed_scaling = {
@@ -60,10 +66,6 @@ module "ecs_cluster" {
         minimum_scaling_step_size = 5
         status                    = "ENABLED"
         target_capacity           = 90
-      }
-
-      default_capacity_provider_strategy = {
-        weight = 40
       }
     }
   }
@@ -82,6 +84,31 @@ module "ecs_service" {
   name        = local.name
   cluster_arn = module.ecs_cluster.arn
 
+  # Canary deployment
+  deployment_configuration = {
+    strategy = "CANARY"
+
+    canary_configuration = {
+      canary_percent              = 10.0
+      canary_bake_time_in_minutes = 5
+    }
+
+    # # Example config using lifecycle hooks
+    # lifecycle_hook = {
+    #   success = {
+    #     hook_target_arn  = aws_lambda_function.hook_success.arn
+    #     role_arn         = aws_iam_role.global.arn
+    #     lifecycle_stages = ["POST_SCALE_UP", "POST_TEST_TRAFFIC_SHIFT"]
+    #     hook_details     = jsonencode("test")
+    #   }
+    #   failure = {
+    #     hook_target_arn  = aws_lambda_function.hook_failure.arn
+    #     role_arn         = aws_iam_role.global.arn
+    #     lifecycle_stages = ["TEST_TRAFFIC_SHIFT", "POST_PRODUCTION_TRAFFIC_SHIFT"]
+    #   }
+    # }
+  }
+
   # Task Definition
   requires_compatibilities = ["EC2"]
   capacity_provider_strategy = {
@@ -93,40 +120,59 @@ module "ecs_service" {
     }
   }
 
+  volume_configuration = {
+    name = "ebs-volume"
+    managed_ebs_volume = {
+      encrypted        = true
+      file_system_type = "xfs"
+      size_in_gb       = 5
+      volume_type      = "gp3"
+    }
+  }
+
   volume = {
-    my-vol = {}
+    my-vol = {},
+    ebs-volume = {
+      name                = "ebs-volume"
+      configure_at_launch = true
+    }
   }
 
   # Container definition(s)
   container_definitions = {
     (local.container_name) = {
       image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
-      port_mappings = [
+      portMappings = [
         {
           name          = local.container_name
           containerPort = local.container_port
+          hostPort      = local.container_port
           protocol      = "tcp"
         }
       ]
 
-      mount_points = [
+      mountPoints = [
         {
           sourceVolume  = "my-vol",
           containerPath = "/var/www/my-vol"
+        },
+        {
+          sourceVolume  = "ebs-volume"
+          containerPath = "/ebs/data"
         }
       ]
 
-      entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+      entrypoint = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 
       # Example image used requires access to write to root filesystem
-      readonly_root_filesystem = false
+      readonlyRootFilesystem = false
 
       enable_cloudwatch_logging              = true
       create_cloudwatch_log_group            = true
       cloudwatch_log_group_name              = "/aws/ecs/${local.name}/${local.container_name}"
       cloudwatch_log_group_retention_in_days = 7
 
-      log_configuration = {
+      logLonfiguration = {
         logDriver = "awslogs"
       }
     }
@@ -141,14 +187,11 @@ module "ecs_service" {
   }
 
   subnet_ids = module.vpc.private_subnets
-  security_group_rules = {
-    alb_http_ingress = {
-      type                     = "ingress"
-      from_port                = local.container_port
-      to_port                  = local.container_port
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
+  security_group_ingress_rules = {
+    alb_http = {
+      from_port                    = local.container_port
+      description                  = "Service port"
+      referenced_security_group_id = module.alb.security_group_id
     }
   }
 
@@ -161,12 +204,12 @@ module "ecs_service" {
 
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html#ecs-optimized-ami-linux
 data "aws_ssm_parameter" "ecs_optimized_ami" {
-  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended"
 }
 
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "~> 9.0"
+  version = "~> 10.0"
 
   name = local.name
 
@@ -236,14 +279,14 @@ module "alb" {
 
 module "autoscaling" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 6.5"
+  version = "~> 9.0"
 
   for_each = {
     # On-demand instances
     ex_1 = {
       instance_type              = "t3.large"
       use_mixed_instances_policy = false
-      mixed_instances_policy     = {}
+      mixed_instances_policy     = null
       user_data                  = <<-EOT
         #!/bin/bash
 
@@ -266,16 +309,18 @@ module "autoscaling" {
           spot_allocation_strategy                 = "price-capacity-optimized"
         }
 
-        override = [
-          {
-            instance_type     = "m4.large"
-            weighted_capacity = "2"
-          },
-          {
-            instance_type     = "t3.large"
-            weighted_capacity = "1"
-          },
-        ]
+        launch_template = {
+          override = [
+            {
+              instance_type     = "m4.large"
+              weighted_capacity = "2"
+            },
+            {
+              instance_type     = "t3.large"
+              weighted_capacity = "1"
+            },
+          ]
+        }
       }
       user_data = <<-EOT
         #!/bin/bash
@@ -352,7 +397,7 @@ module "autoscaling_sg" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.0"
+  version = "~> 6.0"
 
   name = local.name
   cidr = local.vpc_cidr
