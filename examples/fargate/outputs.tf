@@ -159,3 +159,12 @@ output "task_definition_run_task_command" {
       --region ${local.region}
   EOT
 }
+
+################################################################################
+# Application Load Balancer
+################################################################################
+
+output "alb_dns_name" {
+  description = "The DNS name of the load balancer"
+  value       = module.alb.dns_name
+}
