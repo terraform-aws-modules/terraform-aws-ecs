@@ -186,9 +186,14 @@ module "ecs_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = module.alb.target_groups["ex_ecs"].arn
+      target_group_arn = module.alb.target_groups["ex-ecs"].arn
       container_name   = local.container_name
       container_port   = local.container_port
+
+      advanced_configuration = {
+        alternate_target_group_arn = module.alb.target_groups["ex-ecs-alt"].arn
+        production_listener_rule   = module.alb.listener_rules["ex-http/ex-forward"].arn
+      }
     }
   }
 
@@ -244,18 +249,57 @@ module "alb" {
   }
 
   listeners = {
-    ex_http = {
+    ex-http = {
       port     = 80
       protocol = "HTTP"
 
       forward = {
-        target_group_key = "ex_ecs"
+        target_group_key = "ex-ecs"
+      }
+
+      rules = {
+        ex-forward = {
+          priority = 100
+          actions = [{
+            forward = {
+              target_group_key = "ex-ecs"
+            }
+          }]
+          conditions = [{
+            path_pattern = {
+              values = ["/"]
+            }
+          }]
+        }
       }
     }
   }
 
   target_groups = {
-    ex_ecs = {
+    ex-ecs = {
+      backend_protocol                  = "HTTP"
+      backend_port                      = local.container_port
+      target_type                       = "ip"
+      deregistration_delay              = 5
+      load_balancing_cross_zone_enabled = true
+
+      health_check = {
+        enabled             = true
+        healthy_threshold   = 5
+        interval            = 30
+        matcher             = "200"
+        path                = "/"
+        port                = "traffic-port"
+        protocol            = "HTTP"
+        timeout             = 5
+        unhealthy_threshold = 2
+      }
+
+      # Theres nothing to attach here in this definition. Instead,
+      # ECS will attach the IPs of the tasks to this target group
+      create_attachment = false
+    }
+    ex-ecs-alt = {
       backend_protocol                  = "HTTP"
       backend_port                      = local.container_port
       target_type                       = "ip"
