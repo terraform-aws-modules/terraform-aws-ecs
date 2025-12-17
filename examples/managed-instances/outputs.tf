@@ -215,3 +215,12 @@ output "service_security_group_id" {
   description = "ID of the security group"
   value       = module.ecs_service.security_group_id
 }
+
+################################################################################
+# Application Load Balancer
+################################################################################
+
+output "alb_dns_name" {
+  description = "The DNS name of the load balancer"
+  value       = module.alb.dns_name
+}
