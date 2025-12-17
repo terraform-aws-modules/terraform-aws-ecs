@@ -169,7 +169,7 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "ordered_placement_strategy" {
-    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : {}
+    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : []
 
     content {
       field = ordered_placement_strategy.value.field
@@ -512,7 +512,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
   }
 
   dynamic "ordered_placement_strategy" {
-    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : {}
+    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : []
 
     content {
       field = ordered_placement_strategy.value.field
