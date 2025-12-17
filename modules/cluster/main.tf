@@ -154,7 +154,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 ################################################################################
 
 locals {
-  managed_instances_enabled = anytrue([for k, v in var.capacity_providers : v.managed_instances_provider != null])
+  managed_instances_enabled = var.capacity_providers != null ? anytrue([for k, v in var.capacity_providers : v.managed_instances_provider != null]) : false
 }
 
 resource "aws_ecs_capacity_provider" "this" {
@@ -166,11 +166,11 @@ resource "aws_ecs_capacity_provider" "this" {
     for_each = each.value.auto_scaling_group_provider != null ? [each.value.auto_scaling_group_provider] : []
 
     content {
-      auto_scaling_group_arn = each.value.auto_scaling_group_arn
-      managed_draining       = each.value.managed_draining
+      auto_scaling_group_arn = auto_scaling_group_provider.value.auto_scaling_group_arn
+      managed_draining       = auto_scaling_group_provider.value.managed_draining
 
       dynamic "managed_scaling" {
-        for_each = each.value.managed_scaling != null ? [each.value.managed_scaling] : []
+        for_each = auto_scaling_group_provider.value.managed_scaling != null ? [auto_scaling_group_provider.value.managed_scaling] : []
 
         content {
           instance_warmup_period    = managed_scaling.value.instance_warmup_period
@@ -182,7 +182,7 @@ resource "aws_ecs_capacity_provider" "this" {
       }
 
       # When you use managed termination protection, you must also use managed scaling otherwise managed termination protection won't work
-      managed_termination_protection = each.value.managed_scaling != null ? each.value.managed_termination_protection : "DISABLED"
+      managed_termination_protection = auto_scaling_group_provider.value.managed_scaling != null ? auto_scaling_group_provider.value.managed_termination_protection : "DISABLED"
     }
   }
 
@@ -354,7 +354,7 @@ resource "aws_ecs_capacity_provider" "this" {
 ################################################################################
 
 locals {
-  task_exec_iam_role_name = try(coalesce(var.task_exec_iam_role_name, var.name), "")
+  task_exec_iam_role_name = try(coalesce(var.task_exec_iam_role_name, "${var.name}${var.disable_default_name_postfix ? "" : "-task-exec"}"), "")
 
   create_task_exec_iam_role = var.create && var.create_task_exec_iam_role
   create_task_exec_policy   = local.create_task_exec_iam_role && var.create_task_exec_policy
@@ -509,7 +509,7 @@ resource "aws_iam_role_policy_attachment" "task_exec" {
 locals {
   create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.managed_instances_enabled
 
-  infrastructure_iam_role_name = coalesce(var.infrastructure_iam_role_name, "${var.name}-infra", "NotProvided")
+  infrastructure_iam_role_name = coalesce(var.infrastructure_iam_role_name, "${var.name}-infra")
 }
 
 data "aws_iam_policy_document" "infrastructure_assume" {
@@ -953,7 +953,7 @@ resource "aws_iam_instance_profile" "this" {
 locals {
   create_security_group = var.create && var.create_security_group && local.managed_instances_enabled
 
-  security_group_name = coalesce(var.security_group_name, "${var.name}-cluster", "NotProvided")
+  security_group_name = coalesce(var.security_group_name, "${var.name}${var.disable_default_name_postfix ? "" : "-cluster"}")
 }
 
 resource "aws_security_group" "this" {

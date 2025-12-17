@@ -25,6 +25,12 @@ variable "tags" {
   nullable    = false
 }
 
+variable "disable_default_name_postfix" {
+  description = "[DEPRECATED - will be removed in next breaking change] Determines whether to disable the default postfix added to resource names"
+  type        = bool
+  default     = false
+}
+
 ################################################################################
 # Service
 ################################################################################
@@ -187,7 +193,7 @@ variable "load_balancer" {
 variable "name" {
   description = "Name of the service (up to 255 letters, numbers, hyphens, and underscores)"
   type        = string
-  default     = null
+  default     = ""
 }
 
 variable "assign_public_ip" {

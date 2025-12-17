@@ -37,6 +37,7 @@ module "ecs" {
   cluster_name = local.name
 
   # Cluster capacity providers
+  cluster_capacity_providers = ["FARGATE", "FARGATE_SPOT", "ASG"]
   default_capacity_provider_strategy = {
     FARGATE = {
       weight = 50
@@ -49,15 +50,17 @@ module "ecs" {
 
   capacity_providers = {
     ASG = {
-      auto_scaling_group_arn         = module.autoscaling.autoscaling_group_arn
-      managed_draining               = "ENABLED"
-      managed_termination_protection = "ENABLED"
+      auto_scaling_group_provider = {
+        auto_scaling_group_arn         = module.autoscaling.autoscaling_group_arn
+        managed_draining               = "ENABLED"
+        managed_termination_protection = "ENABLED"
 
-      managed_scaling = {
-        maximum_scaling_step_size = 5
-        minimum_scaling_step_size = 1
-        status                    = "ENABLED"
-        target_capacity           = 60
+        managed_scaling = {
+          maximum_scaling_step_size = 5
+          minimum_scaling_step_size = 1
+          status                    = "ENABLED"
+          target_capacity           = 60
+        }
       }
     }
   }

@@ -16,6 +16,12 @@ variable "tags" {
   default     = {}
 }
 
+variable "disable_default_name_postfix" {
+  description = "[DEPRECATED - will be removed in next breaking change] Determines whether to disable the default postfix added to resource names"
+  type        = bool
+  default     = false
+}
+
 ################################################################################
 # Cluster
 ################################################################################
