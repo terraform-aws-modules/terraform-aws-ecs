@@ -38,40 +38,44 @@ module "ecs_cluster" {
 
   # Cluster capacity providers
   default_capacity_provider_strategy = {
-    ex_1 = {
+    ex-1 = {
       weight = 60
       base   = 20
     }
-    ex_2 = {
+    ex-2 = {
       weight = 40
     }
   }
 
-  autoscaling_capacity_providers = {
+  capacity_providers = {
     # On-demand instances
-    ex_1 = {
-      auto_scaling_group_arn         = module.autoscaling["ex_1"].autoscaling_group_arn
-      managed_draining               = "ENABLED"
-      managed_termination_protection = "ENABLED"
+    ex-1 = {
+      auto_scaling_group_provider = {
+        auto_scaling_group_arn         = module.autoscaling["ex-1"].autoscaling_group_arn
+        managed_draining               = "ENABLED"
+        managed_termination_protection = "ENABLED"
 
-      managed_scaling = {
-        maximum_scaling_step_size = 5
-        minimum_scaling_step_size = 1
-        status                    = "ENABLED"
-        target_capacity           = 60
+        managed_scaling = {
+          maximum_scaling_step_size = 5
+          minimum_scaling_step_size = 1
+          status                    = "ENABLED"
+          target_capacity           = 60
+        }
       }
     }
     # Spot instances
-    ex_2 = {
-      auto_scaling_group_arn         = module.autoscaling["ex_2"].autoscaling_group_arn
-      managed_draining               = "ENABLED"
-      managed_termination_protection = "ENABLED"
+    ex-2 = {
+      auto_scaling_group_provider = {
+        auto_scaling_group_arn         = module.autoscaling["ex-2"].autoscaling_group_arn
+        managed_draining               = "ENABLED"
+        managed_termination_protection = "ENABLED"
 
-      managed_scaling = {
-        maximum_scaling_step_size = 15
-        minimum_scaling_step_size = 5
-        status                    = "ENABLED"
-        target_capacity           = 90
+        managed_scaling = {
+          maximum_scaling_step_size = 15
+          minimum_scaling_step_size = 5
+          status                    = "ENABLED"
+          target_capacity           = 90
+        }
       }
     }
   }
@@ -119,8 +123,8 @@ module "ecs_service" {
   requires_compatibilities = ["EC2"]
   capacity_provider_strategy = {
     # On-demand instances
-    ex_1 = {
-      capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["ex_1"].name
+    ex-1 = {
+      capacity_provider = module.ecs_cluster.capacity_providers["ex-1"].name
       weight            = 1
       base              = 1
     }
@@ -186,9 +190,14 @@ module "ecs_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = module.alb.target_groups["ex_ecs"].arn
+      target_group_arn = module.alb.target_groups["ex-ecs"].arn
       container_name   = local.container_name
       container_port   = local.container_port
+
+      advanced_configuration = {
+        alternate_target_group_arn = module.alb.target_groups["ex-ecs-alt"].arn
+        production_listener_rule   = module.alb.listener_rules["ex-http/ex-forward"].arn
+      }
     }
   }
 
@@ -244,18 +253,57 @@ module "alb" {
   }
 
   listeners = {
-    ex_http = {
+    ex-http = {
       port     = 80
       protocol = "HTTP"
 
       forward = {
-        target_group_key = "ex_ecs"
+        target_group_key = "ex-ecs"
+      }
+
+      rules = {
+        ex-forward = {
+          priority = 100
+          actions = [{
+            forward = {
+              target_group_key = "ex-ecs"
+            }
+          }]
+          conditions = [{
+            path_pattern = {
+              values = ["/"]
+            }
+          }]
+        }
       }
     }
   }
 
   target_groups = {
-    ex_ecs = {
+    ex-ecs = {
+      backend_protocol                  = "HTTP"
+      backend_port                      = local.container_port
+      target_type                       = "ip"
+      deregistration_delay              = 5
+      load_balancing_cross_zone_enabled = true
+
+      health_check = {
+        enabled             = true
+        healthy_threshold   = 5
+        interval            = 30
+        matcher             = "200"
+        path                = "/"
+        port                = "traffic-port"
+        protocol            = "HTTP"
+        timeout             = 5
+        unhealthy_threshold = 2
+      }
+
+      # Theres nothing to attach here in this definition. Instead,
+      # ECS will attach the IPs of the tasks to this target group
+      create_attachment = false
+    }
+    ex-ecs-alt = {
       backend_protocol                  = "HTTP"
       backend_port                      = local.container_port
       target_type                       = "ip"
@@ -289,7 +337,7 @@ module "autoscaling" {
 
   for_each = {
     # On-demand instances
-    ex_1 = {
+    ex-1 = {
       instance_type              = "t3.large"
       use_mixed_instances_policy = false
       mixed_instances_policy     = null
@@ -305,7 +353,7 @@ module "autoscaling" {
       EOT
     }
     # Spot instances
-    ex_2 = {
+    ex-2 = {
       instance_type              = "t3.medium"
       use_mixed_instances_policy = true
       mixed_instances_policy = {

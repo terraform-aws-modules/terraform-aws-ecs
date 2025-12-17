@@ -44,9 +44,9 @@ output "cluster_capacity_providers" {
 # Capacity Provider - Autoscaling Group(s)
 ################################################################################
 
-output "autoscaling_capacity_providers" {
+output "capacity_providers" {
   description = "Map of autoscaling capacity providers created and their attributes"
-  value       = aws_ecs_capacity_provider.this
+  value       = var.capacity_providers != null ? jsondecode(time_sleep.this[0].triggers["capacity_providers"]) : {}
 }
 
 ################################################################################
@@ -54,17 +54,74 @@ output "autoscaling_capacity_providers" {
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html
 ################################################################################
 
-output "task_exec_iam_role_name" {
-  description = "Task execution IAM role name"
-  value       = try(aws_iam_role.task_exec[0].name, null)
-}
-
 output "task_exec_iam_role_arn" {
-  description = "Task execution IAM role ARN"
+  description = "The Amazon Resource Name (ARN) specifying the IAM role"
   value       = try(aws_iam_role.task_exec[0].arn, null)
 }
 
+output "task_exec_iam_role_name" {
+  description = "IAM role name"
+  value       = try(aws_iam_role.task_exec[0].name, null)
+}
+
 output "task_exec_iam_role_unique_id" {
-  description = "Stable and unique string identifying the task execution IAM role"
+  description = "Stable and unique string identifying the IAM role"
   value       = try(aws_iam_role.task_exec[0].unique_id, null)
+}
+
+############################################################################################
+# Infrastructure IAM role
+############################################################################################
+
+output "infrastructure_iam_role_arn" {
+  description = "The Amazon Resource Name (ARN) specifying the IAM role"
+  value       = try(aws_iam_role.infrastructure[0].arn, null)
+}
+
+output "infrastructure_iam_role_name" {
+  description = "IAM role name"
+  value       = try(aws_iam_role.infrastructure[0].name, null)
+}
+
+output "infrastructure_iam_role_unique_id" {
+  description = "Stable and unique string identifying the IAM role"
+  value       = try(aws_iam_role.infrastructure[0].unique_id, null)
+}
+
+################################################################################
+# Node IAM role
+################################################################################
+
+output "node_iam_role_arn" {
+  description = "The Amazon Resource Name (ARN) specifying the IAM role"
+  value       = try(aws_iam_role.node[0].arn, null)
+}
+
+output "node_iam_role_name" {
+  description = "IAM role name"
+  value       = try(aws_iam_role.node[0].name, null)
+}
+
+output "node_iam_role_unique_id" {
+  description = "Stable and unique string identifying the IAM role"
+  value       = try(aws_iam_role.node[0].unique_id, null)
+}
+
+################################################################################
+# IAM Instance Profile
+################################################################################
+
+output "node_iam_instance_profile_arn" {
+  description = "ARN assigned by AWS to the instance profile"
+  value       = try(aws_iam_instance_profile.this[0].arn, null)
+}
+
+output "node_iam_instance_profile_id" {
+  description = "Instance profile's ID"
+  value       = try(aws_iam_instance_profile.this[0].id, null)
+}
+
+output "node_iam_instance_profile_unique" {
+  description = "Stable and unique string identifying the IAM instance profile"
+  value       = try(aws_iam_instance_profile.this[0].unique_id, null)
 }

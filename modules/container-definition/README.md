@@ -106,9 +106,11 @@ module "example_ecs_container_definition" {
 
 ## Examples
 
-- [ECS Cluster Complete](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete)
-- [ECS Cluster w/ EC2 Autoscaling Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2-autoscaling)
-- [ECS Cluster w/ Fargate Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
+- [ECS cluster w/ integrated service(s)](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete)
+- [ECS container definition](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/container-definition)
+- [ECS cluster w/ EC2 Autoscaling capacity provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2-autoscaling)
+- [ECS cluster w/ Fargate capacity provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
+- [ECS cluster w/ ECS managed instances capacity provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/managed-instances)
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -116,13 +118,13 @@ module "example_ecs_container_definition" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.21 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.23 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.21 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.23 |
 
 ## Modules
 
