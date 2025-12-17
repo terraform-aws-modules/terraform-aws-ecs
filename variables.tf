@@ -690,6 +690,7 @@ variable "services" {
     tasks_iam_role_permissions_boundary = optional(string)
     tasks_iam_role_tags                 = optional(map(string))
     tasks_iam_role_policies             = optional(map(string))
+    tasks_iam_role_max_session_duration = optional(number)
     tasks_iam_role_statements = optional(list(object({
       sid           = optional(string)
       actions       = optional(list(string))

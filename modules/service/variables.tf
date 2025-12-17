@@ -977,6 +977,12 @@ variable "tasks_iam_role_statements" {
   default = null
 }
 
+variable "tasks_iam_role_max_session_duration" {
+  description = "Maximum session duration (in seconds) for ECS tasks role. Default is 3600."
+  type        = number
+  default     = null
+}
+
 ################################################################################
 # Task Set
 ################################################################################

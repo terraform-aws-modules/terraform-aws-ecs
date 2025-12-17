@@ -127,6 +127,7 @@ module "wrapper" {
   task_tags                               = try(each.value.task_tags, var.defaults.task_tags, {})
   tasks_iam_role_arn                      = try(each.value.tasks_iam_role_arn, var.defaults.tasks_iam_role_arn, null)
   tasks_iam_role_description              = try(each.value.tasks_iam_role_description, var.defaults.tasks_iam_role_description, null)
+  tasks_iam_role_max_session_duration     = try(each.value.tasks_iam_role_max_session_duration, var.defaults.tasks_iam_role_max_session_duration, null)
   tasks_iam_role_name                     = try(each.value.tasks_iam_role_name, var.defaults.tasks_iam_role_name, null)
   tasks_iam_role_path                     = try(each.value.tasks_iam_role_path, var.defaults.tasks_iam_role_path, null)
   tasks_iam_role_permissions_boundary     = try(each.value.tasks_iam_role_permissions_boundary, var.defaults.tasks_iam_role_permissions_boundary, null)
