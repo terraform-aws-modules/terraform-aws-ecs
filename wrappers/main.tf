@@ -34,7 +34,7 @@ module "wrapper" {
   create_task_exec_iam_role                         = try(each.value.create_task_exec_iam_role, var.defaults.create_task_exec_iam_role, false)
   create_task_exec_policy                           = try(each.value.create_task_exec_policy, var.defaults.create_task_exec_policy, true)
   default_capacity_provider_strategy                = try(each.value.default_capacity_provider_strategy, var.defaults.default_capacity_provider_strategy, null)
-  disable_default_name_postfix                      = try(each.value.disable_default_name_postfix, var.defaults.disable_default_name_postfix, false)
+  disable_v7_default_name_description               = try(each.value.disable_v7_default_name_description, var.defaults.disable_v7_default_name_description, false)
   infrastructure_iam_role_description               = try(each.value.infrastructure_iam_role_description, var.defaults.infrastructure_iam_role_description, null)
   infrastructure_iam_role_name                      = try(each.value.infrastructure_iam_role_name, var.defaults.infrastructure_iam_role_name, null)
   infrastructure_iam_role_override_policy_documents = try(each.value.infrastructure_iam_role_override_policy_documents, var.defaults.infrastructure_iam_role_override_policy_documents, [])

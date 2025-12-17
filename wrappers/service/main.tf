@@ -49,7 +49,7 @@ module "wrapper" {
   deployment_maximum_percent                   = try(each.value.deployment_maximum_percent, var.defaults.deployment_maximum_percent, 200)
   deployment_minimum_healthy_percent           = try(each.value.deployment_minimum_healthy_percent, var.defaults.deployment_minimum_healthy_percent, 66)
   desired_count                                = try(each.value.desired_count, var.defaults.desired_count, 1)
-  disable_default_name_postfix                 = try(each.value.disable_default_name_postfix, var.defaults.disable_default_name_postfix, false)
+  disable_v7_default_name_description          = try(each.value.disable_v7_default_name_description, var.defaults.disable_v7_default_name_description, false)
   enable_autoscaling                           = try(each.value.enable_autoscaling, var.defaults.enable_autoscaling, true)
   enable_ecs_managed_tags                      = try(each.value.enable_ecs_managed_tags, var.defaults.enable_ecs_managed_tags, true)
   enable_execute_command                       = try(each.value.enable_execute_command, var.defaults.enable_execute_command, false)
