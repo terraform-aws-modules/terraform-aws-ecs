@@ -16,7 +16,7 @@ variable "tags" {
   default     = {}
 }
 
-variable "disable_default_name_postfix" {
+variable "disable_v7_default_name_description" {
   description = "[DEPRECATED - will be removed in next breaking change] Determines whether to disable the default postfix added to resource names"
   type        = bool
   default     = false

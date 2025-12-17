@@ -354,7 +354,7 @@ resource "aws_ecs_capacity_provider" "this" {
 ################################################################################
 
 locals {
-  task_exec_iam_role_name = try(coalesce(var.task_exec_iam_role_name, "${var.name}${var.disable_default_name_postfix ? "" : "-task-exec"}"), "")
+  task_exec_iam_role_name = try(coalesce(var.task_exec_iam_role_name, "${var.name}${var.disable_v7_default_name_description ? "" : "-task-exec"}"), "")
 
   create_task_exec_iam_role = var.create && var.create_task_exec_iam_role
   create_task_exec_policy   = local.create_task_exec_iam_role && var.create_task_exec_policy
@@ -794,7 +794,7 @@ resource "aws_iam_role" "node" {
   name        = var.node_iam_role_use_name_prefix ? null : local.node_iam_role_name
   name_prefix = var.node_iam_role_use_name_prefix ? "${local.node_iam_role_name}-" : null
   path        = var.node_iam_role_path
-  description = var.node_iam_role_description
+  description = coalesce(var.node_iam_role_description, "Amazon ECS managed instance node role for ECS cluster ${var.name}")
 
   assume_role_policy    = data.aws_iam_policy_document.node_assume_role_policy[0].json
   permissions_boundary  = var.node_iam_role_permissions_boundary
@@ -953,7 +953,7 @@ resource "aws_iam_instance_profile" "this" {
 locals {
   create_security_group = var.create && var.create_security_group && local.managed_instances_enabled
 
-  security_group_name = coalesce(var.security_group_name, "${var.name}${var.disable_default_name_postfix ? "" : "-cluster"}")
+  security_group_name = coalesce(var.security_group_name, "${var.name}${var.disable_v7_default_name_description ? "" : "-cluster"}")
 }
 
 resource "aws_security_group" "this" {
