@@ -690,7 +690,7 @@ variable "services" {
     assign_public_ip   = optional(bool)
     security_group_ids = optional(list(string))
     subnet_ids         = optional(list(string))
-    ordered_placement_strategy = optional(map(object({
+    ordered_placement_strategy = optional(list(object({
       field = optional(string)
       type  = string
     })))
