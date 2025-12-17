@@ -1059,7 +1059,7 @@ resource "aws_ecs_task_definition" "this" {
 ################################################################################
 
 locals {
-  task_exec_iam_role_name = coalesce(var.task_exec_iam_role_name, var.name, "NotProvided")
+  task_exec_iam_role_name = coalesce(var.task_exec_iam_role_name, "${var.name}${var.disable_default_name_postfix ? "" : "-task-exec"}")
 
   create_task_exec_iam_role = local.create_task_definition && var.create_task_exec_iam_role
   create_task_exec_policy   = local.create_task_exec_iam_role && var.create_task_exec_policy
@@ -1213,7 +1213,7 @@ resource "aws_iam_role_policy_attachment" "task_exec" {
 ################################################################################
 
 locals {
-  tasks_iam_role_name   = coalesce(var.tasks_iam_role_name, var.name, "NotProvided")
+  tasks_iam_role_name   = coalesce(var.tasks_iam_role_name, "${var.name}${var.disable_default_name_postfix ? "" : "-tasks"}")
   create_tasks_iam_role = local.create_task_definition && var.create_tasks_iam_role
 }
 
@@ -1871,7 +1871,7 @@ resource "aws_appautoscaling_scheduled_action" "this" {
 
 locals {
   create_security_group = var.create && var.create_security_group && var.network_mode == "awsvpc"
-  security_group_name   = coalesce(var.security_group_name, "${var.name}-service", "NotProvided")
+  security_group_name   = coalesce(var.security_group_name, "${var.name}${var.disable_default_name_postfix ? "" : "-service"}")
 }
 
 data "aws_subnet" "this" {
@@ -1889,7 +1889,7 @@ resource "aws_security_group" "this" {
 
   name        = var.security_group_use_name_prefix ? null : local.security_group_name
   name_prefix = var.security_group_use_name_prefix ? "${local.security_group_name}-" : null
-  description = coalesce(var.security_group_description, "Security group for ECS Service ${var.name}")
+  description = try(coalesce(var.security_group_description, (var.disable_default_name_postfix ? null : "Security group for ECS Service ${var.name}")), null)
   vpc_id      = var.vpc_id != null ? var.vpc_id : data.aws_subnet.this[0].vpc_id
 
   tags = merge(
@@ -1956,7 +1956,7 @@ locals {
   needs_infrastructure_iam_role  = var.volume_configuration != null || var.vpc_lattice_configurations != null || var.deployment_configuration != null
   create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.needs_infrastructure_iam_role
   infrastructure_iam_role_arn    = local.needs_infrastructure_iam_role ? try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn) : null
-  infrastructure_iam_role_name   = coalesce(var.infrastructure_iam_role_name, var.name, "NotProvided")
+  infrastructure_iam_role_name   = coalesce(var.infrastructure_iam_role_name, "${var.name}${var.disable_default_name_postfix ? "" : "-infra"}")
 }
 
 data "aws_iam_policy_document" "infrastructure_iam_role" {

@@ -8,6 +8,8 @@ module "cluster" {
   create = var.create
   region = var.region
 
+  disable_default_name_postfix = var.disable_default_name_postfix
+
   # Cluster
   configuration            = var.cluster_configuration
   name                     = var.cluster_name
@@ -99,6 +101,8 @@ module "service" {
   create         = each.value.create
   create_service = each.value.create_service
   region         = var.region
+
+  disable_default_name_postfix = var.disable_default_name_postfix
 
   # Service
   ignore_task_definition_changes     = each.value.ignore_task_definition_changes
