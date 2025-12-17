@@ -651,7 +651,7 @@ variable "services" {
       }))
       lifecycle_hook = optional(map(object({
         hook_target_arn  = string
-        role_arn         = string
+        role_arn         = optional(string)
         lifecycle_stages = list(string)
         hook_details     = optional(string)
       })))
@@ -675,8 +675,8 @@ variable "services" {
       target_group_arn = optional(string)
       advanced_configuration = optional(object({
         alternate_target_group_arn = string
-        production_listener_rule   = string
-        role_arn                   = string
+        production_listener_rule   = string # Should be optional but bug in provider
+        role_arn                   = optional(string)
         test_listener_rule         = optional(string)
       }))
     })))
