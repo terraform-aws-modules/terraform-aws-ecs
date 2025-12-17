@@ -129,7 +129,7 @@ module "ecs_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = module.alb.target_groups["ex_ecs"].arn
+      target_group_arn = module.alb.target_groups["ex-ecs"].arn
       container_name   = local.container_name
       container_port   = local.container_port
     }
@@ -182,18 +182,18 @@ module "alb" {
   }
 
   listeners = {
-    ex_http = {
+    ex-http = {
       port     = local.container_port
       protocol = "HTTP"
 
       forward = {
-        target_group_key = "ex_ecs"
+        target_group_key = "ex-ecs"
       }
     }
   }
 
   target_groups = {
-    ex_ecs = {
+    ex-ecs = {
       backend_protocol                  = "HTTP"
       backend_port                      = local.container_port
       target_type                       = "ip"

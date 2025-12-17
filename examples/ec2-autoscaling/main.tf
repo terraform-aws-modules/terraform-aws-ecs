@@ -38,20 +38,20 @@ module "ecs_cluster" {
 
   # Cluster capacity providers
   default_capacity_provider_strategy = {
-    ex_1 = {
+    ex-1 = {
       weight = 60
       base   = 20
     }
-    ex_2 = {
+    ex-2 = {
       weight = 40
     }
   }
 
   capacity_providers = {
     # On-demand instances
-    ex_1 = {
+    ex-1 = {
       auto_scaling_group_provider = {
-        auto_scaling_group_arn         = module.autoscaling["ex_1"].autoscaling_group_arn
+        auto_scaling_group_arn         = module.autoscaling["ex-1"].autoscaling_group_arn
         managed_draining               = "ENABLED"
         managed_termination_protection = "ENABLED"
 
@@ -64,9 +64,9 @@ module "ecs_cluster" {
       }
     }
     # Spot instances
-    ex_2 = {
+    ex-2 = {
       auto_scaling_group_provider = {
-        auto_scaling_group_arn         = module.autoscaling["ex_2"].autoscaling_group_arn
+        auto_scaling_group_arn         = module.autoscaling["ex-2"].autoscaling_group_arn
         managed_draining               = "ENABLED"
         managed_termination_protection = "ENABLED"
 
@@ -123,8 +123,8 @@ module "ecs_service" {
   requires_compatibilities = ["EC2"]
   capacity_provider_strategy = {
     # On-demand instances
-    ex_1 = {
-      capacity_provider = module.ecs_cluster.capacity_providers["ex_1"].name
+    ex-1 = {
+      capacity_provider = module.ecs_cluster.capacity_providers["ex-1"].name
       weight            = 1
       base              = 1
     }
@@ -337,7 +337,7 @@ module "autoscaling" {
 
   for_each = {
     # On-demand instances
-    ex_1 = {
+    ex-1 = {
       instance_type              = "t3.large"
       use_mixed_instances_policy = false
       mixed_instances_policy     = null
@@ -353,7 +353,7 @@ module "autoscaling" {
       EOT
     }
     # Spot instances
-    ex_2 = {
+    ex-2 = {
       instance_type              = "t3.medium"
       use_mixed_instances_policy = true
       mixed_instances_policy = {

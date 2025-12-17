@@ -177,15 +177,15 @@ module "ecs_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = module.alb.target_groups["ex_ecs"].arn
+      target_group_arn = module.alb.target_groups["ex-ecs"].arn
       container_name   = local.container_name
       container_port   = local.container_port
 
       # for blue/green deployments
       advanced_configuration = {
-        alternate_target_group_arn = module.alb.target_groups["ex_ecs_alternate"].arn
-        production_listener_rule   = module.alb.listener_rules["ex_http/production"].arn
-        test_listener_rule         = module.alb.listener_rules["ex_http/test"].arn
+        alternate_target_group_arn = module.alb.target_groups["ex-ecs-alternate"].arn
+        production_listener_rule   = module.alb.listener_rules["ex-http/production"].arn
+        test_listener_rule         = module.alb.listener_rules["ex-http/test"].arn
       }
     }
   }
@@ -309,7 +309,7 @@ module "alb" {
   }
 
   listeners = {
-    ex_http = {
+    ex-http = {
       port     = 80
       protocol = "HTTP"
 
@@ -328,11 +328,11 @@ module "alb" {
               weighted_forward = {
                 target_groups = [
                   {
-                    target_group_key = "ex_ecs"
+                    target_group_key = "ex-ecs"
                     weight           = 100
                   },
                   {
-                    target_group_key = "ex_ecs_alternate"
+                    target_group_key = "ex-ecs-alternate"
                     weight           = 0
                   }
                 ]
@@ -354,7 +354,7 @@ module "alb" {
               weighted_forward = {
                 target_groups = [
                   {
-                    target_group_key = "ex_ecs_alternate"
+                    target_group_key = "ex-ecs-alternate"
                     weight           = 100
                   }
                 ]
@@ -374,7 +374,7 @@ module "alb" {
   }
 
   target_groups = {
-    ex_ecs = {
+    ex-ecs = {
       backend_protocol                  = "HTTP"
       backend_port                      = local.container_port
       target_type                       = "ip"
@@ -399,7 +399,7 @@ module "alb" {
     }
 
     # for blue/green deployments
-    ex_ecs_alternate = {
+    ex-ecs-alternate = {
       backend_protocol                  = "HTTP"
       backend_port                      = local.container_port
       target_type                       = "ip"

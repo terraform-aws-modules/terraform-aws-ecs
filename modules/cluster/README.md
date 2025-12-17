@@ -5,6 +5,7 @@ Terraform module which creates Amazon ECS (Elastic Container Service) cluster re
 ## Available Features
 
 - ECS cluster
+- ECS managed instances capacity providers including necessary IAM roles, permissions, and security group
 - Fargate capacity providers
 - EC2 AutoScaling Group capacity providers
 - ECS Service w/ task definition, task set, and container definition support
@@ -12,6 +13,77 @@ Terraform module which creates Amazon ECS (Elastic Container Service) cluster re
 For more details see the [design doc](https://github.com/terraform-aws-modules/terraform-aws-ecs/blob/master/docs/README.md)
 
 ## Usage
+
+### ECS Managed Instances Capacity Providers
+
+```hcl
+module "ecs_cluster" {
+  source = "terraform-aws-modules/ecs/aws//modules/cluster"
+
+  name = "ecs-managed-instances"
+
+  configuration = {
+    execute_command_configuration = {
+      logging = "OVERRIDE"
+      log_configuration = {
+        cloud_watch_log_group_name = "/aws/ecs/aws-managed-instances"
+      }
+    }
+  }
+
+  capacity_providers = {
+    mi-example = {
+      managed_instances_provider = {
+        instance_launch_template = {
+          instance_requirements = {
+            instance_generations = ["current"]
+            cpu_manufacturers    = ["intel", "amd"]
+
+            memory_mib = {
+              max = 8192
+              min = 1024
+            }
+
+            vcpu_count = {
+              max = 4
+              min = 1
+            }
+          }
+
+          network_configuration = {
+            subnets = ["subnet-abcde012", "subnet-bcde012a", "subnet-fghi345a"]
+          }
+
+          storage_configuration = {
+            storage_size_gib = 30
+          }
+        }
+      }
+    }
+  }
+
+  # Managed instances security group
+  vpc_id = "vpc-1234556abcdef"
+  security_group_ingress_rules = {
+    alb-http = {
+      from_port                    = 4000
+      description                  = "Service port"
+      referenced_security_group_id = "sg-12345678"
+    }
+  }
+  security_group_egress_rules = {
+    all = {
+      cidr_ipv4   = "0.0.0.0/0"
+      ip_protocol = "-1"
+    }
+  }
+
+  tags = {
+    Environment = "Development"
+    Project     = "EcsEc2"
+  }
+}
+```
 
 ### Fargate Capacity Providers
 
@@ -30,6 +102,7 @@ module "ecs_cluster" {
     }
   }
 
+  cluster_capacity_providers = ["FARGATE", "FARGATE_SPOT"]
   default_capacity_provider_strategy = {
     FARGATE = {
       weight = 50
@@ -74,29 +147,33 @@ module "ecs_cluster" {
     }
   }
 
-  autoscaling_capacity_providers = {
+  capacity_providers = {
     one = {
-      auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-one-20220603194933774300000011"
-      managed_draining               = "DISABLED"
-      managed_termination_protection = "ENABLED"
+      auto_scaling_group_provider = {
+        auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-one-20220603194933774300000011"
+        managed_draining               = "DISABLED"
+        managed_termination_protection = "ENABLED"
 
-      managed_scaling = {
-        maximum_scaling_step_size = 5
-        minimum_scaling_step_size = 1
-        status                    = "ENABLED"
-        target_capacity           = 60
+        managed_scaling = {
+          maximum_scaling_step_size = 5
+          minimum_scaling_step_size = 1
+          status                    = "ENABLED"
+          target_capacity           = 60
+        }
       }
     }
     two = {
-      auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-two-20220603194933774300000022"
-      managed_draining               = "ENABLED"
-      managed_termination_protection = "ENABLED"
+      auto_scaling_group_provider = {
+        auto_scaling_group_arn         = "arn:aws:autoscaling:eu-west-1:012345678901:autoScalingGroup:08419a61:autoScalingGroupName/ecs-ec2-two-20220603194933774300000022"
+        managed_draining               = "ENABLED"
+        managed_termination_protection = "ENABLED"
 
-      managed_scaling = {
-        maximum_scaling_step_size = 15
-        minimum_scaling_step_size = 5
-        status                    = "ENABLED"
-        target_capacity           = 90
+        managed_scaling = {
+          maximum_scaling_step_size = 15
+          minimum_scaling_step_size = 5
+          status                    = "ENABLED"
+          target_capacity           = 90
+        }
       }
     }
   }
@@ -125,9 +202,11 @@ module "ecs_cluster" {
 
 ## Examples
 
-- [ECS Cluster Complete](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete)
-- [ECS Cluster w/ EC2 Autoscaling Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2-autoscaling)
-- [ECS Cluster w/ Fargate Capacity Provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
+- [ECS cluster w/ integrated service(s)](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete)
+- [ECS container definition](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/container-definition)
+- [ECS cluster w/ EC2 Autoscaling capacity provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2-autoscaling)
+- [ECS cluster w/ Fargate capacity provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
+- [ECS cluster w/ ECS managed instances capacity provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/managed-instances)
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
