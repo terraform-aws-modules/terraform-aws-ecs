@@ -226,8 +226,10 @@ module "ecs" {
         }
       }
 
-      tasks_iam_role_name        = "${local.name}-tasks"
-      tasks_iam_role_description = "Example tasks IAM role for ${local.name}"
+      tasks_iam_role_name                 = "${local.name}-tasks"
+      tasks_iam_role_description          = "Example tasks IAM role for ${local.name}"
+      tasks_iam_role_max_session_duration = 7200
+
       tasks_iam_role_policies = {
         ReadOnlyAccess = "arn:aws:iam::aws:policy/ReadOnlyAccess"
       }

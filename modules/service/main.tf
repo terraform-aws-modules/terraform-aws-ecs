@@ -1247,6 +1247,7 @@ resource "aws_iam_role" "tasks" {
   description = var.tasks_iam_role_description
 
   assume_role_policy    = data.aws_iam_policy_document.tasks_assume[0].json
+  max_session_duration  = var.tasks_iam_role_max_session_duration
   permissions_boundary  = var.tasks_iam_role_permissions_boundary
   force_detach_policies = true
 

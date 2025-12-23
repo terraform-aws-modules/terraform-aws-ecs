@@ -158,6 +158,7 @@ module "service" {
   tasks_iam_role_tags                 = each.value.tasks_iam_role_tags
   tasks_iam_role_policies             = each.value.tasks_iam_role_policies
   tasks_iam_role_statements           = each.value.tasks_iam_role_statements
+  tasks_iam_role_max_session_duration = each.value.tasks_iam_role_max_session_duration
 
   # Task set
   external_id               = each.value.external_id

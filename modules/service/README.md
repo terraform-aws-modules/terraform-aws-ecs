@@ -331,6 +331,7 @@ module "ecs_service" {
 | <a name="input_task_tags"></a> [task\_tags](#input\_task\_tags) | A map of additional tags to add to the task definition/set created | `map(string)` | `{}` | no |
 | <a name="input_tasks_iam_role_arn"></a> [tasks\_iam\_role\_arn](#input\_tasks\_iam\_role\_arn) | Existing IAM role ARN | `string` | `null` | no |
 | <a name="input_tasks_iam_role_description"></a> [tasks\_iam\_role\_description](#input\_tasks\_iam\_role\_description) | Description of the role | `string` | `null` | no |
+| <a name="input_tasks_iam_role_max_session_duration"></a> [tasks\_iam\_role\_max\_session\_duration](#input\_tasks\_iam\_role\_max\_session\_duration) | Maximum session duration (in seconds) for ECS tasks role. Default is 3600. | `number` | `null` | no |
 | <a name="input_tasks_iam_role_name"></a> [tasks\_iam\_role\_name](#input\_tasks\_iam\_role\_name) | Name to use on IAM role created | `string` | `null` | no |
 | <a name="input_tasks_iam_role_path"></a> [tasks\_iam\_role\_path](#input\_tasks\_iam\_role\_path) | IAM role path | `string` | `null` | no |
 | <a name="input_tasks_iam_role_permissions_boundary"></a> [tasks\_iam\_role\_permissions\_boundary](#input\_tasks\_iam\_role\_permissions\_boundary) | ARN of the policy that is used to set the permissions boundary for the IAM role | `string` | `null` | no |
