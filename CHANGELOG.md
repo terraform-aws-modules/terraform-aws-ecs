@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.11.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.10.0...v6.11.0) (2025-12-23)
+
+### Features
+
+* Enable max session duration adjustment on tasks role ([#384](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/384)) ([37a9326](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/37a9326f196d7f3ad397cba04c3dcd61de24f53f))
+
 ## [6.10.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.9.0...v6.10.0) (2025-11-21)
 
 ### Features
