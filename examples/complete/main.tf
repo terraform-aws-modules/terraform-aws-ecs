@@ -169,9 +169,7 @@ module "ecs" {
           logConfiguration = {
             logDriver = "awsfirelens"
             options = {
-              Name                    = "firehose"
-              region                  = local.region
-              delivery_stream         = "my-stream"
+              Name                    = "stdout"
               log-driver-buffer-limit = "2097152"
             }
           }
