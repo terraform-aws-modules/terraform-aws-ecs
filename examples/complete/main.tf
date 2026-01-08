@@ -169,9 +169,7 @@ module "ecs" {
           logConfiguration = {
             logDriver = "awsfirelens"
             options = {
-              Name                    = "firehose"
-              region                  = local.region
-              delivery_stream         = "my-stream"
+              Name                    = "stdout"
               log-driver-buffer-limit = "2097152"
             }
           }
@@ -226,8 +224,10 @@ module "ecs" {
         }
       }
 
-      tasks_iam_role_name        = "${local.name}-tasks"
-      tasks_iam_role_description = "Example tasks IAM role for ${local.name}"
+      tasks_iam_role_name                 = "${local.name}-tasks"
+      tasks_iam_role_description          = "Example tasks IAM role for ${local.name}"
+      tasks_iam_role_max_session_duration = 7200
+
       tasks_iam_role_policies = {
         ReadOnlyAccess = "arn:aws:iam::aws:policy/ReadOnlyAccess"
       }
