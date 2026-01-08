@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.12.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.11.0...v6.12.0) (2026-01-08)
+
+### Features
+
+* Add provider meta user-agent ([#385](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/385)) ([37762d2](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/37762d2276dbe3f66e4f6274ecb723c1efe6d956))
+
 ## [6.11.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.10.0...v6.11.0) (2025-12-23)
 
 ### Features
