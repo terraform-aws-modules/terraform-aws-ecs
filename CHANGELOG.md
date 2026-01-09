@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.0.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.12.0...v7.0.0) (2026-01-09)
+
+### ⚠ BREAKING CHANGES
+
+* Add support for ECS managed instances (#364)
+
+### Features
+
+* Add support for ECS managed instances ([#364](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/364)) ([f609ca9](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/f609ca9dbcceb73f81537a4c0ab4bf40faf7e7c0))
+
 ## [6.12.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.11.0...v6.12.0) (2026-01-08)
 
 ### Features
