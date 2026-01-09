@@ -196,6 +196,7 @@ resource "aws_ecs_capacity_provider" "this" {
         for_each = managed_instances_provider.value.instance_launch_template != null ? [managed_instances_provider.value.instance_launch_template] : []
 
         content {
+          capacity_option_type     = instance_launch_template.value.capacity_option_type
           ec2_instance_profile_arn = local.create_node_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : instance_launch_template.value.ec2_instance_profile_arn
 
           dynamic "instance_requirements" {
