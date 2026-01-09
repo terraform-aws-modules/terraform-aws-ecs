@@ -157,6 +157,7 @@ variable "capacity_providers" {
     managed_instances_provider = optional(object({
       infrastructure_role_arn = optional(string)
       instance_launch_template = object({
+        capacity_option_type     = optional(string)
         ec2_instance_profile_arn = optional(string)
         instance_requirements = optional(object({
           accelerator_count = optional(object({
