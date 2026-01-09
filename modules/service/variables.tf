@@ -25,6 +25,12 @@ variable "tags" {
   nullable    = false
 }
 
+variable "disable_v7_default_name_description" {
+  description = "[DEPRECATED - will be removed in v8.0] Determines whether to disable the default postfix added to resource names and descriptions added in v7.0"
+  type        = bool
+  default     = false
+}
+
 ################################################################################
 # Service
 ################################################################################
@@ -93,7 +99,7 @@ variable "deployment_configuration" {
     }))
     lifecycle_hook = optional(map(object({
       hook_target_arn  = string
-      role_arn         = string
+      role_arn         = optional(string)
       lifecycle_stages = list(string)
       hook_details     = optional(string)
     })))
@@ -176,8 +182,8 @@ variable "load_balancer" {
     target_group_arn = optional(string)
     advanced_configuration = optional(object({
       alternate_target_group_arn = string
-      production_listener_rule   = string
-      role_arn                   = string
+      production_listener_rule   = string # Should be optional but bug in provider
+      role_arn                   = optional(string)
       test_listener_rule         = optional(string)
     }))
   }))
@@ -187,7 +193,7 @@ variable "load_balancer" {
 variable "name" {
   description = "Name of the service (up to 255 letters, numbers, hyphens, and underscores)"
   type        = string
-  default     = null
+  default     = ""
 }
 
 variable "assign_public_ip" {
@@ -225,7 +231,7 @@ variable "vpc_id" {
 
 variable "ordered_placement_strategy" {
   description = "Service level strategy rules that are taken into consideration during task placement. List from top to bottom in order of precedence"
-  type = map(object({
+  type = list(object({
     field = optional(string)
     type  = string
   }))
@@ -683,7 +689,7 @@ variable "proxy_configuration" {
 }
 
 variable "requires_compatibilities" {
-  description = "Set of launch types required by the task. The valid values are `EC2` and `FARGATE`"
+  description = "Set of launch types required by the task. The valid values are `EC2`, `FARGATE`, `EXTERNAL`, and `MANAGED_INSTANCES`"
   type        = list(string)
   default     = ["FARGATE"]
   nullable    = false
@@ -1298,7 +1304,7 @@ variable "security_group_tags" {
 }
 
 ############################################################################################
-# ECS Infrastructure IAM role
+# Infrastructure IAM role
 ############################################################################################
 
 variable "create_infrastructure_iam_role" {

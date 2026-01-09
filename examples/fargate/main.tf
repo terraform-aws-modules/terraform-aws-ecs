@@ -37,6 +37,7 @@ module "ecs_cluster" {
   name = local.name
 
   # Capacity provider
+  cluster_capacity_providers = ["FARGATE", "FARGATE_SPOT"]
   default_capacity_provider_strategy = {
     FARGATE = {
       weight = 50
@@ -174,16 +175,15 @@ module "ecs_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = module.alb.target_groups["ex_ecs"].arn
+      target_group_arn = module.alb.target_groups["ex-ecs"].arn
       container_name   = local.container_name
       container_port   = local.container_port
 
       # for blue/green deployments
       advanced_configuration = {
-        alternate_target_group_arn = module.alb.target_groups["ex_ecs_alternate"].arn
-        production_listener_rule   = module.alb.listener_rules["ex_http/production"].arn
-        test_listener_rule         = module.alb.listener_rules["ex_http/test"].arn
-        role_arn                   = aws_iam_role.ecs_elb_permissions.arn
+        alternate_target_group_arn = module.alb.target_groups["ex-ecs-alternate"].arn
+        production_listener_rule   = module.alb.listener_rules["ex-http/production"].arn
+        test_listener_rule         = module.alb.listener_rules["ex-http/test"].arn
       }
     }
   }
@@ -209,12 +209,6 @@ module "ecs_service" {
   }
 
   tags = local.tags
-
-  depends_on = [
-    aws_iam_role.ecs_elb_permissions,
-    aws_iam_role_policy_attachment.ecs_service_role,
-    aws_iam_role_policy_attachment.ecs_elb_management_role
-  ]
 }
 
 ################################################################################
@@ -313,7 +307,7 @@ module "alb" {
   }
 
   listeners = {
-    ex_http = {
+    ex-http = {
       port     = 80
       protocol = "HTTP"
 
@@ -332,11 +326,11 @@ module "alb" {
               weighted_forward = {
                 target_groups = [
                   {
-                    target_group_key = "ex_ecs"
+                    target_group_key = "ex-ecs"
                     weight           = 100
                   },
                   {
-                    target_group_key = "ex_ecs_alternate"
+                    target_group_key = "ex-ecs-alternate"
                     weight           = 0
                   }
                 ]
@@ -358,7 +352,7 @@ module "alb" {
               weighted_forward = {
                 target_groups = [
                   {
-                    target_group_key = "ex_ecs_alternate"
+                    target_group_key = "ex-ecs-alternate"
                     weight           = 100
                   }
                 ]
@@ -378,7 +372,7 @@ module "alb" {
   }
 
   target_groups = {
-    ex_ecs = {
+    ex-ecs = {
       backend_protocol                  = "HTTP"
       backend_port                      = local.container_port
       target_type                       = "ip"
@@ -403,7 +397,7 @@ module "alb" {
     }
 
     # for blue/green deployments
-    ex_ecs_alternate = {
+    ex-ecs-alternate = {
       backend_protocol                  = "HTTP"
       backend_port                      = local.container_port
       target_type                       = "ip"
@@ -446,34 +440,4 @@ module "vpc" {
   single_nat_gateway = true
 
   tags = local.tags
-}
-
-resource "aws_iam_role" "ecs_elb_permissions" {
-  name = "${local.name}-ecs-elb-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = [
-            "ecs-tasks.amazonaws.com",
-            "ecs.amazonaws.com",
-          ]
-        }
-      }
-    ]
-  })
-}
-
-# for example purposes only
-resource "aws_iam_role_policy_attachment" "ecs_service_role" {
-  role       = aws_iam_role.ecs_elb_permissions.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_elb_management_role" {
-  role       = aws_iam_role.ecs_elb_permissions.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonECSInfrastructureRolePolicyForLoadBalancers"
 }

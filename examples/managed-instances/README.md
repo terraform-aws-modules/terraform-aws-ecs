@@ -1,10 +1,10 @@
-# ECS Clusters w/ Fargate
+# ECS Clusters w/ ECS Managed Instances
 
 Configuration in this directory creates:
 
-- ECS cluster using Fargate (on-demand and spot) capacity providers
+- ECS cluster using ECS Managed Instances capacity provider
 - Example ECS service that utilizes
-  - AWS Firelens using FluentBit sidecar container definition
+  - AWS FireLens using FluentBit sidecar container definition
   - Service connect configuration
   - Load balancer target group attachment
   - Security group for access to the example service
@@ -13,13 +13,27 @@ Configuration in this directory creates:
 
 To run this example you need to execute:
 
+> [!CAUTION]
+> Due to the ECS managed instances API, it appears that you need network connectivity quite early in the creation process and therefore also quite late in the deletion process. Therefore, for this example, a two step apply is necessary to create/destroy the resources successfully. The error you will see during creation if you do not follow this process is as follows:
+>
+> `Error: creating ECS Capacity Provider (mi-example): operation error ECS: CreateCapacityProvider, https response error StatusCode: 400, RequestID: 112ee8fc-7ffe-4f83-ae13-cb3a2efdb1c8, ClientException: Caught ServiceAccessDeniedException for ECSInfrastructureRole[arn:aws:iam::00000000000:role/ex-managed-instances-infra-2025121618163874450000000b]
+>
+> During deletion, you will see the process hang and timeout and notice that the managed instance agent is unable to connect and therefore unable to drain.
+> If you create your network resources in a separate workspace/statefile (which you should!), it is unlikely you will face these issues.
+
 ```bash
 terraform init
 terraform plan
+terraform apply -target=module.vpc # to ensure NAT Gateway is created to allow network access quite early
 terraform apply
 ```
 
 Note that this example may create resources which will incur monetary charges on your AWS bill. Run `terraform destroy` when you no longer need these resources.
+
+```bash
+terraform destroy -target=module.ecs_service -target=module.ecs_cluster
+terraform destroy
+```
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -27,13 +41,13 @@ Note that this example may create resources which will incur monetary charges on
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.28 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.23 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.28 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.23 |
 
 ## Modules
 
@@ -42,16 +56,13 @@ Note that this example may create resources which will incur monetary charges on
 | <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | ~> 10.0 |
 | <a name="module_ecs_cluster"></a> [ecs\_cluster](#module\_ecs\_cluster) | ../../modules/cluster | n/a |
 | <a name="module_ecs_service"></a> [ecs\_service](#module\_ecs\_service) | ../../modules/service | n/a |
-| <a name="module_ecs_task_definition"></a> [ecs\_task\_definition](#module\_ecs\_task\_definition) | ../../modules/service | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 6.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [aws_service_discovery_http_namespace.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/service_discovery_http_namespace) | resource |
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
-| [aws_ssm_parameter.fluentbit](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
 
@@ -101,7 +112,6 @@ No inputs.
 | <a name="output_service_tasks_iam_role_arn"></a> [service\_tasks\_iam\_role\_arn](#output\_service\_tasks\_iam\_role\_arn) | Tasks IAM role ARN |
 | <a name="output_service_tasks_iam_role_name"></a> [service\_tasks\_iam\_role\_name](#output\_service\_tasks\_iam\_role\_name) | Tasks IAM role name |
 | <a name="output_service_tasks_iam_role_unique_id"></a> [service\_tasks\_iam\_role\_unique\_id](#output\_service\_tasks\_iam\_role\_unique\_id) | Stable and unique string identifying the tasks IAM role |
-| <a name="output_task_definition_run_task_command"></a> [task\_definition\_run\_task\_command](#output\_task\_definition\_run\_task\_command) | awscli command to run the standalone task |
 | <a name="output_task_exec_iam_role_arn"></a> [task\_exec\_iam\_role\_arn](#output\_task\_exec\_iam\_role\_arn) | Task execution IAM role ARN |
 | <a name="output_task_exec_iam_role_name"></a> [task\_exec\_iam\_role\_name](#output\_task\_exec\_iam\_role\_name) | Task execution IAM role name |
 | <a name="output_task_exec_iam_role_unique_id"></a> [task\_exec\_iam\_role\_unique\_id](#output\_task\_exec\_iam\_role\_unique\_id) | Stable and unique string identifying the task execution IAM role |

@@ -60,7 +60,7 @@ resource "aws_ecs_service" "this" {
     content {
       base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
+      weight            = coalesce(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -105,7 +105,7 @@ resource "aws_ecs_service" "this" {
 
         content {
           hook_target_arn  = lifecycle_hook.value.hook_target_arn
-          role_arn         = lifecycle_hook.value.role_arn
+          role_arn         = try(coalesce(lifecycle_hook.value.role_arn, local.infrastructure_iam_role_arn))
           lifecycle_stages = lifecycle_hook.value.lifecycle_stages
           hook_details     = lifecycle_hook.value.hook_details
         }
@@ -148,7 +148,7 @@ resource "aws_ecs_service" "this" {
         content {
           alternate_target_group_arn = advanced_configuration.value.alternate_target_group_arn
           production_listener_rule   = advanced_configuration.value.production_listener_rule
-          role_arn                   = advanced_configuration.value.role_arn
+          role_arn                   = try(coalesce(advanced_configuration.value.role_arn, local.infrastructure_iam_role_arn))
           test_listener_rule         = advanced_configuration.value.test_listener_rule
         }
       }
@@ -169,7 +169,7 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "ordered_placement_strategy" {
-    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : {}
+    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : []
 
     content {
       field = ordered_placement_strategy.value.field
@@ -364,6 +364,8 @@ resource "aws_ecs_service" "this" {
   depends_on = [
     aws_iam_role_policy_attachment.service,
     aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
+    aws_vpc_security_group_ingress_rule.this,
+    aws_vpc_security_group_egress_rule.this,
   ]
 
   lifecycle {
@@ -401,7 +403,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
     content {
       base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
+      weight            = coalesce(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -427,8 +429,8 @@ resource "aws_ecs_service" "ignore_task_definition" {
         for_each = deployment_configuration.value.linear_configuration != null ? [deployment_configuration.value.linear_configuration] : []
 
         content {
-          step_percent              = linear_configuration.value.step_percent
           step_bake_time_in_minutes = linear_configuration.value.step_bake_time_in_minutes
+          step_percent              = linear_configuration.value.step_percent
         }
       }
 
@@ -436,8 +438,8 @@ resource "aws_ecs_service" "ignore_task_definition" {
         for_each = deployment_configuration.value.canary_configuration != null ? [deployment_configuration.value.canary_configuration] : []
 
         content {
-          canary_percent              = canary_configuration.value.canary_percent
           canary_bake_time_in_minutes = canary_configuration.value.canary_bake_time_in_minutes
+          canary_percent              = canary_configuration.value.canary_percent
         }
       }
 
@@ -446,7 +448,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
 
         content {
           hook_target_arn  = lifecycle_hook.value.hook_target_arn
-          role_arn         = lifecycle_hook.value.role_arn
+          role_arn         = try(coalesce(lifecycle_hook.value.role_arn, local.infrastructure_iam_role_arn))
           lifecycle_stages = lifecycle_hook.value.lifecycle_stages
           hook_details     = lifecycle_hook.value.hook_details
         }
@@ -489,7 +491,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
         content {
           alternate_target_group_arn = advanced_configuration.value.alternate_target_group_arn
           production_listener_rule   = advanced_configuration.value.production_listener_rule
-          role_arn                   = advanced_configuration.value.role_arn
+          role_arn                   = try(coalesce(advanced_configuration.value.role_arn, local.infrastructure_iam_role_arn))
           test_listener_rule         = advanced_configuration.value.test_listener_rule
         }
       }
@@ -510,7 +512,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
   }
 
   dynamic "ordered_placement_strategy" {
-    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : {}
+    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : []
 
     content {
       field = ordered_placement_strategy.value.field
@@ -639,6 +641,8 @@ resource "aws_ecs_service" "ignore_task_definition" {
     }
   }
 
+  sigint_rollback = try(var.deployment_configuration.strategy, null) == "BLUE_GREEN" ? var.sigint_rollback : null
+
   tags            = merge(var.tags, var.service_tags)
   task_definition = local.task_definition
   triggers        = var.triggers
@@ -647,7 +651,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
     for_each = var.volume_configuration != null ? [var.volume_configuration] : []
 
     content {
-      name = volume_configuration.value.name
+      name = try(volume_configuration.value.name, volume_configuration.key)
 
       dynamic "managed_ebs_volume" {
         for_each = [volume_configuration.value.managed_ebs_volume]
@@ -703,6 +707,8 @@ resource "aws_ecs_service" "ignore_task_definition" {
   depends_on = [
     aws_iam_role_policy_attachment.service,
     aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
+    aws_vpc_security_group_ingress_rule.this,
+    aws_vpc_security_group_egress_rule.this,
   ]
 
   lifecycle {
@@ -747,7 +753,7 @@ resource "aws_iam_role" "service" {
   name        = var.iam_role_use_name_prefix ? null : local.iam_role_name
   name_prefix = var.iam_role_use_name_prefix ? "${local.iam_role_name}-" : null
   path        = var.iam_role_path
-  description = var.iam_role_description
+  description = try(coalesce(var.iam_role_description, (var.disable_v7_default_name_description ? null : "IAM role for ECS Service ${var.name}")), null)
 
   assume_role_policy    = data.aws_iam_policy_document.service_assume[0].json
   permissions_boundary  = var.iam_role_permissions_boundary
@@ -1053,7 +1059,7 @@ resource "aws_ecs_task_definition" "this" {
 ################################################################################
 
 locals {
-  task_exec_iam_role_name = coalesce(var.task_exec_iam_role_name, var.name, "NotProvided")
+  task_exec_iam_role_name = coalesce(var.task_exec_iam_role_name, "${var.name}${var.disable_v7_default_name_description ? "" : "-task-exec"}")
 
   create_task_exec_iam_role = local.create_task_definition && var.create_task_exec_iam_role
   create_task_exec_policy   = local.create_task_exec_iam_role && var.create_task_exec_policy
@@ -1207,7 +1213,7 @@ resource "aws_iam_role_policy_attachment" "task_exec" {
 ################################################################################
 
 locals {
-  tasks_iam_role_name   = coalesce(var.tasks_iam_role_name, var.name, "NotProvided")
+  tasks_iam_role_name   = coalesce(var.tasks_iam_role_name, "${var.name}${var.disable_v7_default_name_description ? "" : "-tasks"}")
   create_tasks_iam_role = local.create_task_definition && var.create_tasks_iam_role
 }
 
@@ -1244,7 +1250,7 @@ resource "aws_iam_role" "tasks" {
   name        = var.tasks_iam_role_use_name_prefix ? null : local.tasks_iam_role_name
   name_prefix = var.tasks_iam_role_use_name_prefix ? "${local.tasks_iam_role_name}-" : null
   path        = var.tasks_iam_role_path
-  description = var.tasks_iam_role_description
+  description = try(coalesce(var.tasks_iam_role_description, (var.disable_v7_default_name_description ? null : "IAM role for ECS tasks in Service ${var.name}")), null)
 
   assume_role_policy    = data.aws_iam_policy_document.tasks_assume[0].json
   max_session_duration  = var.tasks_iam_role_max_session_duration
@@ -1394,7 +1400,7 @@ resource "aws_ecs_task_set" "this" {
     content {
       base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
+      weight            = coalesce(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -1477,7 +1483,7 @@ resource "aws_ecs_task_set" "ignore_task_definition" {
     content {
       base              = capacity_provider_strategy.value.base
       capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
+      weight            = coalesce(capacity_provider_strategy.value.weight, 1)
     }
   }
 
@@ -1865,7 +1871,7 @@ resource "aws_appautoscaling_scheduled_action" "this" {
 
 locals {
   create_security_group = var.create && var.create_security_group && var.network_mode == "awsvpc"
-  security_group_name   = coalesce(var.security_group_name, var.name, "NotProvided")
+  security_group_name   = coalesce(var.security_group_name, "${var.name}${var.disable_v7_default_name_description ? "" : "-service"}")
 }
 
 data "aws_subnet" "this" {
@@ -1883,7 +1889,7 @@ resource "aws_security_group" "this" {
 
   name        = var.security_group_use_name_prefix ? null : local.security_group_name
   name_prefix = var.security_group_use_name_prefix ? "${local.security_group_name}-" : null
-  description = var.security_group_description
+  description = try(coalesce(var.security_group_description, (var.disable_v7_default_name_description ? null : "Security group for ECS Service ${var.name}")), null)
   vpc_id      = var.vpc_id != null ? var.vpc_id : data.aws_subnet.this[0].vpc_id
 
   tags = merge(
@@ -1908,7 +1914,7 @@ resource "aws_vpc_security_group_ingress_rule" "this" {
   from_port                    = each.value.from_port
   ip_protocol                  = each.value.ip_protocol
   prefix_list_id               = each.value.prefix_list_id
-  referenced_security_group_id = each.value.referenced_security_group_id
+  referenced_security_group_id = each.value.referenced_security_group_id == "self" ? aws_security_group.this[0].id : each.value.referenced_security_group_id
   security_group_id            = aws_security_group.this[0].id
   tags = merge(
     var.tags,
@@ -1930,7 +1936,7 @@ resource "aws_vpc_security_group_egress_rule" "this" {
   from_port                    = try(coalesce(each.value.from_port, each.value.to_port), null)
   ip_protocol                  = each.value.ip_protocol
   prefix_list_id               = each.value.prefix_list_id
-  referenced_security_group_id = each.value.referenced_security_group_id
+  referenced_security_group_id = each.value.referenced_security_group_id == "self" ? aws_security_group.this[0].id : each.value.referenced_security_group_id
   security_group_id            = aws_security_group.this[0].id
   tags = merge(
     var.tags,
@@ -1947,10 +1953,10 @@ resource "aws_vpc_security_group_egress_rule" "this" {
 ############################################################################################
 
 locals {
-  needs_infrastructure_iam_role  = var.volume_configuration != null || var.vpc_lattice_configurations != null
+  needs_infrastructure_iam_role  = var.volume_configuration != null || var.vpc_lattice_configurations != null || var.deployment_configuration != null
   create_infrastructure_iam_role = var.create && var.create_infrastructure_iam_role && local.needs_infrastructure_iam_role
   infrastructure_iam_role_arn    = local.needs_infrastructure_iam_role ? try(aws_iam_role.infrastructure_iam_role[0].arn, var.infrastructure_iam_role_arn) : null
-  infrastructure_iam_role_name   = coalesce(var.infrastructure_iam_role_name, var.name, "NotProvided")
+  infrastructure_iam_role_name   = coalesce(var.infrastructure_iam_role_name, "${var.name}${var.disable_v7_default_name_description ? "" : "-infra"}")
 }
 
 data "aws_iam_policy_document" "infrastructure_iam_role" {
@@ -1994,4 +2000,11 @@ resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_vpc_lattice_p
 
   role       = aws_iam_role.infrastructure_iam_role[0].name
   policy_arn = "arn:${local.partition}:iam::aws:policy/service-role/AmazonECSInfrastructureRolePolicyForVpcLattice"
+}
+
+resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_load_balancer_policy" {
+  count = local.create_infrastructure_iam_role && var.deployment_configuration != null ? 1 : 0
+
+  role       = aws_iam_role.infrastructure_iam_role[0].name
+  policy_arn = "arn:${local.partition}:iam::aws:policy/AmazonECSInfrastructureRolePolicyForLoadBalancers"
 }
