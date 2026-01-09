@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.1.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.0.0...v7.1.0) (2026-01-09)
+
+### Features
+
+* Add capacity option type to instance launch template ([#387](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/387)) ([c7d7c4d](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/c7d7c4d01b72c0435ff7d998db0cfb490e0b7508))
+
 ## [7.0.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v6.12.0...v7.0.0) (2026-01-09)
 
 ### ⚠ BREAKING CHANGES
