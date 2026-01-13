@@ -24,7 +24,7 @@ module "wrapper" {
   execution_iam_statements                     = try(each.value.execution_iam_statements, var.defaults.execution_iam_statements, null)
   execution_secret_arns                        = try(each.value.execution_secret_arns, var.defaults.execution_secret_arns, [])
   execution_ssm_param_arns                     = try(each.value.execution_ssm_param_arns, var.defaults.execution_ssm_param_arns, [])
-  health_check_path                            = try(each.value.health_check_path, var.defaults.health_check_path, "/health")
+  health_check_path                            = try(each.value.health_check_path, var.defaults.health_check_path, null)
   infrastructure_iam_role_arn                  = try(each.value.infrastructure_iam_role_arn, var.defaults.infrastructure_iam_role_arn, null)
   infrastructure_iam_role_description          = try(each.value.infrastructure_iam_role_description, var.defaults.infrastructure_iam_role_description, null)
   infrastructure_iam_role_name                 = try(each.value.infrastructure_iam_role_name, var.defaults.infrastructure_iam_role_name, null)

@@ -35,9 +35,9 @@ variable "cpu" {
 }
 
 variable "health_check_path" {
-  description = "Path for health check requests. Defaults to `/health`"
+  description = "Path for health check requests. Defaults to `/ping`"
   type        = string
-  default     = "/health"
+  default     = null
 }
 
 variable "memory" {
@@ -55,7 +55,7 @@ variable "name" {
 variable "network_configuration" {
   description = "The network configuration for task in this service revision"
   type = object({
-    security_groups = optional(list(string))
+    security_groups = optional(list(string), [])
     subnets         = optional(list(string))
   })
   default = null
@@ -78,7 +78,7 @@ variable "primary_container" {
     repository_credentials = optional(object({
       credentials_parameter = string
     }))
-    secrets = optional(list(object({
+    secret = optional(list(object({
       name       = string
       value_from = string
     })))

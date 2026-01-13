@@ -4,27 +4,27 @@
 
 output "current_deployment" {
   description = "Details about the current deployment"
-  value       = try(aws_ecs_express_gateway_service.this[0].current_deployment, null)
+  value       = module.ecs_express_service.current_deployment
 }
 
 output "ingress_paths" {
   description = "List of ingress paths associated with the service"
-  value       = try(aws_ecs_express_gateway_service.this[0].ingress_paths, null)
+  value       = module.ecs_express_service.ingress_paths
 }
 
 output "service_arn" {
   description = "ARN of the ECS Express Service"
-  value       = try(aws_ecs_express_gateway_service.this[0].service_arn, null)
+  value       = module.ecs_express_service.service_arn
 }
 
 output "service_revision_arn" {
   description = "ARN of the ECS Express Service revision"
-  value       = try(aws_ecs_express_gateway_service.this[0].service_revision_arn, null)
+  value       = module.ecs_express_service.service_revision_arn
 }
 
 output "service_url" {
-  description = "URL of the ECS Express Service"
-  value       = "https://${try(aws_ecs_express_gateway_service.this[0].service_name, "")}.ecs.${local.region}.on.aws/"
+  description = "Public URL of the ECS Express Service"
+  value       = module.ecs_express_service.service_url
 }
 
 ################################################################################
@@ -33,12 +33,12 @@ output "service_url" {
 
 output "security_group_arn" {
   description = "Amazon Resource Name (ARN) of the security group"
-  value       = try(aws_security_group.this[0].arn, null)
+  value       = module.ecs_express_service.security_group_arn
 }
 
 output "security_group_id" {
   description = "ID of the security group"
-  value       = try(aws_security_group.this[0].id, null)
+  value       = module.ecs_express_service.security_group_id
 }
 
 ################################################################################
@@ -47,12 +47,12 @@ output "security_group_id" {
 
 output "execution_iam_role_name" {
   description = "Task execution IAM role name"
-  value       = try(aws_iam_role.execution[0].name, null)
+  value       = module.ecs_express_service.execution_iam_role_name
 }
 
 output "execution_iam_role_arn" {
   description = "Task execution IAM role ARN"
-  value       = try(aws_iam_role.execution[0].arn, var.execution_iam_role_arn)
+  value       = module.ecs_express_service.execution_iam_role_arn
 }
 
 ############################################################################################
@@ -61,12 +61,12 @@ output "execution_iam_role_arn" {
 
 output "infrastructure_iam_role_arn" {
   description = "Infrastructure IAM role ARN"
-  value       = try(aws_iam_role.infrastructure[0].arn, null)
+  value       = module.ecs_express_service.infrastructure_iam_role_arn
 }
 
 output "infrastructure_iam_role_name" {
   description = "Infrastructure IAM role name"
-  value       = try(aws_iam_role.infrastructure[0].name, null)
+  value       = module.ecs_express_service.infrastructure_iam_role_name
 }
 
 ################################################################################
@@ -75,10 +75,10 @@ output "infrastructure_iam_role_name" {
 
 output "task_iam_role_name" {
   description = "Task IAM role name"
-  value       = try(aws_iam_role.task[0].name, null)
+  value       = module.ecs_express_service.task_iam_role_name
 }
 
 output "task_iam_role_arn" {
   description = "Task IAM role ARN"
-  value       = try(aws_iam_role.task[0].arn, var.task_iam_role_arn)
+  value       = module.ecs_express_service.task_iam_role_arn
 }

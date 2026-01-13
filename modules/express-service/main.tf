@@ -2,8 +2,15 @@ data "aws_partition" "current" {
   count = var.create ? 1 : 0
 }
 
+data "aws_region" "current" {
+  region = var.region
+
+  count = var.create ? 1 : 0
+}
+
 locals {
   partition = try(data.aws_partition.current[0].partition, "")
+  region    = try(data.aws_region.current[0].region, "")
 }
 
 ################################################################################
@@ -186,7 +193,7 @@ data "aws_iam_policy_document" "execution_assume" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs-task.amazonaws.com"]
+      identifiers = ["ecs-tasks.amazonaws.com"]
     }
   }
 }
