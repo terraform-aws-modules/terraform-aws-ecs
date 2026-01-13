@@ -8,7 +8,35 @@ Configuration in this directory creates an Amazon ECS Express Service and associ
 module "ecs_express_service" {
   source = "terraform-aws-modules/ecs/aws//modules/express-service"
 
-  # TODO!
+  name = local.name
+
+  cpu    = 1024
+  memory = 4096
+
+  network_configuration = {
+    subnets = ["subnet-abcde012", "subnet-bcde012a", "subnet-fghi345a"]
+  }
+
+  primary_container = {
+    container_port = 3000
+    image          = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+  }
+
+  scaling_target = {
+    auto_scaling_metric       = "AVERAGE_CPU"
+    auto_scaling_target_value = "80"
+    max_task_count            = 3
+    min_task_count            = 1
+  }
+
+  # Security Group
+  vpc_id = module.vpc.vpc_id
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
 
   tags = {
     Environment = "dev"
@@ -22,6 +50,7 @@ module "ecs_express_service" {
 - [ECS cluster w/ integrated service(s)](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete)
 - [ECS container definition](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/container-definition)
 - [ECS cluster w/ EC2 Autoscaling capacity provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2-autoscaling)
+- [ECS express service](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/express-service)
 - [ECS cluster w/ Fargate capacity provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate)
 - [ECS cluster w/ ECS managed instances capacity provider](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/managed-instances)
 
@@ -47,6 +76,7 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [aws_cloudwatch_log_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_ecs_express_gateway_service.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_express_gateway_service) | resource |
 | [aws_iam_policy.execution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.task](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -73,9 +103,15 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_cloudwatch_log_group_class"></a> [cloudwatch\_log\_group\_class](#input\_cloudwatch\_log\_group\_class) | Specified the log class of the log group. Possible values are: `STANDARD` or `INFREQUENT_ACCESS` | `string` | `null` | no |
+| <a name="input_cloudwatch_log_group_kms_key_id"></a> [cloudwatch\_log\_group\_kms\_key\_id](#input\_cloudwatch\_log\_group\_kms\_key\_id) | If a KMS Key ARN is set, this key will be used to encrypt the corresponding log group. Please be sure that the KMS Key has an appropriate key policy (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html) | `string` | `null` | no |
+| <a name="input_cloudwatch_log_group_name"></a> [cloudwatch\_log\_group\_name](#input\_cloudwatch\_log\_group\_name) | Custom name of CloudWatch Log Group for ECS cluster | `string` | `null` | no |
+| <a name="input_cloudwatch_log_group_retention_in_days"></a> [cloudwatch\_log\_group\_retention\_in\_days](#input\_cloudwatch\_log\_group\_retention\_in\_days) | Number of days to retain log events | `number` | `14` | no |
+| <a name="input_cloudwatch_log_group_tags"></a> [cloudwatch\_log\_group\_tags](#input\_cloudwatch\_log\_group\_tags) | A map of additional tags to add to the log group created | `map(string)` | `{}` | no |
 | <a name="input_cluster"></a> [cluster](#input\_cluster) | Name or ARN of the ECS cluster. Defaults to `default` | `string` | `null` | no |
 | <a name="input_cpu"></a> [cpu](#input\_cpu) | Number of CPU units used by the task. Valid values are powers of `2` between `256` and `4096` | `string` | `null` | no |
 | <a name="input_create"></a> [create](#input\_create) | Determines whether resources will be created (affects all resources) | `bool` | `true` | no |
+| <a name="input_create_cloudwatch_log_group"></a> [create\_cloudwatch\_log\_group](#input\_create\_cloudwatch\_log\_group) | Determines whether a log group is created by this module for the cluster logs. If not, AWS will automatically create one if logging is enabled | `bool` | `true` | no |
 | <a name="input_create_execution_iam_role"></a> [create\_execution\_iam\_role](#input\_create\_execution\_iam\_role) | Determines whether the ECS task definition IAM role should be created | `bool` | `true` | no |
 | <a name="input_create_execution_policy"></a> [create\_execution\_policy](#input\_create\_execution\_policy) | Determines whether the ECS task definition IAM policy should be created. This includes permissions included in AmazonECSTaskExecutionRolePolicy as well as access to secrets and SSM parameters | `bool` | `true` | no |
 | <a name="input_create_infrastructure_iam_role"></a> [create\_infrastructure\_iam\_role](#input\_create\_infrastructure\_iam\_role) | Determines whether the ECS infrastructure IAM role should be created | `bool` | `true` | no |
@@ -131,6 +167,8 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | ARN of CloudWatch log group created |
+| <a name="output_cloudwatch_log_group_name"></a> [cloudwatch\_log\_group\_name](#output\_cloudwatch\_log\_group\_name) | Name of CloudWatch log group created |
 | <a name="output_current_deployment"></a> [current\_deployment](#output\_current\_deployment) | Details about the current deployment |
 | <a name="output_execution_iam_role_arn"></a> [execution\_iam\_role\_arn](#output\_execution\_iam\_role\_arn) | Task execution IAM role ARN |
 | <a name="output_execution_iam_role_name"></a> [execution\_iam\_role\_name](#output\_execution\_iam\_role\_name) | Task execution IAM role name |

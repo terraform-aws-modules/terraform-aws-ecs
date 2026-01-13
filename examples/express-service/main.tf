@@ -10,9 +10,16 @@ data "aws_availability_zones" "available" {
   }
 }
 
+# ECS holds on to the service names for indefinitely
+# And people wonder why ECS isn't used more ¯\_(ツ)_/¯
+resource "random_string" "random" {
+  length  = 6
+  special = false
+}
+
 locals {
   region = "eu-west-1"
-  name   = "ex-${basename(path.cwd)}"
+  name   = "ex-${basename(path.cwd)}-${random_string.random.result}"
 
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
@@ -64,6 +71,12 @@ module "ecs_express_service" {
   }
 
   tags = local.tags
+}
+
+module "ecs_express_service_disabled" {
+  source = "../../modules/express-service"
+
+  create = false
 }
 
 ################################################################################

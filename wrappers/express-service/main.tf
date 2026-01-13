@@ -3,9 +3,15 @@ module "wrapper" {
 
   for_each = var.items
 
+  cloudwatch_log_group_class                   = try(each.value.cloudwatch_log_group_class, var.defaults.cloudwatch_log_group_class, null)
+  cloudwatch_log_group_kms_key_id              = try(each.value.cloudwatch_log_group_kms_key_id, var.defaults.cloudwatch_log_group_kms_key_id, null)
+  cloudwatch_log_group_name                    = try(each.value.cloudwatch_log_group_name, var.defaults.cloudwatch_log_group_name, null)
+  cloudwatch_log_group_retention_in_days       = try(each.value.cloudwatch_log_group_retention_in_days, var.defaults.cloudwatch_log_group_retention_in_days, 14)
+  cloudwatch_log_group_tags                    = try(each.value.cloudwatch_log_group_tags, var.defaults.cloudwatch_log_group_tags, {})
   cluster                                      = try(each.value.cluster, var.defaults.cluster, null)
   cpu                                          = try(each.value.cpu, var.defaults.cpu, null)
   create                                       = try(each.value.create, var.defaults.create, true)
+  create_cloudwatch_log_group                  = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)
   create_execution_iam_role                    = try(each.value.create_execution_iam_role, var.defaults.create_execution_iam_role, true)
   create_execution_policy                      = try(each.value.create_execution_policy, var.defaults.create_execution_policy, true)
   create_infrastructure_iam_role               = try(each.value.create_infrastructure_iam_role, var.defaults.create_infrastructure_iam_role, true)

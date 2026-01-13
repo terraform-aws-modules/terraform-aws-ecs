@@ -107,7 +107,7 @@ resource "aws_ecs_express_gateway_service" "this" {
 
 locals {
   create_security_group = var.create && var.create_security_group
-  security_group_name   = coalesce(var.security_group_name, var.name)
+  security_group_name   = try(coalesce(var.security_group_name, var.name), "")
 }
 
 resource "aws_security_group" "this" {
@@ -496,4 +496,29 @@ resource "aws_iam_role_policy_attachment" "task_additional" {
 
   role       = aws_iam_role.task[0].name
   policy_arn = each.value
+}
+
+################################################################################
+# CloudWatch Log Group
+################################################################################
+
+locals {
+  log_group_name = try(coalesce(var.cloudwatch_log_group_name, "/aws/ecs/${var.name}"), "")
+}
+
+resource "aws_cloudwatch_log_group" "this" {
+  count = var.create && var.create_cloudwatch_log_group ? 1 : 0
+
+  region = var.region
+
+  name              = local.log_group_name
+  retention_in_days = var.cloudwatch_log_group_retention_in_days
+  kms_key_id        = var.cloudwatch_log_group_kms_key_id
+  log_group_class   = var.cloudwatch_log_group_class
+
+  tags = merge(
+    var.tags,
+    var.cloudwatch_log_group_tags,
+    { Name = local.log_group_name }
+  )
 }

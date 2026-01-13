@@ -1,13 +1,8 @@
-# ECS Clusters w/ Fargate
+# ECS Express Service
 
 Configuration in this directory creates:
 
-- ECS cluster using Fargate (on-demand and spot) capacity providers
-- Example ECS service that utilizes
-  - AWS Firelens using FluentBit sidecar container definition
-  - Service connect configuration
-  - Load balancer target group attachment
-  - Security group for access to the example service
+- ECS Express Service with necessary IAM roles and permissions
 
 ## Usage
 
@@ -28,24 +23,28 @@ Note that this example may create resources which will incur monetary charges on
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.28 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | >= 3.7 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.28 |
+| <a name="provider_random"></a> [random](#provider\_random) | >= 3.7 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_ecs_express_service"></a> [ecs\_express\_service](#module\_ecs\_express\_service) | ../../modules/express-service | n/a |
+| <a name="module_ecs_express_service_disabled"></a> [ecs\_express\_service\_disabled](#module\_ecs\_express\_service\_disabled) | ../../modules/express-service | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 6.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
+| [random_string.random](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
 
 ## Inputs
@@ -56,6 +55,8 @@ No inputs.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | ARN of CloudWatch log group created |
+| <a name="output_cloudwatch_log_group_name"></a> [cloudwatch\_log\_group\_name](#output\_cloudwatch\_log\_group\_name) | Name of CloudWatch log group created |
 | <a name="output_current_deployment"></a> [current\_deployment](#output\_current\_deployment) | Details about the current deployment |
 | <a name="output_execution_iam_role_arn"></a> [execution\_iam\_role\_arn](#output\_execution\_iam\_role\_arn) | Task execution IAM role ARN |
 | <a name="output_execution_iam_role_name"></a> [execution\_iam\_role\_name](#output\_execution\_iam\_role\_name) | Task execution IAM role name |
