@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.2.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.1.0...v7.2.0) (2026-01-13)
+
+### Features
+
+* Add support for ECS Express service ([#389](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/389)) ([85161f8](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/85161f802319846adaac52b96e73bac73b2d5c15))
+
 ## [7.1.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.0.0...v7.1.0) (2026-01-09)
 
 ### Features
