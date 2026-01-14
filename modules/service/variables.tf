@@ -631,6 +631,7 @@ variable "cpu" {
   description = "Number of cpu units used by the task. If the `requires_compatibilities` is `FARGATE` this field is required"
   type        = number
   default     = 1024
+  nullable    = true
 }
 
 variable "enable_fault_injection" {
@@ -663,6 +664,7 @@ variable "memory" {
   description = "Amount (in MiB) of memory used by the task. If the `requires_compatibilities` is `FARGATE` this field is required"
   type        = number
   default     = 2048
+  nullable    = true
 }
 
 variable "network_mode" {
