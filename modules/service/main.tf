@@ -121,8 +121,8 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-  deployment_maximum_percent         = local.is_daemon || local.is_external_deployment ? null : var.deployment_maximum_percent
-  deployment_minimum_healthy_percent = local.is_daemon || local.is_external_deployment ? null : var.deployment_minimum_healthy_percent
+  deployment_maximum_percent         = local.is_external_deployment ? null : var.deployment_maximum_percent
+  deployment_minimum_healthy_percent = local.is_external_deployment ? null : var.deployment_minimum_healthy_percent
   desired_count                      = local.is_daemon || local.is_external_deployment ? null : var.desired_count
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
   enable_execute_command             = var.enable_execute_command
