@@ -595,10 +595,7 @@ data "aws_iam_policy_document" "infrastructure" {
       "arn:${local.partition}:ec2:${local.region}:*:instance/*",
       "arn:${local.partition}:ec2:${local.region}:*:network-interface/*",
       "arn:${local.partition}:ec2:${local.region}:*:launch-template/*",
-      "arn:${local.partition}:ec2:${local.region}:*:security-group/*",
-      "arn:${local.partition}:ec2:${local.region}:*:subnet/*",
       "arn:${local.partition}:ec2:${local.region}:*:volume/*",
-      "arn:${local.partition}:ec2:${local.region}:*:image/*",
     ]
 
     condition {
@@ -606,6 +603,16 @@ data "aws_iam_policy_document" "infrastructure" {
       variable = "aws:RequestTag/AmazonECSManaged"
       values   = [true]
     }
+  }
+
+  statement {
+    sid     = "CreateFleetForSupportingResources"
+    actions = ["ec2:CreateFleet"]
+    resources = [
+      "arn:${local.partition}:ec2:${local.region}:*:subnet/*",
+      "arn:${local.partition}:ec2:${local.region}:*:security-group/*",
+      "arn:${local.partition}:ec2:${local.region}:*:image/*",
+    ]
   }
 
   statement {
