@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.3.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.2.0...v7.3.0) (2026-01-22)
+
+### Features
+
+* Update infrastructure IAM policy permissions with latest AWS `AmazonECSInfrastructureRolePolicyForManagedInstances` managed policy ([#393](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/393)) ([d778274](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/d778274b6aff584e316141110eaf27cdb66e1fbb)), closes [#392](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/392)
+
 ## [7.2.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.1.0...v7.2.0) (2026-01-13)
 
 ### Features
