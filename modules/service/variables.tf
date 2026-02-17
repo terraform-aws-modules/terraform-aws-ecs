@@ -481,6 +481,13 @@ variable "task_definition_arn" {
   default     = null
 }
 
+variable "ignore_container_definition_changes" {
+  description = "Whether changes to task `container_definitions` changes should be ignored"
+  type        = bool
+  default     = false
+  nullable    = false
+}
+
 variable "container_definitions" {
   description = "A map of valid [container definitions](http://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html). Please note that you should only provide values that are part of the container definition document"
   type = map(object({
