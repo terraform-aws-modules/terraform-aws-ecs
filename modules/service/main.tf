@@ -1999,7 +1999,7 @@ resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_vpc_lattice_p
   count = local.create_infrastructure_iam_role && var.vpc_lattice_configurations != null ? 1 : 0
 
   role       = aws_iam_role.infrastructure_iam_role[0].name
-  policy_arn = "arn:${local.partition}:iam::aws:policy/service-role/AmazonECSInfrastructureRolePolicyForVpcLattice"
+  policy_arn = "arn:${local.partition}:iam::aws:policy/AmazonECSInfrastructureRolePolicyForVpcLattice"
 }
 
 resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_load_balancer_policy" {
