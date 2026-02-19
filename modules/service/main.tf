@@ -1528,8 +1528,8 @@ resource "aws_appautoscaling_target" "this" {
   region = var.region
 
   # Desired needs to be between or equal to min/max
-  min_capacity = min(var.autoscaling_min_capacity, var.desired_count)
-  max_capacity = max(var.autoscaling_max_capacity, var.desired_count)
+  min_capacity = var.autoscaling_min_capacity
+  max_capacity = var.autoscaling_max_capacity
 
   resource_id        = "service/${local.cluster_name}/${try(aws_ecs_service.this[0].name, aws_ecs_service.ignore_task_definition[0].name)}"
   scalable_dimension = "ecs:service:DesiredCount"
