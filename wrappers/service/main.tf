@@ -68,6 +68,7 @@ module "wrapper" {
   iam_role_statements                          = try(each.value.iam_role_statements, var.defaults.iam_role_statements, null)
   iam_role_tags                                = try(each.value.iam_role_tags, var.defaults.iam_role_tags, {})
   iam_role_use_name_prefix                     = try(each.value.iam_role_use_name_prefix, var.defaults.iam_role_use_name_prefix, true)
+  ignore_container_definition_changes          = try(each.value.ignore_container_definition_changes, var.defaults.ignore_container_definition_changes, false)
   ignore_task_definition_changes               = try(each.value.ignore_task_definition_changes, var.defaults.ignore_task_definition_changes, false)
   infrastructure_iam_role_arn                  = try(each.value.infrastructure_iam_role_arn, var.defaults.infrastructure_iam_role_arn, null)
   infrastructure_iam_role_description          = try(each.value.infrastructure_iam_role_description, var.defaults.infrastructure_iam_role_description, null)
