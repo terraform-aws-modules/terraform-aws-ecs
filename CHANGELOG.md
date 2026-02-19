@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.3.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.3.0...v7.3.1) (2026-02-19)
+
+### Bug Fixes
+
+* Remove `/service-role`/ from `AmazonECSInfrastructureRolePolicyForVpcLattice` ARN ([#400](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/400)) ([98c6af9](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/98c6af9b43f77c9d2a7d814e3a3c67bd6887e0ac))
+
 ## [7.3.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.2.0...v7.3.0) (2026-01-22)
 
 ### Features
