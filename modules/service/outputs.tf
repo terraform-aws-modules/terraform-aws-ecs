@@ -46,17 +46,17 @@ output "container_definitions" {
 
 output "task_definition_arn" {
   description = "Full ARN of the Task Definition (including both `family` and `revision`)"
-  value       = try(aws_ecs_task_definition.this[0].arn, var.task_definition_arn)
+  value       = try(aws_ecs_task_definition.this[0].arn, aws_ecs_task_definition.ignore_container_definition[0].arn, var.task_definition_arn)
 }
 
 output "task_definition_revision" {
   description = "Revision of the task in a particular family"
-  value       = try(aws_ecs_task_definition.this[0].revision, null)
+  value       = try(aws_ecs_task_definition.this[0].revision, aws_ecs_task_definition.ignore_container_definition[0].revision, null)
 }
 
 output "task_definition_family" {
   description = "The unique name of the task definition"
-  value       = try(aws_ecs_task_definition.this[0].family, null)
+  value       = try(aws_ecs_task_definition.this[0].family, aws_ecs_task_definition.ignore_container_definition[0].family, null)
 }
 
 ################################################################################
