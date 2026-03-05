@@ -197,6 +197,15 @@ resource "aws_ecs_service" "this" {
     content {
       enabled = service_connect_configuration.value.enabled
 
+      dynamic "access_log_configuration" {
+        for_each = service_connect_configuration.value.access_log_configuration != null ? [service_connect_configuration.value.access_log_configuration] : []
+
+        content {
+          format                   = access_log_configuration.value.format
+          include_query_parameters = access_log_configuration.value.include_query_parameters
+        }
+      }
+
       dynamic "log_configuration" {
         for_each = service_connect_configuration.value.log_configuration != null ? [service_connect_configuration.value.log_configuration] : []
 
@@ -539,6 +548,16 @@ resource "aws_ecs_service" "ignore_task_definition" {
 
     content {
       enabled = service_connect_configuration.value.enabled
+
+
+      dynamic "access_log_configuration" {
+        for_each = service_connect_configuration.value.access_log_configuration != null ? [service_connect_configuration.value.access_log_configuration] : []
+
+        content {
+          format                   = access_log_configuration.value.format
+          include_query_parameters = access_log_configuration.value.include_query_parameters
+        }
+      }
 
       dynamic "log_configuration" {
         for_each = service_connect_configuration.value.log_configuration != null ? [service_connect_configuration.value.log_configuration] : []

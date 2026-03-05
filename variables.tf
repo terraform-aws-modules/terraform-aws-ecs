@@ -704,6 +704,10 @@ variable "services" {
     scheduling_strategy = optional(string)
     service_connect_configuration = optional(object({
       enabled = optional(bool)
+      access_log_configuration = optional(object({
+        format                   = string
+        include_query_parameters = optional(string)
+      }))
       log_configuration = optional(object({
         log_driver = string
         options    = optional(map(string))
