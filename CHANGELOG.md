@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.4.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.3.1...v7.4.0) (2026-03-05)
+
+### Features
+
+* Support service connect access log config ([#401](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/401)) ([98e6abb](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/98e6abb016aaa37a31cddf4f90818d0342c63200))
+
 ## [7.3.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.3.0...v7.3.1) (2026-02-19)
 
 ### Bug Fixes
