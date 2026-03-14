@@ -197,6 +197,15 @@ resource "aws_ecs_service" "this" {
     content {
       enabled = service_connect_configuration.value.enabled
 
+      dynamic "access_log_configuration" {
+        for_each = service_connect_configuration.value.access_log_configuration != null ? [service_connect_configuration.value.access_log_configuration] : []
+
+        content {
+          format                   = access_log_configuration.value.format
+          include_query_parameters = access_log_configuration.value.include_query_parameters
+        }
+      }
+
       dynamic "log_configuration" {
         for_each = service_connect_configuration.value.log_configuration != null ? [service_connect_configuration.value.log_configuration] : []
 
@@ -539,6 +548,16 @@ resource "aws_ecs_service" "ignore_task_definition" {
 
     content {
       enabled = service_connect_configuration.value.enabled
+
+
+      dynamic "access_log_configuration" {
+        for_each = service_connect_configuration.value.access_log_configuration != null ? [service_connect_configuration.value.access_log_configuration] : []
+
+        content {
+          format                   = access_log_configuration.value.format
+          include_query_parameters = access_log_configuration.value.include_query_parameters
+        }
+      }
 
       dynamic "log_configuration" {
         for_each = service_connect_configuration.value.log_configuration != null ? [service_connect_configuration.value.log_configuration] : []
@@ -1999,7 +2018,7 @@ resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_vpc_lattice_p
   count = local.create_infrastructure_iam_role && var.vpc_lattice_configurations != null ? 1 : 0
 
   role       = aws_iam_role.infrastructure_iam_role[0].name
-  policy_arn = "arn:${local.partition}:iam::aws:policy/service-role/AmazonECSInfrastructureRolePolicyForVpcLattice"
+  policy_arn = "arn:${local.partition}:iam::aws:policy/AmazonECSInfrastructureRolePolicyForVpcLattice"
 }
 
 resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_load_balancer_policy" {

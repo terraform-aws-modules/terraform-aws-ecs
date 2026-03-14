@@ -269,6 +269,10 @@ variable "service_connect_configuration" {
   description = "The ECS Service Connect configuration for this service to discover and connect to services, and be discovered by, and connected from, other services within a namespace"
   type = object({
     enabled = optional(bool, true)
+    access_log_configuration = optional(object({
+      format                   = string
+      include_query_parameters = optional(string)
+    }))
     log_configuration = optional(object({
       log_driver = string
       options    = optional(map(string))
