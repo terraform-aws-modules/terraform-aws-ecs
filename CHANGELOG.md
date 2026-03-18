@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.4.0...v7.5.0) (2026-03-18)
+
+### Features
+
+* Add `volume_initialization_rate` for managed EBS volumes ([#403](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/403)) ([dcee8be](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/dcee8bef821100b57680c6e9dc53c7d630c028f1))
+
 ## [7.4.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.3.1...v7.4.0) (2026-03-05)
 
 ### Features
