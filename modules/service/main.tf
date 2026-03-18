@@ -341,8 +341,9 @@ resource "aws_ecs_service" "this" {
             }
           }
 
-          throughput  = managed_ebs_volume.value.throughput
-          volume_type = managed_ebs_volume.value.volume_type
+          throughput                 = managed_ebs_volume.value.throughput
+          volume_initialization_rate = managed_ebs_volume.value.volume_initialization_rate
+          volume_type                = managed_ebs_volume.value.volume_type
         }
       }
     }
@@ -694,8 +695,9 @@ resource "aws_ecs_service" "ignore_task_definition" {
             }
           }
 
-          throughput  = managed_ebs_volume.value.throughput
-          volume_type = managed_ebs_volume.value.volume_type
+          throughput                 = managed_ebs_volume.value.throughput
+          volume_initialization_rate = managed_ebs_volume.value.volume_initialization_rate
+          volume_type                = managed_ebs_volume.value.volume_type
         }
       }
     }
