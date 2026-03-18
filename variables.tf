@@ -773,8 +773,9 @@ variable "services" {
           resource_type  = string
           tags           = optional(map(string))
         })))
-        throughput  = optional(number)
-        volume_type = optional(string)
+        throughput                 = optional(number)
+        volume_initialization_rate = optional(number)
+        volume_type                = optional(string)
       })
     }))
     vpc_lattice_configurations = optional(object({
