@@ -1923,7 +1923,7 @@ resource "aws_security_group" "this" {
     create_before_destroy = true
 
     precondition {
-      condition = var.vpc_id != null || length(var.subnet_ids) > 0
+      condition     = var.vpc_id != null || length(var.subnet_ids) > 0
       error_message = "Either var.vpc_id or var.subnet_ids must be provided to determine the VPC"
     }
   }
