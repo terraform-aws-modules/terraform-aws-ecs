@@ -1896,7 +1896,7 @@ locals {
 }
 
 data "aws_subnet" "this" {
-  count = local.create_security_group ? 1 : 0
+  count = local.create_security_group && var.vpc_id == null && length(var.subnet_ids) > 0 ? 1 : 0
 
   region = var.region
 
@@ -1911,7 +1911,7 @@ resource "aws_security_group" "this" {
   name        = var.security_group_use_name_prefix ? null : local.security_group_name
   name_prefix = var.security_group_use_name_prefix ? "${local.security_group_name}-" : null
   description = try(coalesce(var.security_group_description, (var.disable_v7_default_name_description ? null : "Security group for ECS Service ${var.name}")), null)
-  vpc_id      = var.vpc_id != null ? var.vpc_id : data.aws_subnet.this[0].vpc_id
+  vpc_id      = var.vpc_id != null ? var.vpc_id : try(data.aws_subnet.this[0].vpc_id, null)
 
   tags = merge(
     var.tags,
@@ -1921,6 +1921,11 @@ resource "aws_security_group" "this" {
 
   lifecycle {
     create_before_destroy = true
+
+    precondition {
+      condition = var.vpc_id != null || length(var.subnet_ids) > 0
+      error_message = "Either var.vpc_id or var.subnet_ids must be provided to determine the VPC"
+    }
   }
 }
 
