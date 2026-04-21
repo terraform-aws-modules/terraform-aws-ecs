@@ -27,13 +27,13 @@ Note that this example may create resources which will incur monetary charges on
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.34 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.41 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.34 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.41 |
 
 ## Modules
 
@@ -45,6 +45,9 @@ Note that this example may create resources which will incur monetary charges on
 | <a name="module_ecs"></a> [ecs](#module\_ecs) | ../../ | n/a |
 | <a name="module_ecs_cluster_disabled"></a> [ecs\_cluster\_disabled](#module\_ecs\_cluster\_disabled) | ../../modules/cluster | n/a |
 | <a name="module_ecs_disabled"></a> [ecs\_disabled](#module\_ecs\_disabled) | ../../ | n/a |
+| <a name="module_files_bucket_key"></a> [files\_bucket\_key](#module\_files\_bucket\_key) | terraform-aws-modules/kms/aws | ~> 4.0.0 |
+| <a name="module_s3_files_role"></a> [s3\_files\_role](#module\_s3\_files\_role) | terraform-aws-modules/iam/aws//modules/iam-role | ~> 6.4.0 |
+| <a name="module_s3files_bucket"></a> [s3files\_bucket](#module\_s3files\_bucket) | terraform-aws-modules/s3-bucket/aws | ~> 5.4.0 |
 | <a name="module_service_disabled"></a> [service\_disabled](#module\_service\_disabled) | ../../modules/service | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 6.0 |
 
@@ -52,8 +55,14 @@ Note that this example may create resources which will incur monetary charges on
 
 | Name | Type |
 |------|------|
+| [aws_s3files_file_system.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3files_file_system) | resource |
+| [aws_s3files_mount_target.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3files_mount_target) | resource |
+| [aws_security_group.s3files_mount](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_service_discovery_http_namespace.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/service_discovery_http_namespace) | resource |
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_iam_policy_document.bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [aws_ssm_parameter.ecs_optimized_ami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 | [aws_ssm_parameter.fluentbit](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 

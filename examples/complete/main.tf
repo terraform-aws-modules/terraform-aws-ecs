@@ -2,6 +2,9 @@ provider "aws" {
   region = local.region
 }
 
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 data "aws_availability_zones" "available" {
   # Exclude local zones
   filter {
@@ -19,6 +22,8 @@ locals {
 
   container_name = "ecsdemo-frontend"
   container_port = 3000
+
+  current_identity = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
 
   tags = {
     Name       = local.name
@@ -66,9 +71,22 @@ module "ecs" {
   }
 
   services = {
+
     ecsdemo-frontend = {
       cpu    = 1024
       memory = 4096
+
+      volume = {
+        s3-filestore = {
+          s3files_volume_configuration = {
+            file_system_arn         = resource.aws_s3files_file_system.this.arn
+            root_directory          = "/"
+            transit_encryption_port = 9000
+          }
+        }
+      }
+
+      enable_execute_command = "true"
 
       autoscaling_policies = {
         predictive = {
@@ -142,6 +160,14 @@ module "ecs" {
           healthCheck = {
             command = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/health || exit 1"]
           }
+
+          mountPoints = [
+            {
+              sourceVolume  = "s3-filestore"
+              containerPath = "/mnt/s3files"
+              readOnly      = false
+            }
+          ]
 
           portMappings = [
             {
@@ -238,10 +264,11 @@ module "ecs" {
 
       tasks_iam_role_policies = {
         ReadOnlyAccess = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+        S3Files        = "arn:aws:iam::aws:policy/AmazonS3FilesClientFullAccess"
       }
       tasks_iam_role_statements = [
         {
-          actions   = ["s3:List*"]
+          actions   = ["s3:List*", "s3:Get*"]
           resources = ["arn:aws:s3:::*"]
         }
       ]
@@ -443,6 +470,7 @@ module "autoscaling" {
   iam_role_policies = {
     AmazonEC2ContainerServiceforEC2Role = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
     AmazonSSMManagedInstanceCore        = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    AmazonElasticFileSystemUtils        = "arn:aws:iam::aws:policy/AmazonElasticFileSystemsUtils"
   }
 
   vpc_zone_identifier = module.vpc.private_subnets
@@ -498,4 +526,248 @@ module "vpc" {
   single_nat_gateway = true
 
   tags = local.tags
+}
+
+
+module "files_bucket_key" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "~> 4.0.0"
+
+  description = "S3 Files Bucket KMS Key"
+  key_usage   = "ENCRYPT_DECRYPT"
+
+  enable_default_policy = true
+  key_owners            = [local.current_identity]
+  key_administrators    = [local.current_identity]
+  key_users             = [local.current_identity]
+
+  key_statements = [
+    {
+      sid = "Decrypt"
+      actions = [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:GenerateDataKey"
+      ]
+      resources = ["*"]
+      principals = [
+        {
+          type        = "AWS"
+          identifiers = [local.current_identity]
+        }
+      ]
+    }
+  ]
+}
+
+data "aws_iam_policy_document" "bucket_policy" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = [local.current_identity, module.s3_files_role.arn]
+    }
+
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:GetObjectTagging",
+      "s3:PutObject",
+      "s3:PutObjectTagging",
+      "s3:DeleteObject",
+      "s3:DeleteObjectTagging"
+    ]
+
+    resources = [
+      module.s3files_bucket.s3_bucket_arn,
+      "${module.s3files_bucket.s3_bucket_arn}/*"
+    ]
+  }
+}
+
+module "s3files_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "~> 5.4.0"
+
+  bucket_prefix = "files-bucket"
+
+  attach_policy                         = false
+  policy                                = data.aws_iam_policy_document.bucket_policy.json
+  attach_deny_insecure_transport_policy = true
+  attach_require_latest_tls_policy      = true
+
+  allowed_kms_key_arn = module.files_bucket_key.key_arn
+
+  server_side_encryption_configuration = {
+    rule = {
+      apply_server_side_encryption_by_default = {
+        kms_master_key_id = module.files_bucket_key.key_arn
+        sse_algorithm     = "aws:kms"
+      }
+    }
+    bucket_key_enabled = true
+  }
+
+  versioning = {
+    status     = true
+    mfa_delete = false
+  }
+}
+
+module "s3_files_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role"
+  version = "~> 6.4.0"
+
+  create_inline_policy = true
+  inline_policy_permissions = {
+    S3BucketPermissions = {
+      effect = "Allow"
+      actions = [
+        "s3:ListBucket*"
+      ]
+      resources = [
+        module.s3files_bucket.s3_bucket_arn
+      ]
+      condition = [
+        {
+          test     = "StringEquals"
+          variable = "aws:ResourceAccount"
+          values = [
+            data.aws_caller_identity.current.account_id
+          ]
+        }
+      ]
+    }
+    S3ObjectPermissions = {
+      effect = "Allow"
+      actions = [
+        "s3:AbortMultipartUpload",
+        "s3:DeleteObject*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject*"
+      ]
+      resources = [
+        "${module.s3files_bucket.s3_bucket_arn}/*"
+      ]
+      condition = [
+        {
+          test     = "StringEquals"
+          variable = "aws:ResourceAccount"
+          values = [
+            data.aws_caller_identity.current.account_id
+          ]
+        }
+      ]
+    }
+    EventBridgeManagePermissions = {
+      effect = "Allow"
+      actions = [
+        "events:DeleteRule",
+        "events:DisableRule",
+        "events:EnableRule",
+        "events:PutRule",
+        "events:PutTargets",
+        "events:RemoveTargets"
+      ]
+      resources = ["arn:aws:events:*:*:rule/DO-NOT-DELETE-S3-Files*"]
+      condition = [
+        {
+          test     = "StringEquals"
+          variable = "events:ManagedBy"
+          values = [
+            "elasticfilesystem.amazonaws.com"
+          ]
+        }
+      ]
+    }
+    EventBridgeReadPermissions = {
+      effect = "Allow"
+      actions = [
+        "events:DescribeRule",
+        "events:ListRuleNamesByTarget",
+        "events:ListRules",
+        "events:ListTargetsByRule"
+      ]
+      resources = ["arn:aws:events:*:*:rule/*"]
+    }
+    KMS = {
+      effect = "Allow"
+      actions = [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:GenerateDataKey",
+        "kms:ReEncryptFrom",
+        "kms:ReEncryptTo",
+        "kms:DescribeKey",
+      ]
+      resources = ["*"]
+      condition = [
+        {
+          test     = "StringLike"
+          variable = "kms:EncryptionContext:aws:s3:arn"
+          values = [
+            "${module.s3files_bucket.s3_bucket_arn}/*",
+            module.s3files_bucket.s3_bucket_arn
+          ]
+        },
+        {
+          test     = "StringLike"
+          variable = "kms:ViaService"
+          values   = ["s3.${data.aws_region.current.region}.amazonaws.com"]
+        }
+      ]
+    }
+  }
+
+  trust_policy_permissions = {
+    efs = {
+      actions = [
+        "sts:AssumeRole",
+        "sts:TagSession",
+      ]
+      principals = [
+        {
+          type = "Service"
+          identifiers = [
+            "elasticfilesystem.amazonaws.com",
+          ]
+        }
+      ]
+    }
+  }
+
+  name = "s3-files-role"
+}
+
+resource "aws_s3files_file_system" "this" {
+  bucket     = module.s3files_bucket.s3_bucket_arn
+  role_arn   = module.s3_files_role.arn
+  kms_key_id = module.files_bucket_key.key_arn
+}
+
+resource "aws_security_group" "s3files_mount" {
+  name_prefix = "s3files-mount-"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port       = 2049
+    to_port         = 2049
+    protocol        = "tcp"
+    security_groups = [module.ecs.services["ecsdemo-frontend"].security_group_id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_s3files_mount_target" "this" {
+  count = length(module.vpc.private_subnets)
+
+  file_system_id  = aws_s3files_file_system.this.id
+  subnet_id       = module.vpc.private_subnets[count.index]
+  security_groups = [aws_security_group.s3files_mount.id]
 }
