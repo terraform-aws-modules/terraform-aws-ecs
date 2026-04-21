@@ -172,26 +172,26 @@ module "ecs_service" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.34 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.41 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.34 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.41 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_container_definition"></a> [container\_definition](#module\_container\_definition) | ../container-definition | n/a |
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_appautoscaling_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_policy) | resource |
 | [aws_appautoscaling_scheduled_action.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_scheduled_action) | resource |
 | [aws_appautoscaling_target.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_target) | resource |
@@ -233,7 +233,7 @@ module "ecs_service" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_alarms"></a> [alarms](#input\_alarms) | Information about the CloudWatch alarms | <pre>object({<br/>    alarm_names = list(string)<br/>    enable      = optional(bool, true)<br/>    rollback    = optional(bool, true)<br/>  })</pre> | `null` | no |
 | <a name="input_assign_public_ip"></a> [assign\_public\_ip](#input\_assign\_public\_ip) | Assign a public IP address to the ENI (Fargate launch type only) | `bool` | `false` | no |
 | <a name="input_autoscaling_max_capacity"></a> [autoscaling\_max\_capacity](#input\_autoscaling\_max\_capacity) | Maximum number of tasks to run in your service | `number` | `10` | no |
@@ -348,7 +348,7 @@ module "ecs_service" {
 | <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | Create, update, and delete timeout configurations for the service | <pre>object({<br/>    create = optional(string)<br/>    update = optional(string)<br/>    delete = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_track_latest"></a> [track\_latest](#input\_track\_latest) | Whether should track latest `ACTIVE` task definition on AWS or the one created with the resource stored in state. Useful in the event the task definition is modified outside of this resource | `bool` | `true` | no |
 | <a name="input_triggers"></a> [triggers](#input\_triggers) | Map of arbitrary keys and values that, when changed, will trigger an in-place update (redeployment). Useful with `timestamp()` | `map(string)` | `null` | no |
-| <a name="input_volume"></a> [volume](#input\_volume) | Configuration block for volumes that containers in your task may use | <pre>map(object({<br/>    configure_at_launch = optional(bool)<br/>    docker_volume_configuration = optional(object({<br/>      autoprovision = optional(bool)<br/>      driver        = optional(string)<br/>      driver_opts   = optional(map(string))<br/>      labels        = optional(map(string))<br/>      scope         = optional(string)<br/>    }))<br/>    efs_volume_configuration = optional(object({<br/>      authorization_config = optional(object({<br/>        access_point_id = optional(string)<br/>        iam             = optional(string)<br/>      }))<br/>      file_system_id          = string<br/>      root_directory          = optional(string)<br/>      transit_encryption      = optional(string)<br/>      transit_encryption_port = optional(number)<br/>    }))<br/>    fsx_windows_file_server_volume_configuration = optional(object({<br/>      authorization_config = optional(object({<br/>        credentials_parameter = string<br/>        domain                = string<br/>      }))<br/>      file_system_id = string<br/>      root_directory = string<br/>    }))<br/>    host_path = optional(string)<br/>    name      = optional(string)<br/>  }))</pre> | `null` | no |
+| <a name="input_volume"></a> [volume](#input\_volume) | Configuration block for volumes that containers in your task may use | <pre>map(object({<br/>    configure_at_launch = optional(bool)<br/>    docker_volume_configuration = optional(object({<br/>      autoprovision = optional(bool)<br/>      driver        = optional(string)<br/>      driver_opts   = optional(map(string))<br/>      labels        = optional(map(string))<br/>      scope         = optional(string)<br/>    }))<br/>    efs_volume_configuration = optional(object({<br/>      authorization_config = optional(object({<br/>        access_point_id = optional(string)<br/>        iam             = optional(string)<br/>      }))<br/>      file_system_id          = string<br/>      root_directory          = optional(string)<br/>      transit_encryption      = optional(string)<br/>      transit_encryption_port = optional(number)<br/>    }))<br/>    fsx_windows_file_server_volume_configuration = optional(object({<br/>      authorization_config = optional(object({<br/>        credentials_parameter = string<br/>        domain                = string<br/>      }))<br/>      file_system_id = string<br/>      root_directory = string<br/>    }))<br/>    s3files_volume_configuration = optional(object({<br/>      access_point_arn        = optional(string)<br/>      file_system_arn         = string<br/>      root_directory          = optional(string)<br/>      transit_encryption_port = optional(number)<br/>    }))<br/>    host_path = optional(string)<br/>    name      = optional(string)<br/>  }))</pre> | `null` | no |
 | <a name="input_volume_configuration"></a> [volume\_configuration](#input\_volume\_configuration) | Configuration for a volume specified in the task definition as a volume that is configured at launch time | <pre>object({<br/>    name = string<br/>    managed_ebs_volume = object({<br/>      encrypted        = optional(bool)<br/>      file_system_type = optional(string)<br/>      iops             = optional(number)<br/>      kms_key_id       = optional(string)<br/>      size_in_gb       = optional(number)<br/>      snapshot_id      = optional(string)<br/>      tag_specifications = optional(list(object({<br/>        propagate_tags = optional(string, "TASK_DEFINITION")<br/>        resource_type  = string<br/>        tags           = optional(map(string))<br/>      })))<br/>      throughput                 = optional(number)<br/>      volume_initialization_rate = optional(number)<br/>      volume_type                = optional(string)<br/>    })<br/>  })</pre> | `null` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The VPC ID where to deploy the task or service. If not provided, the VPC ID is derived from the subnets provided | `string` | `null` | no |
 | <a name="input_vpc_lattice_configurations"></a> [vpc\_lattice\_configurations](#input\_vpc\_lattice\_configurations) | The VPC Lattice configuration for your service that allows Lattice to connect, secure, and monitor your service across multiple accounts and VPCs | <pre>object({<br/>    role_arn         = string<br/>    target_group_arn = string<br/>    port_name        = string<br/>  })</pre> | `null` | no |
@@ -359,7 +359,7 @@ module "ecs_service" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_autoscaling_policies"></a> [autoscaling\_policies](#output\_autoscaling\_policies) | Map of autoscaling policies and their attributes |
 | <a name="output_autoscaling_scheduled_actions"></a> [autoscaling\_scheduled\_actions](#output\_autoscaling\_scheduled\_actions) | Map of autoscaling scheduled actions and their attributes |
 | <a name="output_container_definitions"></a> [container\_definitions](#output\_container\_definitions) | Container definitions |

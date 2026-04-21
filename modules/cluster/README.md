@@ -213,7 +213,7 @@ module "ecs_cluster" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.34 |
 | <a name="requirement_time"></a> [time](#requirement\_time) | >= 0.13 |
@@ -221,7 +221,7 @@ module "ecs_cluster" {
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.34 |
 | <a name="provider_time"></a> [time](#provider\_time) | >= 0.13 |
 
@@ -232,7 +232,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudwatch_log_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_ecs_capacity_provider.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_capacity_provider) | resource |
 | [aws_ecs_cluster.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_cluster) | resource |
@@ -266,7 +266,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_capacity_providers"></a> [capacity\_providers](#input\_capacity\_providers) | Map of capacity provider definitions to create | <pre>map(object({<br/>    auto_scaling_group_provider = optional(object({<br/>      auto_scaling_group_arn = string<br/>      managed_draining       = optional(string, "ENABLED")<br/>      managed_scaling = optional(object({<br/>        instance_warmup_period    = optional(number)<br/>        maximum_scaling_step_size = optional(number)<br/>        minimum_scaling_step_size = optional(number)<br/>        status                    = optional(string)<br/>        target_capacity           = optional(number)<br/>      }))<br/>      managed_termination_protection = optional(string)<br/>    }))<br/>    managed_instances_provider = optional(object({<br/>      infrastructure_role_arn = optional(string)<br/>      instance_launch_template = object({<br/>        capacity_option_type     = optional(string)<br/>        ec2_instance_profile_arn = optional(string)<br/>        instance_requirements = optional(object({<br/>          accelerator_count = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          accelerator_manufacturers = optional(list(string))<br/>          accelerator_names         = optional(list(string))<br/>          accelerator_total_memory_mib = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          accelerator_types      = optional(list(string))<br/>          allowed_instance_types = optional(list(string))<br/>          bare_metal             = optional(string)<br/>          baseline_ebs_bandwidth_mbps = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          burstable_performance                                   = optional(string)<br/>          cpu_manufacturers                                       = optional(list(string))<br/>          excluded_instance_types                                 = optional(list(string))<br/>          instance_generations                                    = optional(list(string))<br/>          local_storage                                           = optional(string)<br/>          local_storage_types                                     = optional(list(string))<br/>          max_spot_price_as_percentage_of_optimal_on_demand_price = optional(number)<br/>          memory_gib_per_vcpu = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          memory_mib = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          network_bandwidth_gbps = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          network_interface_count = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          on_demand_max_price_percentage_over_lowest_price = optional(number)<br/>          require_hibernate_support                        = optional(bool)<br/>          spot_max_price_percentage_over_lowest_price      = optional(number)<br/>          total_local_storage_gb = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>          vcpu_count = optional(object({<br/>            max = optional(number)<br/>            min = optional(number)<br/>          }))<br/>        }))<br/>        monitoring = optional(string)<br/>        network_configuration = optional(object({<br/>          security_groups = optional(list(string), [])<br/>          subnets         = list(string)<br/>        }))<br/>        storage_configuration = optional(object({<br/>          storage_size_gib = number<br/>        }))<br/>      })<br/>      propagate_tags = optional(string, "CAPACITY_PROVIDER")<br/>    }))<br/>    name = optional(string) # Will fall back to use map key if not set<br/>    tags = optional(map(string), {})<br/>  }))</pre> | `null` | no |
 | <a name="input_cloudwatch_log_group_class"></a> [cloudwatch\_log\_group\_class](#input\_cloudwatch\_log\_group\_class) | Specified the log class of the log group. Possible values are: `STANDARD` or `INFREQUENT_ACCESS` | `string` | `null` | no |
 | <a name="input_cloudwatch_log_group_kms_key_id"></a> [cloudwatch\_log\_group\_kms\_key\_id](#input\_cloudwatch\_log\_group\_kms\_key\_id) | If a KMS Key ARN is set, this key will be used to encrypt the corresponding log group. Please be sure that the KMS Key has an appropriate key policy (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html) | `string` | `null` | no |
@@ -330,7 +330,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_arn"></a> [arn](#output\_arn) | ARN that identifies the cluster |
 | <a name="output_capacity_providers"></a> [capacity\_providers](#output\_capacity\_providers) | Map of autoscaling capacity providers created and their attributes |
 | <a name="output_cloudwatch_log_group_arn"></a> [cloudwatch\_log\_group\_arn](#output\_cloudwatch\_log\_group\_arn) | ARN of CloudWatch log group created |
