@@ -42,6 +42,13 @@ variable "ignore_task_definition_changes" {
   nullable    = false
 }
 
+variable "ignore_load_balancer_changes" {
+  description = "Whether changes to service `load_balancer` should be ignored. Only applicable when `ignore_task_definition_changes` is `true`. Defaults to `true` to preserve the original behavior where load balancer changes were always ignored alongside task definition changes. Set to `false` to allow Terraform to manage `load_balancer` configuration (e.g. `advanced_configuration` for linear deployments) while still ignoring `task_definition` and `desired_count`"
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
 variable "alarms" {
   description = "Information about the CloudWatch alarms"
   type = object({

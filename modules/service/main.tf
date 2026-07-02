@@ -390,7 +390,7 @@ resource "aws_ecs_service" "this" {
 ################################################################################
 
 resource "aws_ecs_service" "ignore_task_definition" {
-  count = local.create_service && var.ignore_task_definition_changes ? 1 : 0
+  count = local.create_service && var.ignore_task_definition_changes && var.ignore_load_balancer_changes ? 1 : 0
 
   region = var.region
 
@@ -737,6 +737,360 @@ resource "aws_ecs_service" "ignore_task_definition" {
       desired_count, # Always ignored
       task_definition,
       load_balancer,
+    ]
+  }
+}
+
+################################################################################
+# Service - Ignore `task_definition`, manage `load_balancer`
+################################################################################
+
+resource "aws_ecs_service" "ignore_task_definition_managed_load_balancer" {
+  count = local.create_service && var.ignore_task_definition_changes && !var.ignore_load_balancer_changes ? 1 : 0
+
+  region = var.region
+
+  dynamic "alarms" {
+    for_each = var.alarms != null ? [var.alarms] : []
+
+    content {
+      alarm_names = alarms.value.alarm_names
+      enable      = alarms.value.enable
+      rollback    = alarms.value.rollback
+    }
+  }
+
+  availability_zone_rebalancing = var.availability_zone_rebalancing
+
+  dynamic "capacity_provider_strategy" {
+    # Set by task set if deployment controller is external
+    for_each = !local.is_external_deployment && var.capacity_provider_strategy != null ? var.capacity_provider_strategy : {}
+
+    content {
+      base              = capacity_provider_strategy.value.base
+      capacity_provider = capacity_provider_strategy.value.capacity_provider
+      weight            = coalesce(capacity_provider_strategy.value.weight, 1)
+    }
+  }
+
+  cluster = var.cluster_arn
+
+  dynamic "deployment_circuit_breaker" {
+    for_each = var.deployment_circuit_breaker != null ? [var.deployment_circuit_breaker] : []
+
+    content {
+      enable   = deployment_circuit_breaker.value.enable
+      rollback = deployment_circuit_breaker.value.rollback
+    }
+  }
+
+  dynamic "deployment_configuration" {
+    for_each = var.deployment_configuration != null ? [var.deployment_configuration] : []
+
+    content {
+      strategy             = deployment_configuration.value.strategy
+      bake_time_in_minutes = deployment_configuration.value.bake_time_in_minutes
+
+      dynamic "linear_configuration" {
+        for_each = deployment_configuration.value.linear_configuration != null ? [deployment_configuration.value.linear_configuration] : []
+
+        content {
+          step_bake_time_in_minutes = linear_configuration.value.step_bake_time_in_minutes
+          step_percent              = linear_configuration.value.step_percent
+        }
+      }
+
+      dynamic "canary_configuration" {
+        for_each = deployment_configuration.value.canary_configuration != null ? [deployment_configuration.value.canary_configuration] : []
+
+        content {
+          canary_bake_time_in_minutes = canary_configuration.value.canary_bake_time_in_minutes
+          canary_percent              = canary_configuration.value.canary_percent
+        }
+      }
+
+      dynamic "lifecycle_hook" {
+        for_each = deployment_configuration.value.lifecycle_hook != null ? deployment_configuration.value.lifecycle_hook : {}
+
+        content {
+          hook_target_arn  = lifecycle_hook.value.hook_target_arn
+          role_arn         = try(coalesce(lifecycle_hook.value.role_arn, local.infrastructure_iam_role_arn))
+          lifecycle_stages = lifecycle_hook.value.lifecycle_stages
+          hook_details     = lifecycle_hook.value.hook_details
+        }
+      }
+    }
+  }
+
+  dynamic "deployment_controller" {
+    for_each = var.deployment_controller != null ? [var.deployment_controller] : []
+
+    content {
+      type = deployment_controller.value.type
+    }
+  }
+
+  deployment_maximum_percent         = local.is_daemon || local.is_external_deployment ? null : var.deployment_maximum_percent
+  deployment_minimum_healthy_percent = local.is_daemon || local.is_external_deployment ? null : var.deployment_minimum_healthy_percent
+  desired_count                      = local.is_daemon || local.is_external_deployment ? null : var.desired_count
+  enable_ecs_managed_tags            = var.enable_ecs_managed_tags
+  enable_execute_command             = var.enable_execute_command
+  force_delete                       = var.force_delete
+  force_new_deployment               = local.is_external_deployment ? null : var.force_new_deployment
+  health_check_grace_period_seconds  = var.health_check_grace_period_seconds
+  iam_role                           = local.iam_role_arn
+  launch_type                        = local.is_external_deployment || var.capacity_provider_strategy != null ? null : var.launch_type
+
+  dynamic "load_balancer" {
+    # Set by task set if deployment controller is external
+    for_each = var.load_balancer != null ? var.load_balancer : {}
+
+    content {
+      container_name   = load_balancer.value.container_name
+      container_port   = load_balancer.value.container_port
+      elb_name         = load_balancer.value.elb_name
+      target_group_arn = load_balancer.value.target_group_arn
+
+      dynamic "advanced_configuration" {
+        for_each = load_balancer.value.advanced_configuration != null ? [load_balancer.value.advanced_configuration] : []
+
+        content {
+          alternate_target_group_arn = advanced_configuration.value.alternate_target_group_arn
+          production_listener_rule   = advanced_configuration.value.production_listener_rule
+          role_arn                   = try(coalesce(advanced_configuration.value.role_arn, local.infrastructure_iam_role_arn))
+          test_listener_rule         = advanced_configuration.value.test_listener_rule
+        }
+      }
+    }
+  }
+
+  name = var.name
+
+  dynamic "network_configuration" {
+    # Set by task set if deployment controller is external
+    for_each = var.network_mode == "awsvpc" && !local.is_external_deployment ? [local.network_configuration] : []
+
+    content {
+      assign_public_ip = network_configuration.value.assign_public_ip
+      security_groups  = network_configuration.value.security_groups
+      subnets          = network_configuration.value.subnets
+    }
+  }
+
+  dynamic "ordered_placement_strategy" {
+    for_each = var.ordered_placement_strategy != null ? var.ordered_placement_strategy : []
+
+    content {
+      field = ordered_placement_strategy.value.field
+      type  = ordered_placement_strategy.value.type
+    }
+  }
+
+  dynamic "placement_constraints" {
+    for_each = var.placement_constraints != null ? var.placement_constraints : {}
+
+    content {
+      expression = placement_constraints.value.expression
+      type       = placement_constraints.value.type
+    }
+  }
+
+  # Set by task set if deployment controller is external
+  platform_version    = local.is_fargate && !local.is_external_deployment ? var.platform_version : null
+  propagate_tags      = var.propagate_tags
+  scheduling_strategy = local.is_fargate ? "REPLICA" : var.scheduling_strategy
+
+  dynamic "service_connect_configuration" {
+    for_each = var.service_connect_configuration != null ? [var.service_connect_configuration] : []
+
+    content {
+      enabled = service_connect_configuration.value.enabled
+
+      dynamic "access_log_configuration" {
+        for_each = service_connect_configuration.value.access_log_configuration != null ? [service_connect_configuration.value.access_log_configuration] : []
+
+        content {
+          format                   = access_log_configuration.value.format
+          include_query_parameters = access_log_configuration.value.include_query_parameters
+        }
+      }
+
+      dynamic "log_configuration" {
+        for_each = service_connect_configuration.value.log_configuration != null ? [service_connect_configuration.value.log_configuration] : []
+
+        content {
+          log_driver = log_configuration.value.log_driver
+          options    = log_configuration.value.options
+
+          dynamic "secret_option" {
+            for_each = log_configuration.value.secret_option != null ? log_configuration.value.secret_option : []
+
+            content {
+              name       = secret_option.value.name
+              value_from = secret_option.value.value_from
+            }
+          }
+        }
+      }
+
+      namespace = service_connect_configuration.value.namespace
+
+      dynamic "service" {
+        for_each = service_connect_configuration.value.service != null ? service_connect_configuration.value.service : []
+
+        content {
+          dynamic "client_alias" {
+            for_each = service.value.client_alias != null ? [service.value.client_alias] : []
+
+            content {
+              dns_name = client_alias.value.dns_name
+              port     = client_alias.value.port
+
+              dynamic "test_traffic_rules" {
+                for_each = client_alias.value.test_traffic_rules != null ? client_alias.value.test_traffic_rules : []
+
+                content {
+                  dynamic "header" {
+                    for_each = test_traffic_rules.value.header != null ? [test_traffic_rules.value.header] : []
+
+                    content {
+                      name = header.value.name
+
+                      dynamic "value" {
+                        for_each = header.value.value != null ? [header.value.value] : []
+
+                        content {
+                          exact = value.value.exact
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          discovery_name        = service.value.discovery_name
+          ingress_port_override = service.value.ingress_port_override
+          port_name             = service.value.port_name
+
+          dynamic "timeout" {
+            for_each = service.value.timeout != null ? [service.value.timeout] : []
+
+            content {
+              idle_timeout_seconds        = timeout.value.idle_timeout_seconds
+              per_request_timeout_seconds = timeout.value.per_request_timeout_seconds
+            }
+          }
+
+          dynamic "tls" {
+            for_each = service.value.tls != null ? [service.value.tls] : []
+
+            content {
+              dynamic "issuer_cert_authority" {
+                for_each = [tls.value.issuer_cert_authority]
+
+                content {
+                  aws_pca_authority_arn = issuer_cert_authority.value.aws_pca_authority_arn
+                }
+              }
+
+              kms_key  = tls.value.kms_key
+              role_arn = tls.value.role_arn
+            }
+          }
+        }
+      }
+    }
+  }
+
+  dynamic "service_registries" {
+    # Set by task set if deployment controller is external
+    for_each = var.service_registries != null && !local.is_external_deployment ? [var.service_registries] : []
+
+    content {
+      container_name = service_registries.value.container_name
+      container_port = service_registries.value.container_port
+      port           = service_registries.value.port
+      registry_arn   = service_registries.value.registry_arn
+    }
+  }
+
+  sigint_rollback = try(var.deployment_configuration.strategy, null) == "BLUE_GREEN" ? var.sigint_rollback : null
+
+  tags            = merge(var.tags, var.service_tags)
+  task_definition = local.task_definition
+  triggers        = var.triggers
+
+  dynamic "volume_configuration" {
+    for_each = var.volume_configuration != null ? [var.volume_configuration] : []
+
+    content {
+      name = try(volume_configuration.value.name, volume_configuration.key)
+
+      dynamic "managed_ebs_volume" {
+        for_each = [volume_configuration.value.managed_ebs_volume]
+
+        content {
+          encrypted        = managed_ebs_volume.value.encrypted
+          file_system_type = managed_ebs_volume.value.file_system_type
+          iops             = managed_ebs_volume.value.iops
+          kms_key_id       = managed_ebs_volume.value.kms_key_id
+          role_arn         = local.infrastructure_iam_role_arn
+          size_in_gb       = managed_ebs_volume.value.size_in_gb
+          snapshot_id      = managed_ebs_volume.value.snapshot_id
+
+          dynamic "tag_specifications" {
+            for_each = managed_ebs_volume.value.tag_specifications != null ? managed_ebs_volume.value.tag_specifications : []
+
+            content {
+              resource_type  = tag_specifications.value.resource_type
+              propagate_tags = tag_specifications.value.propagate_tags
+              tags           = tag_specifications.value.tags
+            }
+          }
+
+          throughput                 = managed_ebs_volume.value.throughput
+          volume_initialization_rate = managed_ebs_volume.value.volume_initialization_rate
+          volume_type                = managed_ebs_volume.value.volume_type
+        }
+      }
+    }
+  }
+
+  dynamic "vpc_lattice_configurations" {
+    for_each = var.vpc_lattice_configurations != null ? [var.vpc_lattice_configurations] : []
+
+    content {
+      role_arn         = local.infrastructure_iam_role_arn
+      target_group_arn = vpc_lattice_configurations.value.target_group_arn
+      port_name        = vpc_lattice_configurations.value.port_name
+    }
+  }
+
+  wait_for_steady_state = var.wait_for_steady_state
+
+  dynamic "timeouts" {
+    for_each = var.timeouts != null ? [var.timeouts] : []
+
+    content {
+      create = timeouts.value.create
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.service,
+    aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
+    aws_vpc_security_group_ingress_rule.this,
+    aws_vpc_security_group_egress_rule.this,
+  ]
+
+  lifecycle {
+    ignore_changes = [
+      desired_count, # Always ignored
+      task_definition,
     ]
   }
 }
@@ -1376,7 +1730,7 @@ resource "aws_ecs_task_set" "this" {
 
   region = var.region
 
-  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.ignore_task_definition[0].id)
+  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.ignore_task_definition[0].id, aws_ecs_service.ignore_task_definition_managed_load_balancer[0].id)
   cluster         = var.cluster_arn
   external_id     = var.external_id
   task_definition = local.task_definition
@@ -1455,11 +1809,95 @@ resource "aws_ecs_task_set" "this" {
 
 resource "aws_ecs_task_set" "ignore_task_definition" {
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskset.html
-  count = local.create_task_definition && local.is_external_deployment && var.ignore_task_definition_changes ? 1 : 0
+  count = local.create_task_definition && local.is_external_deployment && var.ignore_task_definition_changes && var.ignore_load_balancer_changes ? 1 : 0
 
   region = var.region
 
-  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.ignore_task_definition[0].id)
+  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.ignore_task_definition[0].id, aws_ecs_service.ignore_task_definition_managed_load_balancer[0].id)
+  cluster         = var.cluster_arn
+  external_id     = var.external_id
+  task_definition = local.task_definition
+
+  dynamic "network_configuration" {
+    for_each = var.network_mode == "awsvpc" ? [local.network_configuration] : []
+
+    content {
+      assign_public_ip = network_configuration.value.assign_public_ip
+      security_groups  = network_configuration.value.security_groups
+      subnets          = network_configuration.value.subnets
+    }
+  }
+
+  dynamic "load_balancer" {
+    for_each = var.load_balancer != null ? var.load_balancer : {}
+
+    content {
+      load_balancer_name = load_balancer.value.load_balancer_name
+      target_group_arn   = load_balancer.value.target_group_arn
+      container_name     = load_balancer.value.container_name
+      container_port     = load_balancer.value.container_port
+    }
+  }
+
+  dynamic "service_registries" {
+    for_each = var.service_registries != null ? [var.service_registries] : []
+
+    content {
+      container_name = service_registries.value.container_name
+      container_port = service_registries.value.container_port
+      port           = service_registries.value.port
+      registry_arn   = service_registries.value.registry_arn
+    }
+  }
+
+  launch_type = var.capacity_provider_strategy != null ? null : var.launch_type
+
+  dynamic "capacity_provider_strategy" {
+    for_each = var.capacity_provider_strategy != null ? var.capacity_provider_strategy : {}
+
+    content {
+      base              = capacity_provider_strategy.value.base
+      capacity_provider = capacity_provider_strategy.value.capacity_provider
+      weight            = coalesce(capacity_provider_strategy.value.weight, 1)
+    }
+  }
+
+  platform_version = local.is_fargate ? var.platform_version : null
+
+  dynamic "scale" {
+    for_each = var.scale != null ? [var.scale] : []
+
+    content {
+      unit  = scale.value.unit
+      value = scale.value.value
+    }
+  }
+
+  force_delete              = var.force_delete
+  wait_until_stable         = var.wait_until_stable
+  wait_until_stable_timeout = var.wait_until_stable_timeout
+
+  tags = merge(var.tags, var.task_tags)
+
+  lifecycle {
+    ignore_changes = [
+      scale, # Always ignored
+      task_definition,
+    ]
+  }
+}
+
+################################################################################
+# Task Set - Ignore `task_definition`, manage `load_balancer`
+################################################################################
+
+resource "aws_ecs_task_set" "ignore_task_definition_managed_load_balancer" {
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskset.html
+  count = local.create_task_definition && local.is_external_deployment && var.ignore_task_definition_changes && !var.ignore_load_balancer_changes ? 1 : 0
+
+  region = var.region
+
+  service         = try(aws_ecs_service.this[0].id, aws_ecs_service.ignore_task_definition[0].id, aws_ecs_service.ignore_task_definition_managed_load_balancer[0].id)
   cluster         = var.cluster_arn
   external_id     = var.external_id
   task_definition = local.task_definition
@@ -1552,7 +1990,7 @@ resource "aws_appautoscaling_target" "this" {
   min_capacity = min(var.autoscaling_min_capacity, var.desired_count)
   max_capacity = max(var.autoscaling_max_capacity, var.desired_count)
 
-  resource_id        = "service/${local.cluster_name}/${try(aws_ecs_service.this[0].name, aws_ecs_service.ignore_task_definition[0].name)}"
+  resource_id        = "service/${local.cluster_name}/${try(aws_ecs_service.this[0].name, aws_ecs_service.ignore_task_definition[0].name, aws_ecs_service.ignore_task_definition_managed_load_balancer[0].name)}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 
