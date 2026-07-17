@@ -940,6 +940,19 @@ locals {
   task_definition        = local.create_task_definition ? aws_ecs_task_definition.this[0].arn : var.task_definition_arn
 }
 
+# IAM roles are eventually consistent - registering a task definition immediately after the
+# roles are created can fail the `iam:PassRole` authorization check performed by `RegisterTaskDefinition`
+resource "time_sleep" "task_definition" {
+  count = local.create_task_definition && var.iam_role_wait_duration != null && (local.create_task_exec_iam_role || local.create_tasks_iam_role) ? 1 : 0
+
+  create_duration = var.iam_role_wait_duration
+
+  triggers = {
+    task_exec_iam_role_arn = try(aws_iam_role.task_exec[0].arn, "")
+    tasks_iam_role_arn     = try(aws_iam_role.tasks[0].arn, "")
+  }
+}
+
 resource "aws_ecs_task_definition" "this" {
   count = local.create_task_definition ? 1 : 0
 
@@ -958,7 +971,7 @@ resource "aws_ecs_task_definition" "this" {
     }
   }
 
-  execution_role_arn = try(aws_iam_role.task_exec[0].arn, var.task_exec_iam_role_arn)
+  execution_role_arn = local.create_task_exec_iam_role && var.iam_role_wait_duration != null ? time_sleep.task_definition[0].triggers["task_exec_iam_role_arn"] : try(aws_iam_role.task_exec[0].arn, var.task_exec_iam_role_arn)
   family             = coalesce(var.family, var.name)
 
   ipc_mode     = var.ipc_mode
@@ -997,7 +1010,7 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   skip_destroy  = var.skip_destroy
-  task_role_arn = try(aws_iam_role.tasks[0].arn, var.tasks_iam_role_arn)
+  task_role_arn = local.create_tasks_iam_role && var.iam_role_wait_duration != null ? time_sleep.task_definition[0].triggers["tasks_iam_role_arn"] : try(aws_iam_role.tasks[0].arn, var.tasks_iam_role_arn)
   track_latest  = var.track_latest
 
   dynamic "volume" {

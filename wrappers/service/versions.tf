@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 6.34"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = ">= 0.13"
+    }
   }
 
   provider_meta "aws" {

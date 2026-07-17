@@ -962,11 +962,12 @@ variable "services" {
     ephemeral_storage = optional(object({
       size_in_gib = number
     }))
-    family       = optional(string)
-    ipc_mode     = optional(string)
-    memory       = optional(number, 2048)
-    network_mode = optional(string)
-    pid_mode     = optional(string)
+    family                 = optional(string)
+    iam_role_wait_duration = optional(string)
+    ipc_mode               = optional(string)
+    memory                 = optional(number, 2048)
+    network_mode           = optional(string)
+    pid_mode               = optional(string)
     proxy_configuration = optional(object({
       container_name = string
       properties     = optional(map(string))

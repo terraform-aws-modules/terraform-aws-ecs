@@ -161,6 +161,7 @@ module "service" {
   enable_fault_injection                = each.value.enable_fault_injection
   ephemeral_storage                     = each.value.ephemeral_storage
   family                                = each.value.family
+  iam_role_wait_duration                = each.value.iam_role_wait_duration
   ipc_mode                              = each.value.ipc_mode
   memory                                = each.value.memory
   network_mode                          = each.value.network_mode

@@ -658,6 +658,12 @@ variable "family" {
   default     = null
 }
 
+variable "iam_role_wait_duration" {
+  description = "Duration to wait after the task execution and/or tasks IAM roles are created before registering the task definition, to allow for IAM eventual consistency (e.g. `30s`). Only applies to IAM roles created by this module; when `null` (default), no wait is performed"
+  type        = string
+  default     = null
+}
+
 variable "ipc_mode" {
   description = "IPC resource namespace to be used for the containers in the task The valid values are `host`, `task`, and `none`"
   type        = string
