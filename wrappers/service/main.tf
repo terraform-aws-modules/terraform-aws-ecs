@@ -64,7 +64,6 @@ module "wrapper" {
   iam_role_tags                      = try(each.value.iam_role_tags, var.defaults.iam_role_tags, {})
   iam_role_use_name_prefix           = try(each.value.iam_role_use_name_prefix, var.defaults.iam_role_use_name_prefix, true)
   ignore_task_definition_changes     = try(each.value.ignore_task_definition_changes, var.defaults.ignore_task_definition_changes, false)
-  inference_accelerator              = try(each.value.inference_accelerator, var.defaults.inference_accelerator, {})
   ipc_mode                           = try(each.value.ipc_mode, var.defaults.ipc_mode, null)
   launch_type                        = try(each.value.launch_type, var.defaults.launch_type, "FARGATE")
   load_balancer                      = try(each.value.load_balancer, var.defaults.load_balancer, {})
