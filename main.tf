@@ -34,6 +34,7 @@ module "cluster" {
   task_exec_iam_role_name                 = var.task_exec_iam_role_name
   task_exec_iam_role_use_name_prefix      = var.task_exec_iam_role_use_name_prefix
   task_exec_iam_role_path                 = var.task_exec_iam_role_path
+  task_exec_iam_role_assume_role_policy   = var.task_exec_iam_role_assume_role_policy
   task_exec_iam_role_description          = var.task_exec_iam_role_description
   task_exec_iam_role_permissions_boundary = var.task_exec_iam_role_permissions_boundary
   task_exec_iam_role_tags                 = var.task_exec_iam_role_tags
@@ -52,6 +53,7 @@ module "cluster" {
   infrastructure_iam_role_name                 = var.infrastructure_iam_role_name
   infrastructure_iam_role_use_name_prefix      = var.infrastructure_iam_role_use_name_prefix
   infrastructure_iam_role_path                 = var.infrastructure_iam_role_path
+  infrastructure_iam_role_assume_role_policy   = var.infrastructure_iam_role_assume_role_policy
   infrastructure_iam_role_description          = var.infrastructure_iam_role_description
   infrastructure_iam_role_permissions_boundary = var.infrastructure_iam_role_permissions_boundary
   infrastructure_iam_role_tags                 = var.infrastructure_iam_role_tags
@@ -66,6 +68,7 @@ module "cluster" {
   node_iam_role_name                 = var.node_iam_role_name
   node_iam_role_use_name_prefix      = var.node_iam_role_use_name_prefix
   node_iam_role_path                 = var.node_iam_role_path
+  node_iam_role_assume_role_policy   = var.node_iam_role_assume_role_policy
   node_iam_role_description          = var.node_iam_role_description
   node_iam_role_permissions_boundary = var.node_iam_role_permissions_boundary
   node_iam_role_additional_policies  = var.node_iam_role_additional_policies
@@ -148,6 +151,7 @@ module "service" {
   iam_role_name                 = each.value.iam_role_name
   iam_role_use_name_prefix      = each.value.iam_role_use_name_prefix
   iam_role_path                 = each.value.iam_role_path
+  iam_role_assume_role_policy   = each.value.iam_role_assume_role_policy
   iam_role_description          = each.value.iam_role_description
   iam_role_permissions_boundary = each.value.iam_role_permissions_boundary
   iam_role_tags                 = each.value.iam_role_tags
@@ -180,6 +184,7 @@ module "service" {
   task_exec_iam_role_name                 = each.value.task_exec_iam_role_name
   task_exec_iam_role_use_name_prefix      = each.value.task_exec_iam_role_use_name_prefix
   task_exec_iam_role_path                 = each.value.task_exec_iam_role_path
+  task_exec_iam_role_assume_role_policy   = each.value.task_exec_iam_role_assume_role_policy
   task_exec_iam_role_description          = each.value.task_exec_iam_role_description
   task_exec_iam_role_permissions_boundary = each.value.task_exec_iam_role_permissions_boundary
   task_exec_iam_role_tags                 = each.value.task_exec_iam_role_tags
@@ -199,6 +204,7 @@ module "service" {
   tasks_iam_role_name                 = each.value.tasks_iam_role_name
   tasks_iam_role_use_name_prefix      = each.value.tasks_iam_role_use_name_prefix
   tasks_iam_role_path                 = each.value.tasks_iam_role_path
+  tasks_iam_role_assume_role_policy   = each.value.tasks_iam_role_assume_role_policy
   tasks_iam_role_description          = each.value.tasks_iam_role_description
   tasks_iam_role_permissions_boundary = each.value.tasks_iam_role_permissions_boundary
   tasks_iam_role_tags                 = each.value.tasks_iam_role_tags
@@ -236,6 +242,7 @@ module "service" {
   infrastructure_iam_role_name                 = each.value.infrastructure_iam_role_name
   infrastructure_iam_role_use_name_prefix      = each.value.infrastructure_iam_role_use_name_prefix
   infrastructure_iam_role_path                 = each.value.infrastructure_iam_role_path
+  infrastructure_iam_role_assume_role_policy   = each.value.infrastructure_iam_role_assume_role_policy
   infrastructure_iam_role_description          = each.value.infrastructure_iam_role_description
   infrastructure_iam_role_permissions_boundary = each.value.infrastructure_iam_role_permissions_boundary
   infrastructure_iam_role_tags                 = each.value.infrastructure_iam_role_tags

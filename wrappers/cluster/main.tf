@@ -27,6 +27,7 @@ module "wrapper" {
   create_task_exec_policy                           = try(each.value.create_task_exec_policy, var.defaults.create_task_exec_policy, true)
   default_capacity_provider_strategy                = try(each.value.default_capacity_provider_strategy, var.defaults.default_capacity_provider_strategy, {})
   disable_v7_default_name_description               = try(each.value.disable_v7_default_name_description, var.defaults.disable_v7_default_name_description, false)
+  infrastructure_iam_role_assume_role_policy        = try(each.value.infrastructure_iam_role_assume_role_policy, var.defaults.infrastructure_iam_role_assume_role_policy, null)
   infrastructure_iam_role_description               = try(each.value.infrastructure_iam_role_description, var.defaults.infrastructure_iam_role_description, null)
   infrastructure_iam_role_name                      = try(each.value.infrastructure_iam_role_name, var.defaults.infrastructure_iam_role_name, null)
   infrastructure_iam_role_override_policy_documents = try(each.value.infrastructure_iam_role_override_policy_documents, var.defaults.infrastructure_iam_role_override_policy_documents, [])
@@ -38,6 +39,7 @@ module "wrapper" {
   infrastructure_iam_role_use_name_prefix           = try(each.value.infrastructure_iam_role_use_name_prefix, var.defaults.infrastructure_iam_role_use_name_prefix, true)
   name                                              = try(each.value.name, var.defaults.name, "")
   node_iam_role_additional_policies                 = try(each.value.node_iam_role_additional_policies, var.defaults.node_iam_role_additional_policies, {})
+  node_iam_role_assume_role_policy                  = try(each.value.node_iam_role_assume_role_policy, var.defaults.node_iam_role_assume_role_policy, null)
   node_iam_role_description                         = try(each.value.node_iam_role_description, var.defaults.node_iam_role_description, "ECS Managed Instances node IAM role")
   node_iam_role_name                                = try(each.value.node_iam_role_name, var.defaults.node_iam_role_name, null)
   node_iam_role_override_policy_documents           = try(each.value.node_iam_role_override_policy_documents, var.defaults.node_iam_role_override_policy_documents, [])
@@ -73,6 +75,7 @@ module "wrapper" {
     }
   ])
   tags                                    = try(each.value.tags, var.defaults.tags, {})
+  task_exec_iam_role_assume_role_policy   = try(each.value.task_exec_iam_role_assume_role_policy, var.defaults.task_exec_iam_role_assume_role_policy, null)
   task_exec_iam_role_description          = try(each.value.task_exec_iam_role_description, var.defaults.task_exec_iam_role_description, null)
   task_exec_iam_role_name                 = try(each.value.task_exec_iam_role_name, var.defaults.task_exec_iam_role_name, null)
   task_exec_iam_role_path                 = try(each.value.task_exec_iam_role_path, var.defaults.task_exec_iam_role_path, null)

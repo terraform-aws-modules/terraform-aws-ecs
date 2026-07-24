@@ -119,6 +119,7 @@ No modules.
 | <a name="input_create_task_iam_role"></a> [create\_task\_iam\_role](#input\_create\_task\_iam\_role) | Determines whether the ECS task IAM role should be created | `bool` | `true` | no |
 | <a name="input_execution_iam_policy_path"></a> [execution\_iam\_policy\_path](#input\_execution\_iam\_policy\_path) | Path for the iam role | `string` | `null` | no |
 | <a name="input_execution_iam_role_arn"></a> [execution\_iam\_role\_arn](#input\_execution\_iam\_role\_arn) | Existing IAM role ARN | `string` | `null` | no |
+| <a name="input_execution_iam_role_assume_role_policy"></a> [execution\_iam\_role\_assume\_role\_policy](#input\_execution\_iam\_role\_assume\_role\_policy) | Custom assume role policy document JSON for the created task execution role. If not provided, uses the default ECS task service assumption policy | `string` | `null` | no |
 | <a name="input_execution_iam_role_description"></a> [execution\_iam\_role\_description](#input\_execution\_iam\_role\_description) | Description of the role | `string` | `null` | no |
 | <a name="input_execution_iam_role_max_session_duration"></a> [execution\_iam\_role\_max\_session\_duration](#input\_execution\_iam\_role\_max\_session\_duration) | Maximum session duration (in seconds) for ECS task execution role. Default is 3600. | `number` | `null` | no |
 | <a name="input_execution_iam_role_name"></a> [execution\_iam\_role\_name](#input\_execution\_iam\_role\_name) | Name to use on IAM role created | `string` | `null` | no |
@@ -132,6 +133,7 @@ No modules.
 | <a name="input_execution_ssm_param_arns"></a> [execution\_ssm\_param\_arns](#input\_execution\_ssm\_param\_arns) | List of SSM parameter ARNs the task execution role will be permitted to get/read | `list(string)` | `[]` | no |
 | <a name="input_health_check_path"></a> [health\_check\_path](#input\_health\_check\_path) | Path for health check requests. Defaults to `/ping` | `string` | `null` | no |
 | <a name="input_infrastructure_iam_role_arn"></a> [infrastructure\_iam\_role\_arn](#input\_infrastructure\_iam\_role\_arn) | Existing IAM role ARN | `string` | `null` | no |
+| <a name="input_infrastructure_iam_role_assume_role_policy"></a> [infrastructure\_iam\_role\_assume\_role\_policy](#input\_infrastructure\_iam\_role\_assume\_role\_policy) | Custom assume role policy document JSON for the created infrastructure role. If not provided, uses the default ECS service assumption policy | `string` | `null` | no |
 | <a name="input_infrastructure_iam_role_description"></a> [infrastructure\_iam\_role\_description](#input\_infrastructure\_iam\_role\_description) | Description of the role | `string` | `null` | no |
 | <a name="input_infrastructure_iam_role_name"></a> [infrastructure\_iam\_role\_name](#input\_infrastructure\_iam\_role\_name) | Name to use on IAM role created | `string` | `null` | no |
 | <a name="input_infrastructure_iam_role_path"></a> [infrastructure\_iam\_role\_path](#input\_infrastructure\_iam\_role\_path) | IAM role path | `string` | `null` | no |
@@ -152,6 +154,7 @@ No modules.
 | <a name="input_security_group_use_name_prefix"></a> [security\_group\_use\_name\_prefix](#input\_security\_group\_use\_name\_prefix) | Determines whether the security group name (`security_group_name`) is used as a prefix | `bool` | `true` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | `{}` | no |
 | <a name="input_task_iam_role_arn"></a> [task\_iam\_role\_arn](#input\_task\_iam\_role\_arn) | Existing IAM role ARN | `string` | `null` | no |
+| <a name="input_task_iam_role_assume_role_policy"></a> [task\_iam\_role\_assume\_role\_policy](#input\_task\_iam\_role\_assume\_role\_policy) | Custom assume role policy document JSON for the created task role. If not provided, uses the default ECS task service assumption policy | `string` | `null` | no |
 | <a name="input_task_iam_role_description"></a> [task\_iam\_role\_description](#input\_task\_iam\_role\_description) | Description of the role | `string` | `null` | no |
 | <a name="input_task_iam_role_max_session_duration"></a> [task\_iam\_role\_max\_session\_duration](#input\_task\_iam\_role\_max\_session\_duration) | Maximum session duration (in seconds) for ECS task role. Default is 3600. | `number` | `null` | no |
 | <a name="input_task_iam_role_name"></a> [task\_iam\_role\_name](#input\_task\_iam\_role\_name) | Name to use on IAM role created | `string` | `null` | no |

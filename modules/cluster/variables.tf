@@ -269,6 +269,12 @@ variable "task_exec_iam_role_path" {
   default     = null
 }
 
+variable "task_exec_iam_role_assume_role_policy" {
+  description = "Custom assume role policy document JSON for the created task execution role. If not provided, uses the default ECS task service assumption policy"
+  type        = string
+  default     = null
+}
+
 variable "task_exec_iam_role_description" {
   description = "Description of the role"
   type        = string
@@ -367,6 +373,12 @@ variable "infrastructure_iam_role_path" {
   default     = null
 }
 
+variable "infrastructure_iam_role_assume_role_policy" {
+  description = "Custom assume role policy document JSON for the created infrastructure role. If not provided, uses the default ECS service assumption policy"
+  type        = string
+  default     = null
+}
+
 variable "infrastructure_iam_role_description" {
   description = "Description of the role"
   type        = string
@@ -454,6 +466,12 @@ variable "node_iam_role_use_name_prefix" {
 
 variable "node_iam_role_path" {
   description = "IAM role/instance profile path"
+  type        = string
+  default     = null
+}
+
+variable "node_iam_role_assume_role_policy" {
+  description = "Custom assume role policy document JSON for the created node role. If not provided, uses the default EC2 service assumption policy"
   type        = string
   default     = null
 }

@@ -776,7 +776,7 @@ resource "aws_iam_role" "service" {
   path        = var.iam_role_path
   description = try(coalesce(var.iam_role_description, (var.disable_v7_default_name_description ? null : "IAM role for ECS Service ${var.name}")), null)
 
-  assume_role_policy    = data.aws_iam_policy_document.service_assume[0].json
+  assume_role_policy    = coalesce(var.iam_role_assume_role_policy, data.aws_iam_policy_document.service_assume[0].json)
   permissions_boundary  = var.iam_role_permissions_boundary
   force_detach_policies = true
 
@@ -1108,7 +1108,7 @@ resource "aws_iam_role" "task_exec" {
   path        = var.task_exec_iam_role_path
   description = coalesce(var.task_exec_iam_role_description, "Task execution role for ${local.task_exec_iam_role_name}")
 
-  assume_role_policy    = data.aws_iam_policy_document.task_exec_assume[0].json
+  assume_role_policy    = coalesce(var.task_exec_iam_role_assume_role_policy, data.aws_iam_policy_document.task_exec_assume[0].json)
   max_session_duration  = var.task_exec_iam_role_max_session_duration
   permissions_boundary  = var.task_exec_iam_role_permissions_boundary
   force_detach_policies = true
@@ -1273,7 +1273,7 @@ resource "aws_iam_role" "tasks" {
   path        = var.tasks_iam_role_path
   description = try(coalesce(var.tasks_iam_role_description, (var.disable_v7_default_name_description ? null : "IAM role for ECS tasks in Service ${var.name}")), null)
 
-  assume_role_policy    = data.aws_iam_policy_document.tasks_assume[0].json
+  assume_role_policy    = coalesce(var.tasks_iam_role_assume_role_policy, data.aws_iam_policy_document.tasks_assume[0].json)
   max_session_duration  = var.tasks_iam_role_max_session_duration
   permissions_boundary  = var.tasks_iam_role_permissions_boundary
   force_detach_policies = true
@@ -2002,7 +2002,7 @@ resource "aws_iam_role" "infrastructure_iam_role" {
   path        = var.infrastructure_iam_role_path
   description = coalesce(var.infrastructure_iam_role_description, "Amazon ECS infrastructure IAM role that is used to manage your infrastructure")
 
-  assume_role_policy    = data.aws_iam_policy_document.infrastructure_iam_role[0].json
+  assume_role_policy    = coalesce(var.infrastructure_iam_role_assume_role_policy, data.aws_iam_policy_document.infrastructure_iam_role[0].json)
   permissions_boundary  = var.infrastructure_iam_role_permissions_boundary
   force_detach_policies = true
 

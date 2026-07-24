@@ -206,7 +206,7 @@ resource "aws_iam_role" "execution" {
   path        = var.execution_iam_role_path
   description = coalesce(var.execution_iam_role_description, "Execution role IAM policy for ECS Express Service ${var.name}")
 
-  assume_role_policy    = data.aws_iam_policy_document.execution_assume[0].json
+  assume_role_policy    = coalesce(var.execution_iam_role_assume_role_policy, data.aws_iam_policy_document.execution_assume[0].json)
   max_session_duration  = var.execution_iam_role_max_session_duration
   permissions_boundary  = var.execution_iam_role_permissions_boundary
   force_detach_policies = true
@@ -366,7 +366,7 @@ resource "aws_iam_role" "infrastructure" {
   path        = var.infrastructure_iam_role_path
   description = coalesce(var.infrastructure_iam_role_description, "Infrastructure role IAM policy for ECS Express Service ${var.name}")
 
-  assume_role_policy    = data.aws_iam_policy_document.infrastructure_assume[0].json
+  assume_role_policy    = coalesce(var.infrastructure_iam_role_assume_role_policy, data.aws_iam_policy_document.infrastructure_assume[0].json)
   permissions_boundary  = var.infrastructure_iam_role_permissions_boundary
   force_detach_policies = true
 
@@ -411,7 +411,7 @@ resource "aws_iam_role" "task" {
   path        = var.task_iam_role_path
   description = try(coalesce(var.task_iam_role_description, "Task role IAM policy for ECS Express Service ${var.name}"))
 
-  assume_role_policy    = data.aws_iam_policy_document.task_assume[0].json
+  assume_role_policy    = coalesce(var.task_iam_role_assume_role_policy, data.aws_iam_policy_document.task_assume[0].json)
   max_session_duration  = var.task_iam_role_max_session_duration
   permissions_boundary  = var.task_iam_role_permissions_boundary
   force_detach_policies = true
