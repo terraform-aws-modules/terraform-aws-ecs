@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.5.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.5.0...v7.5.1) (2026-08-08)
+
+### Bug Fixes
+
+* Update GitHub Actions and pre-commit hook versions ([#421](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/421)) ([648cadf](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/648cadf679b38863a57fbd628cc5bc5f3ce669cd))
+
 ## [7.5.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.4.0...v7.5.0) (2026-03-18)
 
 ### Features
