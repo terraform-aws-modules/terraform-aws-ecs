@@ -919,14 +919,15 @@ module "container_definition" {
   workingDirectory       = each.value.workingDirectory
 
   # CloudWatch Log Group
-  service                                = var.name
-  enable_cloudwatch_logging              = each.value.enable_cloudwatch_logging
-  create_cloudwatch_log_group            = each.value.create_cloudwatch_log_group
-  cloudwatch_log_group_name              = each.value.cloudwatch_log_group_name
-  cloudwatch_log_group_use_name_prefix   = each.value.cloudwatch_log_group_use_name_prefix
-  cloudwatch_log_group_class             = each.value.cloudwatch_log_group_class
-  cloudwatch_log_group_retention_in_days = each.value.cloudwatch_log_group_retention_in_days
-  cloudwatch_log_group_kms_key_id        = each.value.cloudwatch_log_group_kms_key_id
+  service                                          = var.name
+  enable_cloudwatch_logging                        = each.value.enable_cloudwatch_logging
+  create_cloudwatch_log_group                      = each.value.create_cloudwatch_log_group
+  cloudwatch_log_group_name                        = each.value.cloudwatch_log_group_name
+  cloudwatch_log_group_use_name_prefix             = each.value.cloudwatch_log_group_use_name_prefix
+  cloudwatch_log_group_class                       = each.value.cloudwatch_log_group_class
+  cloudwatch_log_group_retention_in_days           = each.value.cloudwatch_log_group_retention_in_days
+  cloudwatch_log_group_kms_key_id                  = each.value.cloudwatch_log_group_kms_key_id
+  cloudwatch_log_group_deletion_protection_enabled = each.value.cloudwatch_log_group_deletion_protection_enabled
 
   tags = var.tags
 }

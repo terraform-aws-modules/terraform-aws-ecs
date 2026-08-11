@@ -122,6 +122,12 @@ variable "cloudwatch_log_group_class" {
   default     = null
 }
 
+variable "cloudwatch_log_group_deletion_protection_enabled" {
+  description = "Specifies whether deletion protection is enabled for the log group. Possible values are: `true` or `false`"
+  type        = bool
+  default     = false
+}
+
 variable "cloudwatch_log_group_tags" {
   description = "A map of additional tags to add to the log group created"
   type        = map(string)
