@@ -228,6 +228,12 @@ variable "capacity_providers" {
   default = null
 }
 
+variable "cluster_capacity_providers_wait_duration" {
+  description = "The amount of time to wait for the cluster capacity providers to be associated with the cluster. This is useful when creating capacity providers in the same module as the cluster, as it can take a few seconds for the capacity provider to be ready to associate with the cluster"
+  type        = string
+  default     = "20s"
+}
+
 variable "default_capacity_provider_strategy" {
   description = "Map of default capacity provider strategy definitions to use for the cluster"
   type = map(object({
