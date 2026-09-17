@@ -25,9 +25,10 @@ module "cluster" {
   cloudwatch_log_group_tags              = var.cloudwatch_log_group_tags
 
   # Cluster capacity providers
-  cluster_capacity_providers         = var.cluster_capacity_providers
-  capacity_providers                 = var.capacity_providers
-  default_capacity_provider_strategy = var.default_capacity_provider_strategy
+  cluster_capacity_providers               = var.cluster_capacity_providers
+  capacity_providers                       = var.capacity_providers
+  cluster_capacity_providers_wait_duration = var.cluster_capacity_providers_wait_duration
+  default_capacity_provider_strategy       = var.default_capacity_provider_strategy
 
   # Task execution IAM role
   create_task_exec_iam_role               = var.create_task_exec_iam_role
