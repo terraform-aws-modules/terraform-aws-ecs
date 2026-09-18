@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.6.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.6.0...v7.6.1) (2026-09-18)
+
+### Bug Fixes
+
+* Document known Terraform/OpenTofu limitations in README ([#427](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/427)) ([ec8f5df](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/ec8f5df3c276ae48a41a99822899f52e74e1c1f1))
+
 ## [7.6.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.5.1...v7.6.0) (2026-08-09)
 
 ### Features
