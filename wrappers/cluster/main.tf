@@ -3,14 +3,15 @@ module "wrapper" {
 
   for_each = var.items
 
-  capacity_providers                       = try(each.value.capacity_providers, var.defaults.capacity_providers, null)
-  cloudwatch_log_group_class               = try(each.value.cloudwatch_log_group_class, var.defaults.cloudwatch_log_group_class, null)
-  cloudwatch_log_group_kms_key_id          = try(each.value.cloudwatch_log_group_kms_key_id, var.defaults.cloudwatch_log_group_kms_key_id, null)
-  cloudwatch_log_group_name                = try(each.value.cloudwatch_log_group_name, var.defaults.cloudwatch_log_group_name, null)
-  cloudwatch_log_group_retention_in_days   = try(each.value.cloudwatch_log_group_retention_in_days, var.defaults.cloudwatch_log_group_retention_in_days, 90)
-  cloudwatch_log_group_tags                = try(each.value.cloudwatch_log_group_tags, var.defaults.cloudwatch_log_group_tags, {})
-  cluster_capacity_providers               = try(each.value.cluster_capacity_providers, var.defaults.cluster_capacity_providers, [])
-  cluster_capacity_providers_wait_duration = try(each.value.cluster_capacity_providers_wait_duration, var.defaults.cluster_capacity_providers_wait_duration, "20s")
+  capacity_providers                               = try(each.value.capacity_providers, var.defaults.capacity_providers, null)
+  cloudwatch_log_group_class                       = try(each.value.cloudwatch_log_group_class, var.defaults.cloudwatch_log_group_class, null)
+  cloudwatch_log_group_deletion_protection_enabled = try(each.value.cloudwatch_log_group_deletion_protection_enabled, var.defaults.cloudwatch_log_group_deletion_protection_enabled, false)
+  cloudwatch_log_group_kms_key_id                  = try(each.value.cloudwatch_log_group_kms_key_id, var.defaults.cloudwatch_log_group_kms_key_id, null)
+  cloudwatch_log_group_name                        = try(each.value.cloudwatch_log_group_name, var.defaults.cloudwatch_log_group_name, null)
+  cloudwatch_log_group_retention_in_days           = try(each.value.cloudwatch_log_group_retention_in_days, var.defaults.cloudwatch_log_group_retention_in_days, 90)
+  cloudwatch_log_group_tags                        = try(each.value.cloudwatch_log_group_tags, var.defaults.cloudwatch_log_group_tags, {})
+  cluster_capacity_providers                       = try(each.value.cluster_capacity_providers, var.defaults.cluster_capacity_providers, [])
+  cluster_capacity_providers_wait_duration         = try(each.value.cluster_capacity_providers_wait_duration, var.defaults.cluster_capacity_providers_wait_duration, "20s")
   configuration = try(each.value.configuration, var.defaults.configuration, {
     execute_command_configuration = {
       log_configuration = {
