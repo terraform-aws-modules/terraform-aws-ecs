@@ -48,6 +48,7 @@ module "wrapper" {
   deployment_controller                        = try(each.value.deployment_controller, var.defaults.deployment_controller, null)
   deployment_maximum_percent                   = try(each.value.deployment_maximum_percent, var.defaults.deployment_maximum_percent, 200)
   deployment_minimum_healthy_percent           = try(each.value.deployment_minimum_healthy_percent, var.defaults.deployment_minimum_healthy_percent, 66)
+  derive_vpc_id_from_subnets                   = try(each.value.derive_vpc_id_from_subnets, var.defaults.derive_vpc_id_from_subnets, true)
   desired_count                                = try(each.value.desired_count, var.defaults.desired_count, 1)
   disable_v7_default_name_description          = try(each.value.disable_v7_default_name_description, var.defaults.disable_v7_default_name_description, false)
   enable_autoscaling                           = try(each.value.enable_autoscaling, var.defaults.enable_autoscaling, true)
