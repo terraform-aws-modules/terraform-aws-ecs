@@ -146,7 +146,6 @@ module "ecs" {
 ```
 
 <!-- BEGIN_KNOWN_LIMITATIONS -->
-
 ## Known limitations (Terraform/OpenTofu, not this module)
 
 A few requests come up again and again and cannot be implemented by this
@@ -159,11 +158,9 @@ has been open since 2018,
 the same request for OpenTofu.
 
 - **Terraform reverts the task definition my pipeline just deployed** - Native
-  options: have the pipeline update the Terraform configuration instead of the
-  ECS API, or fork and add `ignore_changes = [task_definition]`.
-- **ECS service desired_count keeps resetting** - Native options: leave
-  `desired_count` out of the configuration, or fork and add
-  `ignore_changes = [desired_count]`.
+  options: set `ignore_task_definition_changes = true` (an existing service
+  moves to a new state address, so add a `moved` block), or have the pipeline
+  update the Terraform configuration instead of the ECS API.
 
 [Compliance.tf](https://compliance.tf/?utm_source=github&utm_medium=readme&utm_campaign=known-limitations) serves this module with
 these rules applied at download time, on top of whatever your organization
@@ -172,16 +169,13 @@ does. Drop the `version` argument and pin the release you use by adding
 `&version=` and that release number to the URL. To get started, register a free
 compliance.tf account and configure an access token:
 
-    source = "https://registry.compliance.tf/terraform-aws-modules/ecs/aws?add_rules=lifecycle_ignore_deployed_artifacts,lifecycle_ignore_scaling_changes"
+    source = "https://registry.compliance.tf/terraform-aws-modules/ecs/aws?add_rules=lifecycle_ignore_deployed_artifacts"
 
 The full workaround for each item above, and the exact diff each rule makes,
-are in the [compliance.tf docs for this module](https://compliance.tf/docs/workarounds/terraform-aws-ecs/?utm_source=github&utm_medium=readme&utm_campaign=known-limitations). To preview a
-diff without an account, open this module in the
-[Rules Playground](https://registry.compliance.tf/playground?module=terraform-aws-modules/ecs/aws&rules=lifecycle_ignore_deployed_artifacts,lifecycle_ignore_scaling_changes).
+are in the [compliance.tf docs for this module](https://compliance.tf/docs/workarounds/terraform-aws-ecs/?utm_source=github&utm_medium=readme&utm_campaign=known-limitations).
 
 Disclosure: written by this module's maintainer, who also builds
 [compliance.tf](https://compliance.tf/?utm_source=github&utm_medium=readme&utm_campaign=known-limitations).
-
 <!-- END_KNOWN_LIMITATIONS -->
 
 ## Examples
