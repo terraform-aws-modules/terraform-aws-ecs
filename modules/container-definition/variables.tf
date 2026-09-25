@@ -453,3 +453,9 @@ variable "cloudwatch_log_group_kms_key_id" {
   type        = string
   default     = null
 }
+
+variable "cloudwatch_log_group_deletion_protection_enabled" {
+  description = "Specifies whether deletion protection is enabled for the log group. Possible values are: `true` or `false`"
+  type        = bool
+  default     = false
+}

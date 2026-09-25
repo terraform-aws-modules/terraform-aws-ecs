@@ -97,10 +97,11 @@ resource "aws_cloudwatch_log_group" "this" {
 
   region = var.region
 
-  name              = local.log_group_name
-  retention_in_days = var.cloudwatch_log_group_retention_in_days
-  kms_key_id        = var.cloudwatch_log_group_kms_key_id
-  log_group_class   = var.cloudwatch_log_group_class
+  name                        = local.log_group_name
+  retention_in_days           = var.cloudwatch_log_group_retention_in_days
+  kms_key_id                  = var.cloudwatch_log_group_kms_key_id
+  log_group_class             = var.cloudwatch_log_group_class
+  deletion_protection_enabled = var.cloudwatch_log_group_deletion_protection_enabled
 
   tags = merge(
     var.tags,

@@ -620,14 +620,15 @@ variable "container_definitions" {
     workingDirectory = optional(string)
 
     # Cloudwatch Log Group
-    service                                = optional(string)
-    enable_cloudwatch_logging              = optional(bool)
-    create_cloudwatch_log_group            = optional(bool)
-    cloudwatch_log_group_name              = optional(string)
-    cloudwatch_log_group_use_name_prefix   = optional(bool)
-    cloudwatch_log_group_class             = optional(string)
-    cloudwatch_log_group_retention_in_days = optional(number)
-    cloudwatch_log_group_kms_key_id        = optional(string)
+    service                                          = optional(string)
+    enable_cloudwatch_logging                        = optional(bool)
+    create_cloudwatch_log_group                      = optional(bool)
+    cloudwatch_log_group_name                        = optional(string)
+    cloudwatch_log_group_use_name_prefix             = optional(bool)
+    cloudwatch_log_group_class                       = optional(string)
+    cloudwatch_log_group_retention_in_days           = optional(number)
+    cloudwatch_log_group_kms_key_id                  = optional(string)
+    cloudwatch_log_group_deletion_protection_enabled = optional(bool)
   }))
   default = {}
 }
