@@ -145,6 +145,39 @@ module "ecs" {
 }
 ```
 
+<!-- BEGIN_KNOWN_LIMITATIONS -->
+## Known limitations (Terraform/OpenTofu, not this module)
+
+A few requests come up again and again and cannot be implemented by this
+module, or by any module: Terraform requires `lifecycle` arguments to be
+literal values inside the resource block.
+[hashicorp/terraform#18367](https://github.com/hashicorp/terraform/issues/18367)
+has been open since 2018,
+[#22544](https://github.com/hashicorp/terraform/issues/22544) since 2019, and
+[opentofu/opentofu#1329](https://github.com/opentofu/opentofu/issues/1329) is
+the same request for OpenTofu.
+
+- **Terraform reverts the task definition my pipeline just deployed** - Native
+  options: set `ignore_task_definition_changes = true` (an existing service
+  moves to a new state address, so add a `moved` block), or have the pipeline
+  update the Terraform configuration instead of the ECS API.
+
+[Compliance.tf](https://compliance.tf/?utm_source=github&utm_medium=readme&utm_campaign=known-limitations) serves this module with
+these rules applied at download time, on top of whatever your organization
+already has enabled there. Inputs and outputs do not change; the `source` line
+does. Drop the `version` argument and pin the release you use by adding
+`&version=` and that release number to the URL. To get started, register a free
+compliance.tf account and configure an access token:
+
+    source = "https://registry.compliance.tf/terraform-aws-modules/ecs/aws?add_rules=lifecycle_ignore_deployed_artifacts"
+
+The full workaround for each item above, and the exact diff each rule makes,
+are in the [compliance.tf docs for this module](https://compliance.tf/docs/workarounds/terraform-aws-ecs/?utm_source=github&utm_medium=readme&utm_campaign=known-limitations).
+
+Disclosure: written by this module's maintainer, who also builds
+[compliance.tf](https://compliance.tf/?utm_source=github&utm_medium=readme&utm_campaign=known-limitations).
+<!-- END_KNOWN_LIMITATIONS -->
+
 ## Examples
 
 - [ECS cluster w/ integrated service(s)](https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete)
