@@ -1906,7 +1906,7 @@ locals {
 }
 
 data "aws_subnet" "this" {
-  count = local.create_security_group ? 1 : 0
+  count = local.create_security_group && var.derive_vpc_id_from_subnets ? 1 : 0
 
   region = var.region
 
@@ -1931,6 +1931,11 @@ resource "aws_security_group" "this" {
 
   lifecycle {
     create_before_destroy = true
+
+    precondition {
+      condition     = var.vpc_id != null || var.derive_vpc_id_from_subnets
+      error_message = "`vpc_id` must be provided when `derive_vpc_id_from_subnets` is `false`."
+    }
   }
 }
 

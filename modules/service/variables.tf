@@ -224,9 +224,16 @@ variable "subnet_ids" {
 }
 
 variable "vpc_id" {
-  description = "The VPC ID where to deploy the task or service. If not provided, the VPC ID is derived from the subnets provided"
+  description = "The VPC ID where to deploy the task or service. If not provided, the VPC ID is derived from the first subnet provided (see `derive_vpc_id_from_subnets`)"
   type        = string
   default     = null
+}
+
+variable "derive_vpc_id_from_subnets" {
+  description = "Determines whether the VPC ID for the security group is looked up from the first subnet in `subnet_ids`. Set to `false` and provide `vpc_id` when the subnets do not exist at plan time (e.g. Terragrunt mock outputs)"
+  type        = bool
+  default     = true
+  nullable    = false
 }
 
 variable "ordered_placement_strategy" {
