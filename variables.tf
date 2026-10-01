@@ -657,10 +657,15 @@ variable "services" {
         step_percent              = optional(string)
       }))
       lifecycle_hook = optional(map(object({
-        hook_target_arn  = string
+        hook_target_arn  = optional(string)
         role_arn         = optional(string)
         lifecycle_stages = list(string)
         hook_details     = optional(string)
+        target_type      = optional(string)
+        timeout_configuration = optional(object({
+          action             = optional(string)
+          timeout_in_minutes = optional(string)
+        }))
       })))
     }))
     deployment_controller = optional(object({

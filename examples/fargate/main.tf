@@ -85,6 +85,14 @@ module "ecs_service" {
     #     role_arn         = aws_iam_role.global.arn
     #     lifecycle_stages = ["TEST_TRAFFIC_SHIFT", "POST_PRODUCTION_TRAFFIC_SHIFT"]
     #   }
+    #   approval = {
+    #     target_type      = "PAUSE"
+    #     lifecycle_stages = ["POST_TEST_TRAFFIC_SHIFT"]
+    #     timeout_configuration = {
+    #       action             = "ROLLBACK"
+    #       timeout_in_minutes = 60
+    #     }
+    #   }
     # }
   }
 
