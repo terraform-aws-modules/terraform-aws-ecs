@@ -105,9 +105,19 @@ resource "aws_ecs_service" "this" {
 
         content {
           hook_target_arn  = lifecycle_hook.value.hook_target_arn
-          role_arn         = try(coalesce(lifecycle_hook.value.role_arn, local.infrastructure_iam_role_arn))
+          role_arn         = lifecycle_hook.value.target_type == "PAUSE" ? null : try(coalesce(lifecycle_hook.value.role_arn, local.infrastructure_iam_role_arn))
           lifecycle_stages = lifecycle_hook.value.lifecycle_stages
           hook_details     = lifecycle_hook.value.hook_details
+          target_type      = lifecycle_hook.value.target_type
+
+          dynamic "timeout_configuration" {
+            for_each = lifecycle_hook.value.timeout_configuration != null ? [lifecycle_hook.value.timeout_configuration] : []
+
+            content {
+              action             = timeout_configuration.value.action
+              timeout_in_minutes = timeout_configuration.value.timeout_in_minutes
+            }
+          }
         }
       }
     }
@@ -458,9 +468,19 @@ resource "aws_ecs_service" "ignore_task_definition" {
 
         content {
           hook_target_arn  = lifecycle_hook.value.hook_target_arn
-          role_arn         = try(coalesce(lifecycle_hook.value.role_arn, local.infrastructure_iam_role_arn))
+          role_arn         = lifecycle_hook.value.target_type == "PAUSE" ? null : try(coalesce(lifecycle_hook.value.role_arn, local.infrastructure_iam_role_arn))
           lifecycle_stages = lifecycle_hook.value.lifecycle_stages
           hook_details     = lifecycle_hook.value.hook_details
+          target_type      = lifecycle_hook.value.target_type
+
+          dynamic "timeout_configuration" {
+            for_each = lifecycle_hook.value.timeout_configuration != null ? [lifecycle_hook.value.timeout_configuration] : []
+
+            content {
+              action             = timeout_configuration.value.action
+              timeout_in_minutes = timeout_configuration.value.timeout_in_minutes
+            }
+          }
         }
       }
     }
