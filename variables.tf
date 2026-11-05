@@ -138,6 +138,12 @@ variable "cluster_capacity_providers" {
   default     = []
 }
 
+variable "cluster_capacity_providers_wait_duration" {
+  description = "Duration to wait after the ECS cluster has become active before attaching the cluster capacity providers"
+  type        = string
+  default     = "20s"
+}
+
 variable "capacity_providers" {
   description = "Map of capacity provider definitions to create for the cluster"
   type = map(object({
