@@ -76,6 +76,7 @@ module "wrapper" {
   infrastructure_iam_role_permissions_boundary = try(each.value.infrastructure_iam_role_permissions_boundary, var.defaults.infrastructure_iam_role_permissions_boundary, null)
   infrastructure_iam_role_tags                 = try(each.value.infrastructure_iam_role_tags, var.defaults.infrastructure_iam_role_tags, {})
   infrastructure_iam_role_use_name_prefix      = try(each.value.infrastructure_iam_role_use_name_prefix, var.defaults.infrastructure_iam_role_use_name_prefix, true)
+  infrastructure_iam_role_wait_duration        = try(each.value.infrastructure_iam_role_wait_duration, var.defaults.infrastructure_iam_role_wait_duration, "10s")
   ipc_mode                                     = try(each.value.ipc_mode, var.defaults.ipc_mode, null)
   launch_type                                  = try(each.value.launch_type, var.defaults.launch_type, "FARGATE")
   load_balancer                                = try(each.value.load_balancer, var.defaults.load_balancer, null)

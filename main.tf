@@ -239,6 +239,7 @@ module "service" {
   infrastructure_iam_role_description          = each.value.infrastructure_iam_role_description
   infrastructure_iam_role_permissions_boundary = each.value.infrastructure_iam_role_permissions_boundary
   infrastructure_iam_role_tags                 = each.value.infrastructure_iam_role_tags
+  infrastructure_iam_role_wait_duration        = each.value.infrastructure_iam_role_wait_duration
 
   tags = merge(var.tags, each.value.tags)
 }
