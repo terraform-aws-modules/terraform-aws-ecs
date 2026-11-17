@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.6.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.6.1...v7.6.2) (2026-11-16)
+
+### Bug Fixes
+
+* Pass `cluster_capacity_providers_wait_duration` through the root module ([#430](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/430)) ([1484232](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/1484232df6d22650bd8b5af4a5dc816643c33ab1))
+
 ## [7.6.1](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.6.0...v7.6.1) (2026-09-18)
 
 ### Bug Fixes
