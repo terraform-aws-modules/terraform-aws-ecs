@@ -1294,6 +1294,7 @@ variable "services" {
     infrastructure_iam_role_description          = optional(string)
     infrastructure_iam_role_permissions_boundary = optional(string)
     infrastructure_iam_role_tags                 = optional(map(string))
+    infrastructure_iam_role_wait_duration        = optional(string)
   }))
   default = null
 }

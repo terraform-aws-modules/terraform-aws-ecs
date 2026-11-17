@@ -1369,3 +1369,10 @@ variable "infrastructure_iam_role_tags" {
   default     = {}
   nullable    = false
 }
+
+variable "infrastructure_iam_role_wait_duration" {
+  description = "Duration to wait after the infrastructure IAM role and its policies are created before creating the service, so that the role has propagated when ECS validates it"
+  type        = string
+  default     = "10s"
+  nullable    = false
+}

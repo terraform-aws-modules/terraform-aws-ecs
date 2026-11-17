@@ -374,6 +374,7 @@ resource "aws_ecs_service" "this" {
   depends_on = [
     aws_iam_role_policy_attachment.service,
     aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
+    time_sleep.infrastructure_iam_role,
     aws_vpc_security_group_ingress_rule.this,
     aws_vpc_security_group_egress_rule.this,
   ]
@@ -728,6 +729,7 @@ resource "aws_ecs_service" "ignore_task_definition" {
   depends_on = [
     aws_iam_role_policy_attachment.service,
     aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
+    time_sleep.infrastructure_iam_role,
     aws_vpc_security_group_ingress_rule.this,
     aws_vpc_security_group_egress_rule.this,
   ]
@@ -2038,4 +2040,22 @@ resource "aws_iam_role_policy_attachment" "infrastructure_iam_role_load_balancer
 
   role       = aws_iam_role.infrastructure_iam_role[0].name
   policy_arn = "arn:${local.partition}:iam::aws:policy/AmazonECSInfrastructureRolePolicyForLoadBalancers"
+}
+
+# ECS validates the infrastructure IAM role when the service is created. IAM being eventually consistent,
+# the service creation fails until the role and its policies have propagated
+resource "time_sleep" "infrastructure_iam_role" {
+  count = local.create_infrastructure_iam_role ? 1 : 0
+
+  create_duration = var.infrastructure_iam_role_wait_duration
+
+  triggers = {
+    role_arn = aws_iam_role.infrastructure_iam_role[0].arn
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.infrastructure_iam_role_ebs_policy,
+    aws_iam_role_policy_attachment.infrastructure_iam_role_vpc_lattice_policy,
+    aws_iam_role_policy_attachment.infrastructure_iam_role_load_balancer_policy,
+  ]
 }
