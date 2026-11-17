@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.6.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.6.2...v7.6.3) (2026-11-17)
+
+### Bug Fixes
+
+* Wait for the infrastructure IAM role to propagate before creating the service ([#433](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/433)) ([d785dc8](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/d785dc88bae59594e2a3484855e069ae1e89a8ed))
+
 ## [7.6.2](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.6.1...v7.6.2) (2026-11-16)
 
 ### Bug Fixes
