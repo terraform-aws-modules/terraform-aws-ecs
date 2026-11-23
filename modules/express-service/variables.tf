@@ -34,6 +34,12 @@ variable "cpu" {
   default     = null
 }
 
+variable "cpu_architecture" {
+  description = "CPU architecture used by the service. Valid values: `X86_64`, `ARM64`"
+  type        = string
+  default     = null
+}
+
 variable "health_check_path" {
   description = "Path for health check requests. Defaults to `/ping`"
   type        = string

@@ -10,6 +10,7 @@ module "wrapper" {
   cloudwatch_log_group_tags                    = try(each.value.cloudwatch_log_group_tags, var.defaults.cloudwatch_log_group_tags, {})
   cluster                                      = try(each.value.cluster, var.defaults.cluster, null)
   cpu                                          = try(each.value.cpu, var.defaults.cpu, null)
+  cpu_architecture                             = try(each.value.cpu_architecture, var.defaults.cpu_architecture, null)
   create                                       = try(each.value.create, var.defaults.create, true)
   create_cloudwatch_log_group                  = try(each.value.create_cloudwatch_log_group, var.defaults.create_cloudwatch_log_group, true)
   create_execution_iam_role                    = try(each.value.create_execution_iam_role, var.defaults.create_execution_iam_role, true)

@@ -24,6 +24,7 @@ resource "aws_ecs_express_gateway_service" "this" {
 
   cluster                 = var.cluster
   cpu                     = var.cpu
+  cpu_architecture        = var.cpu_architecture
   execution_role_arn      = local.create_execution_iam_role ? aws_iam_role.execution[0].arn : var.execution_iam_role_arn
   health_check_path       = var.health_check_path
   infrastructure_role_arn = local.create_infrastructure_iam_role ? aws_iam_role.infrastructure[0].arn : var.infrastructure_iam_role_arn
