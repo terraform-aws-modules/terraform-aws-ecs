@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [7.7.0](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.6.3...v7.7.0) (2026-11-23)
+
+### Features
+
+* ECS Express Gateway Service CPU Architecture ([#434](https://github.com/terraform-aws-modules/terraform-aws-ecs/issues/434)) ([5276b9a](https://github.com/terraform-aws-modules/terraform-aws-ecs/commit/5276b9a7a361b978128a06d7c498f6110133a3cb))
+
 ## [7.6.3](https://github.com/terraform-aws-modules/terraform-aws-ecs/compare/v7.6.2...v7.6.3) (2026-11-17)
 
 ### Bug Fixes
