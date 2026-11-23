@@ -60,13 +60,13 @@ module "ecs_express_service" {
 | Name | Version |
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.41 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.71 |
 
 ## Providers
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.41 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.71 |
 
 ## Modules
 
@@ -110,6 +110,7 @@ No modules.
 | <a name="input_cloudwatch_log_group_tags"></a> [cloudwatch\_log\_group\_tags](#input\_cloudwatch\_log\_group\_tags) | A map of additional tags to add to the log group created | `map(string)` | `{}` | no |
 | <a name="input_cluster"></a> [cluster](#input\_cluster) | Name or ARN of the ECS cluster. Defaults to `default` | `string` | `null` | no |
 | <a name="input_cpu"></a> [cpu](#input\_cpu) | Number of CPU units used by the task. Valid values are powers of `2` between `256` and `4096` | `string` | `null` | no |
+| <a name="input_cpu_architecture"></a> [cpu\_architecture](#input\_cpu\_architecture) | CPU architecture used by the service. Valid values: `X86_64`, `ARM64` | `string` | `null` | no |
 | <a name="input_create"></a> [create](#input\_create) | Determines whether resources will be created (affects all resources) | `bool` | `true` | no |
 | <a name="input_create_cloudwatch_log_group"></a> [create\_cloudwatch\_log\_group](#input\_create\_cloudwatch\_log\_group) | Determines whether a log group is created by this module for the cluster logs. If not, AWS will automatically create one if logging is enabled | `bool` | `true` | no |
 | <a name="input_create_execution_iam_role"></a> [create\_execution\_iam\_role](#input\_create\_execution\_iam\_role) | Determines whether the ECS task definition IAM role should be created | `bool` | `true` | no |
