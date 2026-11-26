@@ -160,9 +160,16 @@ variable "capacity_providers" {
       managed_termination_protection = optional(string)
     }))
     managed_instances_provider = optional(object({
+      auto_repair_configuration = optional(object({
+        actions_status = optional(string)
+      }))
       infrastructure_role_arn = optional(string)
       instance_launch_template = object({
-        capacity_option_type     = optional(string)
+        capacity_option_type = optional(string)
+        capacity_reservations = optional(object({
+          reservation_group_arn  = optional(string)
+          reservation_preference = optional(string)
+        }))
         ec2_instance_profile_arn = optional(string)
         instance_requirements = optional(object({
           accelerator_count = optional(object({
@@ -221,6 +228,9 @@ variable "capacity_providers" {
         network_configuration = optional(object({
           security_groups = optional(list(string), [])
           subnets         = list(string)
+        }))
+        local_storage_configuration = optional(object({
+          use_local_storage = optional(bool)
         }))
         storage_configuration = optional(object({
           storage_size_gib = number
