@@ -192,11 +192,29 @@ resource "aws_ecs_capacity_provider" "this" {
     content {
       infrastructure_role_arn = local.create_infrastructure_iam_role ? aws_iam_role.infrastructure[0].arn : managed_instances_provider.value.infrastructure_role_arn
 
+      dynamic "auto_repair_configuration" {
+        for_each = managed_instances_provider.value.auto_repair_configuration != null ? [managed_instances_provider.value.auto_repair_configuration] : []
+
+        content {
+          actions_status = auto_repair_configuration.value.actions_status
+        }
+      }
+
       dynamic "instance_launch_template" {
         for_each = managed_instances_provider.value.instance_launch_template != null ? [managed_instances_provider.value.instance_launch_template] : []
 
         content {
-          capacity_option_type     = instance_launch_template.value.capacity_option_type
+          capacity_option_type = instance_launch_template.value.capacity_option_type
+
+          dynamic "capacity_reservations" {
+            for_each = instance_launch_template.value.capacity_reservations != null ? [instance_launch_template.value.capacity_reservations] : []
+
+            content {
+              reservation_group_arn  = capacity_reservations.value.reservation_group_arn
+              reservation_preference = capacity_reservations.value.reservation_preference
+            }
+          }
+
           ec2_instance_profile_arn = local.create_node_iam_instance_profile ? aws_iam_instance_profile.this[0].arn : instance_launch_template.value.ec2_instance_profile_arn
 
           dynamic "instance_requirements" {
@@ -313,6 +331,14 @@ resource "aws_ecs_capacity_provider" "this" {
             content {
               security_groups = local.create_security_group ? flatten(concat(aws_security_group.this[*].id, network_configuration.value.security_groups)) : network_configuration.value.security_groups
               subnets         = network_configuration.value.subnets
+            }
+          }
+
+          dynamic "local_storage_configuration" {
+            for_each = instance_launch_template.value.local_storage_configuration != null ? [instance_launch_template.value.local_storage_configuration] : []
+
+            content {
+              use_local_storage = local_storage_configuration.value.use_local_storage
             }
           }
 
